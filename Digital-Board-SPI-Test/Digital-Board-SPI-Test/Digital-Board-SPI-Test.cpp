@@ -41,9 +41,9 @@
 #define SPI_PORT PORTB
 #define SPI_LATCH_PORT PORTJ
 
-#define ISW12			0b00000100
-#define ISW11			0b10000000
-#define ISW8			0b10000000
+#define ISW12_LED			0b00000100
+#define ISW11_LED			0b10000000
+#define ISW8_LED			0b10000000
 
 int main(void)
 {
@@ -87,7 +87,7 @@ int main(void)
 		PORTB |= (1<<ARP_SYNC_LED);
 		
 		//SHIFT 5th BYTE
-		SPDR = 0; //ISW8 is MSB on 74XX595 U16
+		SPDR = 0; //ISW8_LED is MSB on 74XX595 U16
 		while (!(SPSR & (1<<SPIF)));
 		
 		//SHIFT 4th BYTE
@@ -103,7 +103,7 @@ int main(void)
 		while (!(SPSR & (1<<SPIF)));
 				
 		//SHIFT 1st BYTE
-		SPDR = ISW12 | ISW11; //TURN ON ISW12 and ISW11, both on 74XX595 U8, first shift register in chain
+		SPDR = ISW12_LED | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
 		
@@ -116,7 +116,7 @@ int main(void)
 		PORTB &= ~(1<<ARP_SYNC_LED);
 		
 		//SHIFT 5th BYTE
-		SPDR = ISW8; //turn on ISW8
+		SPDR = ISW8_LED; //turn on ISW8
 		while (!(SPSR & (1<<SPIF)));
 		
 		//SHIFT 4th BYTE
@@ -132,7 +132,7 @@ int main(void)
 		while (!(SPSR & (1<<SPIF)));
 		
 		//SHIFT 1st BYTE
-		SPDR = ~(ISW12 | ISW11); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
+		SPDR = ~(ISW12_LED | ISW11_LED); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
 		

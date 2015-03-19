@@ -170,21 +170,21 @@ int main(void)
 		while (!(SPSR & (1<<SPIF)));
 				
 		//SHIFT 1st BYTE
-		SPDR = ISW12 | ISW11; //TURN ON ISW12 and ISW11, both on 74XX595 U8, first shift register in chain
+		SPDR = ISW12_LED | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
   e8:	34 e8       	ldi	r19, 0x84	; 132
 		
 		_delay_ms(500);
 		PORTB &= ~(1<<ARP_SYNC_LED);
 		
 		//SHIFT 5th BYTE
-		SPDR = ISW8; //turn on ISW8
+		SPDR = ISW8_LED; //turn on ISW8
   ea:	20 e8       	ldi	r18, 0x80	; 128
 		//SHIFT 2th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));
 		
 		//SHIFT 1st BYTE
-		SPDR = ~(ISW12 | ISW11); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
+		SPDR = ~(ISW12_LED | ISW11_LED); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
   ec:	9b e7       	ldi	r25, 0x7B	; 123
 	SPI_LATCH_PORT |= LED_LATCH;
 	
@@ -195,7 +195,7 @@ int main(void)
   ee:	2f 9a       	sbi	0x05, 7	; 5
 		
 		//SHIFT 5th BYTE
-		SPDR = 0; //ISW8 is MSB on 74XX595 U16
+		SPDR = 0; //ISW8_LED is MSB on 74XX595 U16
   f0:	1e bc       	out	0x2e, r1	; 46
 		while (!(SPSR & (1<<SPIF)));
   f2:	0d b4       	in	r0, 0x2d	; 45
@@ -227,7 +227,7 @@ int main(void)
  10e:	fd cf       	rjmp	.-6      	; 0x10a <main+0x68>
 				
 		//SHIFT 1st BYTE
-		SPDR = ISW12 | ISW11; //TURN ON ISW12 and ISW11, both on 74XX595 U8, first shift register in chain
+		SPDR = ISW12_LED | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
  110:	3e bd       	out	0x2e, r19	; 46
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
@@ -266,7 +266,7 @@ int main(void)
  136:	2f 98       	cbi	0x05, 7	; 5
 		
 		//SHIFT 5th BYTE
-		SPDR = ISW8; //turn on ISW8
+		SPDR = ISW8_LED; //turn on ISW8
  138:	2e bd       	out	0x2e, r18	; 46
 		while (!(SPSR & (1<<SPIF)));
  13a:	0d b4       	in	r0, 0x2d	; 45
@@ -298,7 +298,7 @@ int main(void)
  156:	fd cf       	rjmp	.-6      	; 0x152 <main+0xb0>
 		
 		//SHIFT 1st BYTE
-		SPDR = ~(ISW12 | ISW11); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
+		SPDR = ~(ISW12_LED | ISW11_LED); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
  158:	9e bd       	out	0x2e, r25	; 46
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
