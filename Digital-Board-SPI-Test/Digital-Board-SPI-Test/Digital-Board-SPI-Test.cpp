@@ -10,6 +10,8 @@
  DONE:
  ==============================================================================
  
+ Read ISW12 SW on MISO SPI bus from 74XX165 and light ISW12 LED if SW is ON.
+ 
  Test the entire 74XX595 SPI chain by turning ISW11 and ISW12 ON, ISW8 OFF on once cycle 
  and ISW11/12 OFF and ISW8 ON on the next cycle.
  
@@ -18,7 +20,18 @@
  TO DO:
  ==============================================================================
  
- Implement SPI switch reading using 74XX165 parallel to serial shift registers
+ Read another switch and illuminate ISW8.
+ 
+ ==============================================================================
+ 
+ COMMENTS:
+ ==============================================================================
+ 
+ SPI_CLK looks funny on scope. Probing any SCK pin on 165 or 595 with scope probe
+ on 1X setting causes ISW12 LED to light as if ISW12 SW had been pressed. Switching
+ probe to 10X doesn't cause this problem. Must be a problem with high speed clock
+ and probe impedence. SPI clock is at default - currently don't know what speed it 
+ is running at.
  
  ==============================================================================
  */
@@ -66,7 +79,7 @@ int main(void)
 	DDRJ |= (SPI_EN | LED_LATCH);
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCHoutputs LOW
-	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK) | SPI_SW_LATCH;
+	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
 	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
@@ -77,10 +90,10 @@ int main(void)
 	//Pull LED_LATCH LOW
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	
-	//SHIFT DATA IN TO LIGHT ISW12
-	SPDR = 0b11111111;
-	//Wait for SPI shift to complete
-	while (!(SPSR & (1<<SPIF)));
+	////SHIFT DATA IN TO LIGHT ISW12
+	//SPDR = 0b11111111;
+	////Wait for SPI shift to complete
+	//while (!(SPSR & (1<<SPIF)));
 	
 	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 	
@@ -98,7 +111,7 @@ int main(void)
 		SPI_PORT |= SPI_SW_LATCH;		
 		
 		//SHIFT 5th BYTE
-		SPDR = 0; //ISW8_LED is MSB on 74XX595 U16
+		SPDR =  0; //ISW8_LED is MSB on 74XX595 U16
 		while (!(SPSR & (1<<SPIF)));
 		
 		//SHIFT 4th BYTE
@@ -132,9 +145,10 @@ int main(void)
 		SPI_LATCH_PORT &= ~LED_LATCH;
 		SPI_LATCH_PORT |= LED_LATCH;
 		
-		//SET SPI_SW_LATCH HIGH for asynchronous transfer
-		SPI_PORT |= SPI_SW_LATCH;
+		//clear SPI_SW_LATCH
+		SPI_PORT &= ~SPI_SW_LATCH;
 		
+		/*
 		_delay_ms(500);
 		
 		
@@ -182,6 +196,6 @@ int main(void)
 		SPI_PORT |= SPI_SW_LATCH;
 				
 		_delay_ms(500);
-		
+		*/
 	}
 }

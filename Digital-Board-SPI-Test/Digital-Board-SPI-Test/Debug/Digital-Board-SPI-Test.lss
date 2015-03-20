@@ -3,27 +3,27 @@ Digital-Board-SPI-Test.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  000001ba  0000022e  2**0
+  0 .data         00000000  00800100  0000013e  000001b2  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000001ba  00000000  00000000  00000074  2**1
+  1 .text         0000013e  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .stab         000006cc  00000000  00000000  00000230  2**2
+  2 .stab         000006cc  00000000  00000000  000001b4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000085  00000000  00000000  000008fc  2**0
+  3 .stabstr      00000085  00000000  00000000  00000880  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000080  00000000  00000000  00000988  2**3
+  4 .debug_aranges 00000080  00000000  00000000  00000908  2**3
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000415  00000000  00000000  00000a08  2**0
+  5 .debug_info   00000332  00000000  00000000  00000988  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000126  00000000  00000000  00000e1d  2**0
+  6 .debug_abbrev 000000a0  00000000  00000000  00000cba  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000039b  00000000  00000000  00000f43  2**0
+  7 .debug_line   000002c5  00000000  00000000  00000d5a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000024  00000000  00000000  000012e0  2**2
+  8 .debug_frame  00000024  00000000  00000000  00001020  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000138  00000000  00000000  00001304  2**0
+  9 .debug_str    000000dc  00000000  00000000  00001044  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000030  00000000  00000000  0000143c  2**0
+ 10 .debug_loc    00000025  00000000  00000000  00001120  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -67,7 +67,7 @@ Disassembly of section .text:
   70:	11 e0       	ldi	r17, 0x01	; 1
   72:	a0 e0       	ldi	r26, 0x00	; 0
   74:	b1 e0       	ldi	r27, 0x01	; 1
-  76:	ea eb       	ldi	r30, 0xBA	; 186
+  76:	ee e3       	ldi	r30, 0x3E	; 62
   78:	f1 e0       	ldi	r31, 0x01	; 1
   7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
   7c:	05 90       	lpm	r0, Z+
@@ -90,7 +90,7 @@ Disassembly of section .text:
   92:	b1 07       	cpc	r27, r17
   94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
   96:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
-  9a:	0c 94 db 00 	jmp	0x1b6	; 0x1b6 <_exit>
+  9a:	0c 94 9d 00 	jmp	0x13a	; 0x13a <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -121,9 +121,9 @@ int main(void)
   b2:	80 83       	st	Z, r24
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCHoutputs LOW
-	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK) | SPI_SW_LATCH;
+	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
   b4:	85 b1       	in	r24, 0x05	; 5
-  b6:	89 7f       	andi	r24, 0xF9	; 249
+  b6:	89 7d       	andi	r24, 0xD9	; 217
   b8:	85 b9       	out	0x05, r24	; 5
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
@@ -144,246 +144,125 @@ int main(void)
   c8:	80 81       	ld	r24, Z
   ca:	87 7f       	andi	r24, 0xF7	; 247
   cc:	80 83       	st	Z, r24
-	
-	//SHIFT DATA IN TO LIGHT ISW12
-	SPDR = 0b11111111;
-  ce:	8f ef       	ldi	r24, 0xFF	; 255
-  d0:	8e bd       	out	0x2e, r24	; 46
-	//Wait for SPI shift to complete
-	while (!(SPSR & (1<<SPIF)));
-  d2:	0d b4       	in	r0, 0x2d	; 45
-  d4:	07 fe       	sbrs	r0, 7
-  d6:	fd cf       	rjmp	.-6      	; 0xd2 <main+0x30>
+	////Wait for SPI shift to complete
+	//while (!(SPSR & (1<<SPIF)));
 	
 	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 	
 	SPI_LATCH_PORT &= ~LED_LATCH;
-  d8:	ed ed       	ldi	r30, 0xDD	; 221
-  da:	f0 e0       	ldi	r31, 0x00	; 0
-  dc:	80 81       	ld	r24, Z
-  de:	87 7f       	andi	r24, 0xF7	; 247
-  e0:	80 83       	st	Z, r24
+  ce:	80 81       	ld	r24, Z
+  d0:	87 7f       	andi	r24, 0xF7	; 247
+  d2:	80 83       	st	Z, r24
 	SPI_LATCH_PORT |= LED_LATCH;
-  e2:	80 81       	ld	r24, Z
-  e4:	88 60       	ori	r24, 0x08	; 8
-  e6:	80 83       	st	Z, r24
+  d4:	80 81       	ld	r24, Z
+  d6:	88 60       	ori	r24, 0x08	; 8
+  d8:	80 83       	st	Z, r24
 		//SHIFT 2th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));
 					
 		//SHIFT 1st BYTE
 		SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
-  e8:	41 e0       	ldi	r20, 0x01	; 1
-  ea:	50 e0       	ldi	r21, 0x00	; 0
-  ec:	60 e0       	ldi	r22, 0x00	; 0
-  ee:	70 e0       	ldi	r23, 0x00	; 0
-
-		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR = ISW8_LED; //turn on ISW8
-  f0:	b0 e8       	ldi	r27, 0x80	; 128
-		SPDR = 0;
-		while (!(SPSR & (1<<SPIF)));		
-		//check if ISW12_SW bit is set
-		if (SPDR >> 5 & 1)
-		{
-			ISW12_SW_ON = 1;
-  f2:	a1 e0       	ldi	r26, 0x01	; 1
+  da:	41 e0       	ldi	r20, 0x01	; 1
+  dc:	50 e0       	ldi	r21, 0x00	; 0
+  de:	60 e0       	ldi	r22, 0x00	; 0
+  e0:	70 e0       	ldi	r23, 0x00	; 0
 	uint8_t ISW12_SW_ON = 0;
 	
 	while(1)
 	{
 		
 		PORTB |= (1<<ARP_SYNC_LED);
-  f4:	2f 9a       	sbi	0x05, 7	; 5
+  e2:	2f 9a       	sbi	0x05, 7	; 5
 		
 		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
 		SPI_PORT |= SPI_SW_LATCH;		
-  f6:	2d 9a       	sbi	0x05, 5	; 5
+  e4:	2d 9a       	sbi	0x05, 5	; 5
 		
 		//SHIFT 5th BYTE
-		SPDR = 0; //ISW8_LED is MSB on 74XX595 U16
-  f8:	1e bc       	out	0x2e, r1	; 46
+		SPDR =  0; //ISW8_LED is MSB on 74XX595 U16
+  e6:	1e bc       	out	0x2e, r1	; 46
 		while (!(SPSR & (1<<SPIF)));
-  fa:	0d b4       	in	r0, 0x2d	; 45
-  fc:	07 fe       	sbrs	r0, 7
-  fe:	fd cf       	rjmp	.-6      	; 0xfa <main+0x58>
+  e8:	0d b4       	in	r0, 0x2d	; 45
+  ea:	07 fe       	sbrs	r0, 7
+  ec:	fd cf       	rjmp	.-6      	; 0xe8 <main+0x46>
 		
 		//SHIFT 4th BYTE
 		SPDR = 0;
- 100:	1e bc       	out	0x2e, r1	; 46
+  ee:	1e bc       	out	0x2e, r1	; 46
 		while (!(SPSR & (1<<SPIF)));
- 102:	0d b4       	in	r0, 0x2d	; 45
- 104:	07 fe       	sbrs	r0, 7
- 106:	fd cf       	rjmp	.-6      	; 0x102 <main+0x60>
+  f0:	0d b4       	in	r0, 0x2d	; 45
+  f2:	07 fe       	sbrs	r0, 7
+  f4:	fd cf       	rjmp	.-6      	; 0xf0 <main+0x4e>
 		//check if ISW12_SW bit is set
 		if (SPDR >> 5 & 1)
- 108:	2e b5       	in	r18, 0x2e	; 46
- 10a:	30 e0       	ldi	r19, 0x00	; 0
- 10c:	20 72       	andi	r18, 0x20	; 32
- 10e:	30 70       	andi	r19, 0x00	; 0
+  f6:	2e b5       	in	r18, 0x2e	; 46
+  f8:	30 e0       	ldi	r19, 0x00	; 0
+  fa:	20 72       	andi	r18, 0x20	; 32
+  fc:	30 70       	andi	r19, 0x00	; 0
 		{
 			ISW12_SW_ON = 0;
 		}
 		
 		//SHIFT 3th BYTE
 		SPDR = 0;
- 110:	1e bc       	out	0x2e, r1	; 46
+  fe:	1e bc       	out	0x2e, r1	; 46
 		while (!(SPSR & (1<<SPIF)));				
- 112:	0d b4       	in	r0, 0x2d	; 45
- 114:	07 fe       	sbrs	r0, 7
- 116:	fd cf       	rjmp	.-6      	; 0x112 <main+0x70>
+ 100:	0d b4       	in	r0, 0x2d	; 45
+ 102:	07 fe       	sbrs	r0, 7
+ 104:	fd cf       	rjmp	.-6      	; 0x100 <main+0x5e>
 
 		//SHIFT 2th BYTE
 		SPDR = 0;
- 118:	1e bc       	out	0x2e, r1	; 46
+ 106:	1e bc       	out	0x2e, r1	; 46
 		while (!(SPSR & (1<<SPIF)));
- 11a:	0d b4       	in	r0, 0x2d	; 45
- 11c:	07 fe       	sbrs	r0, 7
- 11e:	fd cf       	rjmp	.-6      	; 0x11a <main+0x78>
+ 108:	0d b4       	in	r0, 0x2d	; 45
+ 10a:	07 fe       	sbrs	r0, 7
+ 10c:	fd cf       	rjmp	.-6      	; 0x108 <main+0x66>
 					
 		//SHIFT 1st BYTE
 		SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
- 120:	ca 01       	movw	r24, r20
- 122:	21 15       	cp	r18, r1
- 124:	31 05       	cpc	r19, r1
- 126:	09 f4       	brne	.+2      	; 0x12a <main+0x88>
- 128:	cb 01       	movw	r24, r22
- 12a:	88 0f       	add	r24, r24
- 12c:	99 1f       	adc	r25, r25
- 12e:	88 0f       	add	r24, r24
- 130:	99 1f       	adc	r25, r25
- 132:	80 68       	ori	r24, 0x80	; 128
- 134:	8e bd       	out	0x2e, r24	; 46
+ 10e:	ca 01       	movw	r24, r20
+ 110:	21 15       	cp	r18, r1
+ 112:	31 05       	cpc	r19, r1
+ 114:	09 f4       	brne	.+2      	; 0x118 <main+0x76>
+ 116:	cb 01       	movw	r24, r22
+ 118:	88 0f       	add	r24, r24
+ 11a:	99 1f       	adc	r25, r25
+ 11c:	88 0f       	add	r24, r24
+ 11e:	99 1f       	adc	r25, r25
+ 120:	80 68       	ori	r24, 0x80	; 128
+ 122:	8e bd       	out	0x2e, r24	; 46
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
- 136:	0d b4       	in	r0, 0x2d	; 45
- 138:	07 fe       	sbrs	r0, 7
- 13a:	fd cf       	rjmp	.-6      	; 0x136 <main+0x94>
+ 124:	0d b4       	in	r0, 0x2d	; 45
+ 126:	07 fe       	sbrs	r0, 7
+ 128:	fd cf       	rjmp	.-6      	; 0x124 <main+0x82>
 		
 		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 		
 		SPI_LATCH_PORT &= ~LED_LATCH;
- 13c:	80 81       	ld	r24, Z
- 13e:	87 7f       	andi	r24, 0xF7	; 247
- 140:	80 83       	st	Z, r24
+ 12a:	80 81       	ld	r24, Z
+ 12c:	87 7f       	andi	r24, 0xF7	; 247
+ 12e:	80 83       	st	Z, r24
 		SPI_LATCH_PORT |= LED_LATCH;
- 142:	80 81       	ld	r24, Z
- 144:	88 60       	ori	r24, 0x08	; 8
- 146:	80 83       	st	Z, r24
+ 130:	80 81       	ld	r24, Z
+ 132:	88 60       	ori	r24, 0x08	; 8
+ 134:	80 83       	st	Z, r24
 		
-		//SET SPI_SW_LATCH HIGH for asynchronous transfer
-		SPI_PORT |= SPI_SW_LATCH;
- 148:	2d 9a       	sbi	0x05, 5	; 5
-	#else
-		//round up by default
-		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
-	#endif
-
-	__builtin_avr_delay_cycles(__ticks_dc);
- 14a:	0f e7       	ldi	r16, 0x7F	; 127
- 14c:	14 e8       	ldi	r17, 0x84	; 132
- 14e:	2e e1       	ldi	r18, 0x1E	; 30
- 150:	01 50       	subi	r16, 0x01	; 1
- 152:	10 40       	sbci	r17, 0x00	; 0
- 154:	20 40       	sbci	r18, 0x00	; 0
- 156:	e1 f7       	brne	.-8      	; 0x150 <main+0xae>
- 158:	00 c0       	rjmp	.+0      	; 0x15a <main+0xb8>
- 15a:	00 00       	nop
-		
-		_delay_ms(500);
-		
-		
-		PORTB &= ~(1<<ARP_SYNC_LED);
- 15c:	2f 98       	cbi	0x05, 7	; 5
-
-		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
-		SPI_PORT |= SPI_SW_LATCH;
- 15e:	2d 9a       	sbi	0x05, 5	; 5
-		
-		//SHIFT 5th BYTE
-		SPDR = ISW8_LED; //turn on ISW8
- 160:	be bd       	out	0x2e, r27	; 46
-		while (!(SPSR & (1<<SPIF)));
- 162:	0d b4       	in	r0, 0x2d	; 45
- 164:	07 fe       	sbrs	r0, 7
- 166:	fd cf       	rjmp	.-6      	; 0x162 <main+0xc0>
-		
-		//SHIFT 4th BYTE
-		SPDR = 0;
- 168:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));		
- 16a:	0d b4       	in	r0, 0x2d	; 45
- 16c:	07 fe       	sbrs	r0, 7
- 16e:	fd cf       	rjmp	.-6      	; 0x16a <main+0xc8>
-		//check if ISW12_SW bit is set
-		if (SPDR >> 5 & 1)
-		{
-			ISW12_SW_ON = 1;
- 170:	8a 2f       	mov	r24, r26
- 172:	0e b4       	in	r0, 0x2e	; 46
- 174:	05 fe       	sbrs	r0, 5
- 176:	80 e0       	ldi	r24, 0x00	; 0
-		{
-			ISW12_SW_ON = 0;
-		}	
-		
-		//SHIFT 3th BYTE
-		SPDR = 0;
- 178:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));
- 17a:	0d b4       	in	r0, 0x2d	; 45
- 17c:	07 fe       	sbrs	r0, 7
- 17e:	fd cf       	rjmp	.-6      	; 0x17a <main+0xd8>
+		//clear SPI_SW_LATCH
+		SPI_PORT &= ~SPI_SW_LATCH;
+ 136:	2d 98       	cbi	0x05, 5	; 5
+	SPI_LATCH_PORT &= ~LED_LATCH;
+	SPI_LATCH_PORT |= LED_LATCH;
 	
-		//SHIFT 2th BYTE
-		SPDR = 0;
- 180:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));		
- 182:	0d b4       	in	r0, 0x2d	; 45
- 184:	07 fe       	sbrs	r0, 7
- 186:	fd cf       	rjmp	.-6      	; 0x182 <main+0xe0>
-		
-		//SHIFT 1st BYTE
-		SPDR = ISW12_SW_ON << 2; //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
- 188:	88 0f       	add	r24, r24
- 18a:	88 0f       	add	r24, r24
- 18c:	8e bd       	out	0x2e, r24	; 46
-		//Wait for SPI shift to complete
-		while (!(SPSR & (1<<SPIF)));
- 18e:	0d b4       	in	r0, 0x2d	; 45
- 190:	07 fe       	sbrs	r0, 7
- 192:	fd cf       	rjmp	.-6      	; 0x18e <main+0xec>
-		
-		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
-		
-		SPI_LATCH_PORT &= ~LED_LATCH;
- 194:	80 81       	ld	r24, Z
- 196:	87 7f       	andi	r24, 0xF7	; 247
- 198:	80 83       	st	Z, r24
-		SPI_LATCH_PORT |= LED_LATCH;
- 19a:	80 81       	ld	r24, Z
- 19c:	88 60       	ori	r24, 0x08	; 8
- 19e:	80 83       	st	Z, r24
-		
-		//SET SPI_SW_LATCH HIGH for asynchronous transfer
-		SPI_PORT |= SPI_SW_LATCH;
- 1a0:	2d 9a       	sbi	0x05, 5	; 5
- 1a2:	0f e7       	ldi	r16, 0x7F	; 127
- 1a4:	14 e8       	ldi	r17, 0x84	; 132
- 1a6:	2e e1       	ldi	r18, 0x1E	; 30
- 1a8:	01 50       	subi	r16, 0x01	; 1
- 1aa:	10 40       	sbci	r17, 0x00	; 0
- 1ac:	20 40       	sbci	r18, 0x00	; 0
- 1ae:	e1 f7       	brne	.-8      	; 0x1a8 <main+0x106>
- 1b0:	00 c0       	rjmp	.+0      	; 0x1b2 <main+0x110>
- 1b2:	00 00       	nop
- 1b4:	9f cf       	rjmp	.-194    	; 0xf4 <main+0x52>
+	uint8_t ISW12_SW_ON = 0;
+	
+	while(1)
+ 138:	d4 cf       	rjmp	.-88     	; 0xe2 <main+0x40>
 
-000001b6 <_exit>:
- 1b6:	f8 94       	cli
+0000013a <_exit>:
+ 13a:	f8 94       	cli
 
-000001b8 <__stop_program>:
- 1b8:	ff cf       	rjmp	.-2      	; 0x1b8 <__stop_program>
+0000013c <__stop_program>:
+ 13c:	ff cf       	rjmp	.-2      	; 0x13c <__stop_program>
