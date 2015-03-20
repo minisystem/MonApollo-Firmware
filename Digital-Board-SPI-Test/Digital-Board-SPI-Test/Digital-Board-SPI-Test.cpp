@@ -41,9 +41,15 @@
 #define SPI_PORT PORTB
 #define SPI_LATCH_PORT PORTJ
 
+//define LED bits
 #define ISW12_LED			0b00000100
 #define ISW11_LED			0b10000000
 #define ISW8_LED			0b10000000
+
+//define switch bits
+#define ISW12_SW			0b00100000
+
+#define SPI_SW_LATCH		(1<<PB5)
 
 int main(void)
 {
@@ -54,13 +60,13 @@ int main(void)
 	//SET SPI_DATA_OUT and SPI_CLK pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
-	DDRB |= (SPI_DATA_OUT | SPI_CLK | (1<<PB0));
+	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
 	
 	//SET SPI_EN and LED_LATCH pins as outputs
 	DDRJ |= (SPI_EN | LED_LATCH);
 	
-	//SET SPI_DATA_OUT and SPI_CLK outputs LOW
-	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK);
+	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCHoutputs LOW
+	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK) | SPI_SW_LATCH;
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
 	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
@@ -81,10 +87,15 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	SPI_LATCH_PORT |= LED_LATCH;
 	
+	uint8_t ISW12_SW_ON = 0;
+	
 	while(1)
 	{
 		
 		PORTB |= (1<<ARP_SYNC_LED);
+		
+		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
+		SPI_PORT |= SPI_SW_LATCH;		
 		
 		//SHIFT 5th BYTE
 		SPDR = 0; //ISW8_LED is MSB on 74XX595 U16
@@ -93,7 +104,16 @@ int main(void)
 		//SHIFT 4th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));
-
+		//check if ISW12_SW bit is set
+		if (SPDR >> 5 & 1)
+		{
+			ISW12_SW_ON = 1;
+		}
+		else
+		{
+			ISW12_SW_ON = 0;
+		}
+		
 		//SHIFT 3th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));				
@@ -101,9 +121,9 @@ int main(void)
 		//SHIFT 2th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));
-				
+					
 		//SHIFT 1st BYTE
-		SPDR = ISW12_LED | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
 		
@@ -112,8 +132,16 @@ int main(void)
 		SPI_LATCH_PORT &= ~LED_LATCH;
 		SPI_LATCH_PORT |= LED_LATCH;
 		
+		//SET SPI_SW_LATCH HIGH for asynchronous transfer
+		SPI_PORT |= SPI_SW_LATCH;
+		
 		_delay_ms(500);
+		
+		
 		PORTB &= ~(1<<ARP_SYNC_LED);
+
+		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
+		SPI_PORT |= SPI_SW_LATCH;
 		
 		//SHIFT 5th BYTE
 		SPDR = ISW8_LED; //turn on ISW8
@@ -121,18 +149,27 @@ int main(void)
 		
 		//SHIFT 4th BYTE
 		SPDR = 0;
-		while (!(SPSR & (1<<SPIF)));
-
+		while (!(SPSR & (1<<SPIF)));		
+		//check if ISW12_SW bit is set
+		if (SPDR >> 5 & 1)
+		{
+			ISW12_SW_ON = 1;
+		}
+		else
+		{
+			ISW12_SW_ON = 0;
+		}	
+		
 		//SHIFT 3th BYTE
 		SPDR = 0;
 		while (!(SPSR & (1<<SPIF)));
-
+	
 		//SHIFT 2th BYTE
 		SPDR = 0;
-		while (!(SPSR & (1<<SPIF)));
+		while (!(SPSR & (1<<SPIF)));		
 		
 		//SHIFT 1st BYTE
-		SPDR = ~(ISW12_LED | ISW11_LED); //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
+		SPDR = ISW12_SW_ON << 2; //turn off ISW12 and ISW11. Note that this just inverts the byte, but there are no other LEDs connected to this 595 during SPI testing
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
 		
@@ -140,6 +177,10 @@ int main(void)
 		
 		SPI_LATCH_PORT &= ~LED_LATCH;
 		SPI_LATCH_PORT |= LED_LATCH;
+		
+		//SET SPI_SW_LATCH HIGH for asynchronous transfer
+		SPI_PORT |= SPI_SW_LATCH;
+				
 		_delay_ms(500);
 		
 	}
