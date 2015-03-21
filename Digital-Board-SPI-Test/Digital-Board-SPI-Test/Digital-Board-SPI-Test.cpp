@@ -41,16 +41,21 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+//ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED PB7
 
+//SPI pins
 #define SPI_DATA_OUT	(1<<PB2)
 #define SPI_DATA_IN		PB3
 #define SPI_CLK			(1<<PB1)
 
+//SPI EN pin on PORTJ
 #define SPI_EN			(1<<PJ2)
 
+//LED latch pin on PORTJ
 #define LED_LATCH		(1<<PJ3)
 
+//define PORTS
 #define SPI_PORT PORTB
 #define SPI_LATCH_PORT PORTJ
 
@@ -61,7 +66,9 @@
 
 //define switch bits
 #define ISW12_SW			0b00100000
+#define ISW13_SW			0b01000000
 
+//SPI switch latch
 #define SPI_SW_LATCH		(1<<PB5)
 
 int main(void)
@@ -70,7 +77,7 @@ int main(void)
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
 	
-	//SET SPI_DATA_OUT and SPI_CLK pins as outputs
+	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
 	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
@@ -78,7 +85,7 @@ int main(void)
 	//SET SPI_EN and LED_LATCH pins as outputs
 	DDRJ |= (SPI_EN | LED_LATCH);
 	
-	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCHoutputs LOW
+	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
 	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
@@ -100,7 +107,8 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	SPI_LATCH_PORT |= LED_LATCH;
 	
-	uint8_t ISW12_SW_ON = 0;
+	uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
+	uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 	
 	while(1)
 	{
@@ -126,6 +134,15 @@ int main(void)
 		{
 			ISW12_SW_ON = 0;
 		}
+		//check if ISW13_SW bit is set
+		if (SPDR >> 6 & 1)
+		{
+			ISW13_SW_ON = 1;
+		}
+		else
+		{
+			ISW13_SW_ON = 0;
+		}
 		
 		//SHIFT 3th BYTE
 		SPDR = 0;
@@ -136,7 +153,8 @@ int main(void)
 		while (!(SPSR & (1<<SPIF)));
 					
 		//SHIFT 1st BYTE
-		SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
 		//Wait for SPI shift to complete
 		while (!(SPSR & (1<<SPIF)));
 		
