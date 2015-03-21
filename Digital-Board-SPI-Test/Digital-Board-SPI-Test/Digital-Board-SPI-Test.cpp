@@ -30,7 +30,7 @@
  SPI_CLK looks funny on scope. Probing any SCK pin on 165 or 595 with scope probe
  on 1X setting causes ISW12 LED to light as if ISW12 SW had been pressed. Switching
  probe to 10X doesn't cause this problem. Must be a problem with high speed clock
- and probe impedence. SPI clock is at default - currently don't know what speed it 
+ and probe impedance. SPI clock is at default - currently don't know what speed it 
  is running at.
  
  ==============================================================================
