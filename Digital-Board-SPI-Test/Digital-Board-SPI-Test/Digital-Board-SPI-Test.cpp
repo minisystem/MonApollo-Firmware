@@ -20,7 +20,10 @@
  TO DO:
  ==============================================================================
  
- Read another switch and illuminate ISW8.
+ Now reading 3 switches and lighting different lights. SPI bidirectional communication
+ seems to be working.
+ 
+ Need to check default SPI clock speed.
  
  ==============================================================================
  
@@ -42,7 +45,7 @@
 #include <util/delay.h>
 
 //ARP_SYNC LED driven directly from AVR
-#define ARP_SYNC_LED PB7
+#define ARP_SYNC_LED	PB7
 
 //SPI pins
 #define SPI_DATA_OUT	(1<<PB2)
@@ -59,14 +62,16 @@
 #define SPI_PORT PORTB
 #define SPI_LATCH_PORT PORTJ
 
-//define LED bits
+//define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
 #define ISW11_LED			0b10000000
 #define ISW8_LED			0b10000000
+#define ISW4_LED			0b00000010
 
-//define switch bits
+//define switch bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_SW			0b00100000
 #define ISW13_SW			0b01000000
+#define ISW4_SW				0b10000000
 
 //SPI switch latch
 #define SPI_SW_LATCH		(1<<PB5)
@@ -98,7 +103,7 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	
 	////SHIFT DATA IN TO LIGHT ISW12
-	//SPDR = 0b11111111;
+	//SPDR = 0b11111111; 
 	////Wait for SPI shift to complete
 	//while (!(SPSR & (1<<SPIF)));
 	
@@ -109,6 +114,7 @@ int main(void)
 	
 	uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 	uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
+	uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
 	
 	while(1)
 	{
@@ -119,12 +125,22 @@ int main(void)
 		SPI_PORT |= SPI_SW_LATCH;		
 		
 		//SHIFT 5th BYTE
-		SPDR =  0; //ISW8_LED is MSB on 74XX595 U16
+		SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
 		while (!(SPSR & (1<<SPIF)));
 		
+		//Now read SPDR for switch data shifted in from 74XX165 U14		
+		if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
+		{
+			ISW4_SW_ON = 1;
+		}
+		else
+		{
+			ISW4_SW_ON = 0;
+		}		
 		//SHIFT 4th BYTE
-		SPDR = 0;
+		SPDR = 0; //no LEDs connected in current test set up
 		while (!(SPSR & (1<<SPIF)));
+		//Now read SPDR for switch data shifted in from 74XX165 (U9)
 		//check if ISW12_SW bit is set
 		if (SPDR >> 5 & 1)
 		{
