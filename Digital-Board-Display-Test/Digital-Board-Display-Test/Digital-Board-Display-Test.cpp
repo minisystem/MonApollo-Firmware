@@ -83,19 +83,19 @@ Write display_DEC routine to display a specific value - see DAC development boar
 #define DISP_CATHODE_LATCH	PH4
 
 //define digit anodes
-#define ONES	0b00000111
-#define TENS	0b00001011
-#define HUNDS	0b00001101
-#define THOUS	0b00001110
+#define ONES	0b00001000
+#define TENS	0b00000001
+#define HUNDS	0b00000010
+#define THOUS	0b00000100
 
 //define digit cathodes (current sink, active low)
-#define a ~(0x80)
-#define b ~(0x40)
-#define c ~(0x20)
-#define d ~(0x10)
-#define e ~(0x08)
-#define f ~(0x04)
-#define g ~(0x02)
+#define a (0x80)
+#define b (0x40)
+#define c (0x20)
+#define d (0x10)
+#define e (0x08)
+#define f (0x04)
+#define g (0x02)
 
 //define decimal digits
 #define ZERO	(a | b | c | d | e | f)
@@ -121,6 +121,75 @@ volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
 
+void display_DEC(uint16_t number, uint8_t digit)
+{
+	uint8_t DEC[] = {
+		//this is the 7-segment display encoding table
+		
+		ZERO,
+		ONE,
+		TWO,
+		THREE,
+		FOUR,
+		FIVE,
+		SIX,
+		SEVEN,
+		EIGHT,
+		NINE,
+		
+		
+	};
+	
+	//clear cathode bits
+	DATA_BUS = 0xFF; //set bits for cathode (current sinks, active LOW)
+	//latch data to cathode lines
+	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
+	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
+	
+	//set anode bit
+	DATA_BUS = digit;
+	//latch data to anode lines
+	DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);
+	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
+
+	
+	//determine cathode byte based on digit to display
+	uint8_t cathode_byte;
+	
+	switch(digit) {
+		
+		case ONES:
+		cathode_byte = DEC[(number % 10)]; //print first decimal digit
+		break;
+		
+		case TENS:
+		cathode_byte = DEC[((number % 100) / 10)]; //print second decimal digit
+		break;
+		
+		case HUNDS:
+		cathode_byte = DEC[((number % 1000) / 100)]; //print third decimal digit
+		break;
+		
+		case THOUS:
+		cathode_byte = DEC[((number % 10000) / 1000)]; //print fourth decimal digit
+		break;
+		
+	}
+	
+	//set cathode byte
+	DATA_BUS = ~cathode_byte; //set bits for cathode (current sinks, active LOW)
+	//latch data to cathode lines
+	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
+	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
+
+}
+
+volatile uint8_t digit[] = {
+	ONES,
+	TENS,
+	HUNDS,
+	THOUS,
+};
 //main scanning interrupt handler
 ISR (TIMER2_OVF_vect) {
 	
@@ -186,17 +255,15 @@ ISR (TIMER2_OVF_vect) {
 	//clear SPI_SW_LATCH
 	SPI_PORT &= ~SPI_SW_LATCH;
 		
-	//LIGHT SOME SEGMENTS OF 7-SEG LED DISPLAY
-	DATA_BUS = 0b1111; //set bits for anode
-	//latch data to anode lines
-	DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);
-	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
+	//update 7-segment LED display 
+	display_DEC(4,digit[3]);
 		
-	DATA_BUS = 0b00000001; //set bits for cathode (current sinks, active LOW)
-	//toggle data to cathode lines
-	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
-	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);	
+
 }	
+
+
+
+
 int main(void)
 {
 	//turn off JTAG so all outputs of PORTC can be used
