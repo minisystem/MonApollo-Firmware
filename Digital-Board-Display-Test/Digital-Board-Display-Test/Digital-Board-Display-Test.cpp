@@ -17,13 +17,18 @@ interrupt-based updates whilst keeping SPI working
 Basic testing of 7-segment display is done. Cathode and anode latches and databus can
 be used to light individual segments.
 
-Main scannig interrupt (~3.3ms) implemented and SPI and LED display driving code
-moved into main interrupt handler routine
+Main scanning interrupt (~3.3ms) implemented and SPI and LED display driving code
+moved into main interrupt handler routine.
+
+dispay_DEC function can now take any value between 0 and 9999 and display it on display
+cycling through 4 places, andoe 1 to 4
  
  TO DO:
  ==============================================================================
  
-Write display_DEC routine to display a specific value - see DAC development board code.
+Handle decimal points
+
+Write ADC code.
  
  ==============================================================================
  
@@ -89,13 +94,13 @@ Write display_DEC routine to display a specific value - see DAC development boar
 #define THOUS	0b00000100
 
 //define digit cathodes (current sink, active low)
-#define a (0x80)
-#define b (0x40)
-#define c (0x20)
-#define d (0x10)
-#define e (0x08)
-#define f (0x04)
-#define g (0x02)
+#define a		0b00000100
+#define b		0b00000001
+#define c		0b00010000
+#define d		0b01000000
+#define e		0b10000000
+#define f		0b00000010
+#define g		0b00001000
 
 //define decimal digits
 #define ZERO	(a | b | c | d | e | f)
@@ -120,6 +125,8 @@ Write display_DEC routine to display a specific value - see DAC development boar
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+
+volatile uint8_t place = 0; //digit place for LED display
 
 void display_DEC(uint16_t number, uint8_t digit)
 {
@@ -256,9 +263,13 @@ ISR (TIMER2_OVF_vect) {
 	SPI_PORT &= ~SPI_SW_LATCH;
 		
 	//update 7-segment LED display 
-	display_DEC(4,digit[3]);
+	display_DEC(4242,digit[place]);
 		
-
+	//increment digit display place
+	if (place++ == 3) //post increment
+	{
+		place = 0;
+	}
 }	
 
 

@@ -3,29 +3,29 @@ Digital-Board-Display-Test.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000000e  00800100  00000306  0000039a  2**0
+  0 .data         0000000e  00800100  00000322  000003b6  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000306  00000000  00000000  00000094  2**1
+  1 .text         00000322  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000003  0080010e  0080010e  000003a8  2**0
+  2 .bss          00000004  0080010e  0080010e  000003c4  2**0
                   ALLOC
-  3 .stab         000006cc  00000000  00000000  000003a8  2**2
+  3 .stab         000006cc  00000000  00000000  000003c4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      00000085  00000000  00000000  00000a74  2**0
+  4 .stabstr      00000085  00000000  00000000  00000a90  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_aranges 000000a0  00000000  00000000  00000b00  2**3
+  5 .debug_aranges 000000a0  00000000  00000000  00000b18  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000004e9  00000000  00000000  00000ba0  2**0
+  6 .debug_info   000004fb  00000000  00000000  00000bb8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000127  00000000  00000000  00001089  2**0
+  7 .debug_abbrev 00000127  00000000  00000000  000010b3  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000388  00000000  00000000  000011b0  2**0
+  8 .debug_line   0000038a  00000000  00000000  000011da  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  0000009c  00000000  00000000  00001538  2**2
+  9 .debug_frame  0000009c  00000000  00000000  00001564  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000014b  00000000  00000000  000015d4  2**0
+ 10 .debug_str    00000151  00000000  00000000  00001600  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000001b2  00000000  00000000  0000171f  2**0
+ 11 .debug_loc    000001b2  00000000  00000000  00001751  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -69,7 +69,7 @@ Disassembly of section .text:
   70:	11 e0       	ldi	r17, 0x01	; 1
   72:	a0 e0       	ldi	r26, 0x00	; 0
   74:	b1 e0       	ldi	r27, 0x01	; 1
-  76:	e6 e0       	ldi	r30, 0x06	; 6
+  76:	e2 e2       	ldi	r30, 0x22	; 34
   78:	f3 e0       	ldi	r31, 0x03	; 3
   7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
   7c:	05 90       	lpm	r0, Z+
@@ -88,19 +88,19 @@ Disassembly of section .text:
   8e:	1d 92       	st	X+, r1
 
 00000090 <.do_clear_bss_start>:
-  90:	a1 31       	cpi	r26, 0x11	; 17
+  90:	a2 31       	cpi	r26, 0x12	; 18
   92:	b1 07       	cpc	r27, r17
   94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
-  96:	0e 94 33 01 	call	0x266	; 0x266 <main>
-  9a:	0c 94 81 01 	jmp	0x302	; 0x302 <_exit>
+  96:	0e 94 41 01 	call	0x282	; 0x282 <main>
+  9a:	0c 94 8f 01 	jmp	0x31e	; 0x31e <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000a2 <_Z11display_DECjh>:
-volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
-volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+
+volatile uint8_t place = 0; //digit place for LED display
 
 void display_DEC(uint16_t number, uint8_t digit)
 {
@@ -180,7 +180,7 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[(number % 10)]; //print first decimal digit
  100:	6a e0       	ldi	r22, 0x0A	; 10
  102:	70 e0       	ldi	r23, 0x00	; 0
- 104:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 104:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  108:	fe 01       	movw	r30, r28
  10a:	e8 0f       	add	r30, r24
  10c:	f9 1f       	adc	r31, r25
@@ -192,10 +192,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 100) / 10)]; //print second decimal digit
  112:	64 e6       	ldi	r22, 0x64	; 100
  114:	70 e0       	ldi	r23, 0x00	; 0
- 116:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 116:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  11a:	6a e0       	ldi	r22, 0x0A	; 10
  11c:	70 e0       	ldi	r23, 0x00	; 0
- 11e:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 11e:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  122:	fe 01       	movw	r30, r28
  124:	e6 0f       	add	r30, r22
  126:	f7 1f       	adc	r31, r23
@@ -207,10 +207,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 1000) / 100)]; //print third decimal digit
  12c:	68 ee       	ldi	r22, 0xE8	; 232
  12e:	73 e0       	ldi	r23, 0x03	; 3
- 130:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 130:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  134:	64 e6       	ldi	r22, 0x64	; 100
  136:	70 e0       	ldi	r23, 0x00	; 0
- 138:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 138:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  13c:	fe 01       	movw	r30, r28
  13e:	e6 0f       	add	r30, r22
  140:	f7 1f       	adc	r31, r23
@@ -222,10 +222,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 10000) / 1000)]; //print fourth decimal digit
  146:	60 e1       	ldi	r22, 0x10	; 16
  148:	77 e2       	ldi	r23, 0x27	; 39
- 14a:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 14a:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  14e:	68 ee       	ldi	r22, 0xE8	; 232
  150:	73 e0       	ldi	r23, 0x03	; 3
- 152:	0e 94 6d 01 	call	0x2da	; 0x2da <__udivmodhi4>
+ 152:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <__udivmodhi4>
  156:	fe 01       	movw	r30, r28
  158:	e6 0f       	add	r30, r22
  15a:	f7 1f       	adc	r31, r23
@@ -295,7 +295,7 @@ ISR (TIMER2_OVF_vect) {
 		
 	//SHIFT 5th BYTE
 	SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
- 1ac:	80 91 0e 01 	lds	r24, 0x010E
+ 1ac:	80 91 0f 01 	lds	r24, 0x010F
  1b0:	88 0f       	add	r24, r24
  1b2:	80 68       	ori	r24, 0x80	; 128
  1b4:	8e bd       	out	0x2e, r24	; 46
@@ -312,13 +312,13 @@ ISR (TIMER2_OVF_vect) {
 	{
 		ISW4_SW_ON = 1;
  1c2:	81 e0       	ldi	r24, 0x01	; 1
- 1c4:	80 93 0e 01 	sts	0x010E, r24
+ 1c4:	80 93 0f 01 	sts	0x010F, r24
  1c8:	02 c0       	rjmp	.+4      	; 0x1ce <__vector_5+0x4a>
 	}
 	else
 	{
 		ISW4_SW_ON = 0;
- 1ca:	10 92 0e 01 	sts	0x010E, r1
+ 1ca:	10 92 0f 01 	sts	0x010F, r1
 	}
 	//SHIFT 4th BYTE
 	SPDR = 0; //no LEDs connected in current test set up
@@ -336,13 +336,13 @@ ISR (TIMER2_OVF_vect) {
 	{
 		ISW12_SW_ON = 1;
  1dc:	81 e0       	ldi	r24, 0x01	; 1
- 1de:	80 93 10 01 	sts	0x0110, r24
+ 1de:	80 93 11 01 	sts	0x0111, r24
  1e2:	02 c0       	rjmp	.+4      	; 0x1e8 <__vector_5+0x64>
 	}
 	else
 	{
 		ISW12_SW_ON = 0;
- 1e4:	10 92 10 01 	sts	0x0110, r1
+ 1e4:	10 92 11 01 	sts	0x0111, r1
 	}
 	//check if ISW13_SW bit is set
 	if (SPDR >> 6 & 1)
@@ -352,13 +352,13 @@ ISR (TIMER2_OVF_vect) {
 	{
 		ISW13_SW_ON = 1;
  1ee:	81 e0       	ldi	r24, 0x01	; 1
- 1f0:	80 93 0f 01 	sts	0x010F, r24
+ 1f0:	80 93 10 01 	sts	0x0110, r24
  1f4:	02 c0       	rjmp	.+4      	; 0x1fa <__vector_5+0x76>
 	}
 	else
 	{
 		ISW13_SW_ON = 0;
- 1f6:	10 92 0f 01 	sts	0x010F, r1
+ 1f6:	10 92 10 01 	sts	0x0110, r1
 	}
 		
 	//SHIFT 3th BYTE
@@ -380,8 +380,8 @@ ISR (TIMER2_OVF_vect) {
 	//SHIFT 1st BYTE
 	//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
 	SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
- 20a:	80 91 10 01 	lds	r24, 0x0110
- 20e:	90 91 0f 01 	lds	r25, 0x010F
+ 20a:	80 91 11 01 	lds	r24, 0x0111
+ 20e:	90 91 10 01 	lds	r25, 0x0110
  212:	97 95       	ror	r25
  214:	99 27       	eor	r25, r25
  216:	97 95       	ror	r25
@@ -413,169 +413,184 @@ ISR (TIMER2_OVF_vect) {
  236:	2d 98       	cbi	0x05, 5	; 5
 		
 	//update 7-segment LED display 
-	display_DEC(4,digit[3]);
- 238:	60 91 0d 01 	lds	r22, 0x010D
- 23c:	84 e0       	ldi	r24, 0x04	; 4
- 23e:	90 e0       	ldi	r25, 0x00	; 0
- 240:	0e 94 51 00 	call	0xa2	; 0xa2 <_Z11display_DECjh>
+	display_DEC(4242,digit[place]);
+ 238:	e0 91 0e 01 	lds	r30, 0x010E
+ 23c:	f0 e0       	ldi	r31, 0x00	; 0
+ 23e:	e6 5f       	subi	r30, 0xF6	; 246
+ 240:	fe 4f       	sbci	r31, 0xFE	; 254
+ 242:	60 81       	ld	r22, Z
+ 244:	82 e9       	ldi	r24, 0x92	; 146
+ 246:	90 e1       	ldi	r25, 0x10	; 16
+ 248:	0e 94 51 00 	call	0xa2	; 0xa2 <_Z11display_DECjh>
 		
-
+	//increment digit display place
+	if (place++ == 3) //post increment
+ 24c:	80 91 0e 01 	lds	r24, 0x010E
+ 250:	98 2f       	mov	r25, r24
+ 252:	9f 5f       	subi	r25, 0xFF	; 255
+ 254:	90 93 0e 01 	sts	0x010E, r25
+ 258:	83 30       	cpi	r24, 0x03	; 3
+ 25a:	11 f4       	brne	.+4      	; 0x260 <__vector_5+0xdc>
+	{
+		place = 0;
+ 25c:	10 92 0e 01 	sts	0x010E, r1
+	}
 }	
- 244:	ff 91       	pop	r31
- 246:	ef 91       	pop	r30
- 248:	bf 91       	pop	r27
- 24a:	af 91       	pop	r26
- 24c:	9f 91       	pop	r25
- 24e:	8f 91       	pop	r24
- 250:	7f 91       	pop	r23
- 252:	6f 91       	pop	r22
- 254:	5f 91       	pop	r21
- 256:	4f 91       	pop	r20
- 258:	3f 91       	pop	r19
- 25a:	2f 91       	pop	r18
- 25c:	0f 90       	pop	r0
- 25e:	0f be       	out	0x3f, r0	; 63
- 260:	0f 90       	pop	r0
- 262:	1f 90       	pop	r1
- 264:	18 95       	reti
+ 260:	ff 91       	pop	r31
+ 262:	ef 91       	pop	r30
+ 264:	bf 91       	pop	r27
+ 266:	af 91       	pop	r26
+ 268:	9f 91       	pop	r25
+ 26a:	8f 91       	pop	r24
+ 26c:	7f 91       	pop	r23
+ 26e:	6f 91       	pop	r22
+ 270:	5f 91       	pop	r21
+ 272:	4f 91       	pop	r20
+ 274:	3f 91       	pop	r19
+ 276:	2f 91       	pop	r18
+ 278:	0f 90       	pop	r0
+ 27a:	0f be       	out	0x3f, r0	; 63
+ 27c:	0f 90       	pop	r0
+ 27e:	1f 90       	pop	r1
+ 280:	18 95       	reti
 
-00000266 <main>:
+00000282 <main>:
 
 int main(void)
 {
 	//turn off JTAG so all outputs of PORTC can be used
 	//not used yet, but PORTC will be used for DAC bits
 	MCUCR = (1<<JTD);
- 266:	80 e8       	ldi	r24, 0x80	; 128
- 268:	85 bf       	out	0x35, r24	; 53
+ 282:	80 e8       	ldi	r24, 0x80	; 128
+ 284:	85 bf       	out	0x35, r24	; 53
 	MCUCR = (1<<JTD);
- 26a:	85 bf       	out	0x35, r24	; 53
+ 286:	85 bf       	out	0x35, r24	; 53
 		
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
- 26c:	27 9a       	sbi	0x04, 7	; 4
+ 288:	27 9a       	sbi	0x04, 7	; 4
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
 	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
- 26e:	84 b1       	in	r24, 0x04	; 4
- 270:	87 62       	ori	r24, 0x27	; 39
- 272:	84 b9       	out	0x04, r24	; 4
+ 28a:	84 b1       	in	r24, 0x04	; 4
+ 28c:	87 62       	ori	r24, 0x27	; 39
+ 28e:	84 b9       	out	0x04, r24	; 4
 	
 	//SET SPI_EN and LED_LATCH pins as outputs
 	DDRJ |= (SPI_EN | LED_LATCH);
- 274:	ec ed       	ldi	r30, 0xDC	; 220
- 276:	f0 e0       	ldi	r31, 0x00	; 0
- 278:	80 81       	ld	r24, Z
- 27a:	8c 60       	ori	r24, 0x0C	; 12
- 27c:	80 83       	st	Z, r24
+ 290:	ec ed       	ldi	r30, 0xDC	; 220
+ 292:	f0 e0       	ldi	r31, 0x00	; 0
+ 294:	80 81       	ld	r24, Z
+ 296:	8c 60       	ori	r24, 0x0C	; 12
+ 298:	80 83       	st	Z, r24
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
 	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
- 27e:	85 b1       	in	r24, 0x05	; 5
- 280:	89 7d       	andi	r24, 0xD9	; 217
- 282:	85 b9       	out	0x05, r24	; 5
+ 29a:	85 b1       	in	r24, 0x05	; 5
+ 29c:	89 7d       	andi	r24, 0xD9	; 217
+ 29e:	85 b9       	out	0x05, r24	; 5
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
 	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
- 284:	ed ed       	ldi	r30, 0xDD	; 221
- 286:	f0 e0       	ldi	r31, 0x00	; 0
- 288:	80 81       	ld	r24, Z
- 28a:	83 7f       	andi	r24, 0xF3	; 243
- 28c:	80 83       	st	Z, r24
+ 2a0:	ed ed       	ldi	r30, 0xDD	; 221
+ 2a2:	f0 e0       	ldi	r31, 0x00	; 0
+ 2a4:	80 81       	ld	r24, Z
+ 2a6:	83 7f       	andi	r24, 0xF3	; 243
+ 2a8:	80 83       	st	Z, r24
 	
 	//SET UP SPI
 	SPCR = (1<<SPE) | (1<<MSTR); //Start SPI as MASTER
- 28e:	80 e5       	ldi	r24, 0x50	; 80
- 290:	8c bd       	out	0x2c, r24	; 44
+ 2aa:	80 e5       	ldi	r24, 0x50	; 80
+ 2ac:	8c bd       	out	0x2c, r24	; 44
 	
 	//Pull LED_LATCH LOW
 	SPI_LATCH_PORT &= ~LED_LATCH;
- 292:	80 81       	ld	r24, Z
- 294:	87 7f       	andi	r24, 0xF7	; 247
- 296:	80 83       	st	Z, r24
+ 2ae:	80 81       	ld	r24, Z
+ 2b0:	87 7f       	andi	r24, 0xF7	; 247
+ 2b2:	80 83       	st	Z, r24
 	////Wait for SPI shift to complete
 	//while (!(SPSR & (1<<SPIF)));
 	
 	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 	
 	SPI_LATCH_PORT &= ~LED_LATCH;
- 298:	80 81       	ld	r24, Z
- 29a:	87 7f       	andi	r24, 0xF7	; 247
- 29c:	80 83       	st	Z, r24
+ 2b4:	80 81       	ld	r24, Z
+ 2b6:	87 7f       	andi	r24, 0xF7	; 247
+ 2b8:	80 83       	st	Z, r24
 	SPI_LATCH_PORT |= LED_LATCH;
- 29e:	80 81       	ld	r24, Z
- 2a0:	88 60       	ori	r24, 0x08	; 8
- 2a2:	80 83       	st	Z, r24
+ 2ba:	80 81       	ld	r24, Z
+ 2bc:	88 60       	ori	r24, 0x08	; 8
+ 2be:	80 83       	st	Z, r24
 	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
- 2a4:	81 b1       	in	r24, 0x01	; 1
- 2a6:	8f ef       	ldi	r24, 0xFF	; 255
- 2a8:	81 b9       	out	0x01, r24	; 1
+ 2c0:	81 b1       	in	r24, 0x01	; 1
+ 2c2:	8f ef       	ldi	r24, 0xFF	; 255
+ 2c4:	81 b9       	out	0x01, r24	; 1
 	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
- 2aa:	92 b1       	in	r25, 0x02	; 2
- 2ac:	82 b9       	out	0x02, r24	; 2
+ 2c6:	92 b1       	in	r25, 0x02	; 2
+ 2c8:	82 b9       	out	0x02, r24	; 2
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
- 2ae:	e9 ed       	ldi	r30, 0xD9	; 217
- 2b0:	f0 e0       	ldi	r31, 0x00	; 0
- 2b2:	80 81       	ld	r24, Z
- 2b4:	80 63       	ori	r24, 0x30	; 48
- 2b6:	80 83       	st	Z, r24
+ 2ca:	e9 ed       	ldi	r30, 0xD9	; 217
+ 2cc:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ce:	80 81       	ld	r24, Z
+ 2d0:	80 63       	ori	r24, 0x30	; 48
+ 2d2:	80 83       	st	Z, r24
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
- 2b8:	ea ed       	ldi	r30, 0xDA	; 218
- 2ba:	f0 e0       	ldi	r31, 0x00	; 0
- 2bc:	80 81       	ld	r24, Z
- 2be:	8f 7c       	andi	r24, 0xCF	; 207
- 2c0:	80 83       	st	Z, r24
+ 2d4:	ea ed       	ldi	r30, 0xDA	; 218
+ 2d6:	f0 e0       	ldi	r31, 0x00	; 0
+ 2d8:	80 81       	ld	r24, Z
+ 2da:	8f 7c       	andi	r24, 0xCF	; 207
+ 2dc:	80 83       	st	Z, r24
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
- 2c2:	e0 eb       	ldi	r30, 0xB0	; 176
- 2c4:	f0 e0       	ldi	r31, 0x00	; 0
- 2c6:	80 81       	ld	r24, Z
- 2c8:	86 60       	ori	r24, 0x06	; 6
- 2ca:	80 83       	st	Z, r24
+ 2de:	e0 eb       	ldi	r30, 0xB0	; 176
+ 2e0:	f0 e0       	ldi	r31, 0x00	; 0
+ 2e2:	80 81       	ld	r24, Z
+ 2e4:	86 60       	ori	r24, 0x06	; 6
+ 2e6:	80 83       	st	Z, r24
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
- 2cc:	e0 e7       	ldi	r30, 0x70	; 112
- 2ce:	f0 e0       	ldi	r31, 0x00	; 0
- 2d0:	80 81       	ld	r24, Z
- 2d2:	81 60       	ori	r24, 0x01	; 1
- 2d4:	80 83       	st	Z, r24
+ 2e8:	e0 e7       	ldi	r30, 0x70	; 112
+ 2ea:	f0 e0       	ldi	r31, 0x00	; 0
+ 2ec:	80 81       	ld	r24, Z
+ 2ee:	81 60       	ori	r24, 0x01	; 1
+ 2f0:	80 83       	st	Z, r24
 	sei(); //enable global interrupts
- 2d6:	78 94       	sei
- 2d8:	ff cf       	rjmp	.-2      	; 0x2d8 <main+0x72>
+ 2f2:	78 94       	sei
+ 2f4:	ff cf       	rjmp	.-2      	; 0x2f4 <main+0x72>
 
-000002da <__udivmodhi4>:
- 2da:	aa 1b       	sub	r26, r26
- 2dc:	bb 1b       	sub	r27, r27
- 2de:	51 e1       	ldi	r21, 0x11	; 17
- 2e0:	07 c0       	rjmp	.+14     	; 0x2f0 <__udivmodhi4_ep>
+000002f6 <__udivmodhi4>:
+ 2f6:	aa 1b       	sub	r26, r26
+ 2f8:	bb 1b       	sub	r27, r27
+ 2fa:	51 e1       	ldi	r21, 0x11	; 17
+ 2fc:	07 c0       	rjmp	.+14     	; 0x30c <__udivmodhi4_ep>
 
-000002e2 <__udivmodhi4_loop>:
- 2e2:	aa 1f       	adc	r26, r26
- 2e4:	bb 1f       	adc	r27, r27
- 2e6:	a6 17       	cp	r26, r22
- 2e8:	b7 07       	cpc	r27, r23
- 2ea:	10 f0       	brcs	.+4      	; 0x2f0 <__udivmodhi4_ep>
- 2ec:	a6 1b       	sub	r26, r22
- 2ee:	b7 0b       	sbc	r27, r23
+000002fe <__udivmodhi4_loop>:
+ 2fe:	aa 1f       	adc	r26, r26
+ 300:	bb 1f       	adc	r27, r27
+ 302:	a6 17       	cp	r26, r22
+ 304:	b7 07       	cpc	r27, r23
+ 306:	10 f0       	brcs	.+4      	; 0x30c <__udivmodhi4_ep>
+ 308:	a6 1b       	sub	r26, r22
+ 30a:	b7 0b       	sbc	r27, r23
 
-000002f0 <__udivmodhi4_ep>:
- 2f0:	88 1f       	adc	r24, r24
- 2f2:	99 1f       	adc	r25, r25
- 2f4:	5a 95       	dec	r21
- 2f6:	a9 f7       	brne	.-22     	; 0x2e2 <__udivmodhi4_loop>
- 2f8:	80 95       	com	r24
- 2fa:	90 95       	com	r25
- 2fc:	bc 01       	movw	r22, r24
- 2fe:	cd 01       	movw	r24, r26
- 300:	08 95       	ret
+0000030c <__udivmodhi4_ep>:
+ 30c:	88 1f       	adc	r24, r24
+ 30e:	99 1f       	adc	r25, r25
+ 310:	5a 95       	dec	r21
+ 312:	a9 f7       	brne	.-22     	; 0x2fe <__udivmodhi4_loop>
+ 314:	80 95       	com	r24
+ 316:	90 95       	com	r25
+ 318:	bc 01       	movw	r22, r24
+ 31a:	cd 01       	movw	r24, r26
+ 31c:	08 95       	ret
 
-00000302 <_exit>:
- 302:	f8 94       	cli
+0000031e <_exit>:
+ 31e:	f8 94       	cli
 
-00000304 <__stop_program>:
- 304:	ff cf       	rjmp	.-2      	; 0x304 <__stop_program>
+00000320 <__stop_program>:
+ 320:	ff cf       	rjmp	.-2      	; 0x320 <__stop_program>
