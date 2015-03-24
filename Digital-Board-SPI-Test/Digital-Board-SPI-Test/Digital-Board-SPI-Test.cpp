@@ -25,6 +25,8 @@
  
  Need to check default SPI clock speed.
  
+ Next step: get 7-segment LED display working
+ 
  ==============================================================================
  
  COMMENTS:
