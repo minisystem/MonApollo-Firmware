@@ -1,0 +1,389 @@
+
+Digital-Board-Display-Test.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000000  00800100  000001b8  0000022c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000001b8  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .stab         000006cc  00000000  00000000  0000022c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000085  00000000  00000000  000008f8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_aranges 00000080  00000000  00000000  00000980  2**3
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000350  00000000  00000000  00000a00  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000000a0  00000000  00000000  00000d50  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000002e2  00000000  00000000  00000df0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000024  00000000  00000000  000010d4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000000ff  00000000  00000000  000010f8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    00000074  00000000  00000000  000011f7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 32 00 	jmp	0x64	; 0x64 <__ctors_end>
+   4:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+   8:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+   c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  10:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  14:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  18:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  1c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  20:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  24:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  28:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  2c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  30:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  34:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  38:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  3c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  40:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  44:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  48:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  4c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  50:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  54:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  58:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  5c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+  60:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
+
+00000064 <__ctors_end>:
+  64:	11 24       	eor	r1, r1
+  66:	1f be       	out	0x3f, r1	; 63
+  68:	cf ef       	ldi	r28, 0xFF	; 255
+  6a:	d0 e1       	ldi	r29, 0x10	; 16
+  6c:	de bf       	out	0x3e, r29	; 62
+  6e:	cd bf       	out	0x3d, r28	; 61
+
+00000070 <__do_copy_data>:
+  70:	11 e0       	ldi	r17, 0x01	; 1
+  72:	a0 e0       	ldi	r26, 0x00	; 0
+  74:	b1 e0       	ldi	r27, 0x01	; 1
+  76:	e8 eb       	ldi	r30, 0xB8	; 184
+  78:	f1 e0       	ldi	r31, 0x01	; 1
+  7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
+  7c:	05 90       	lpm	r0, Z+
+  7e:	0d 92       	st	X+, r0
+  80:	a0 30       	cpi	r26, 0x00	; 0
+  82:	b1 07       	cpc	r27, r17
+  84:	d9 f7       	brne	.-10     	; 0x7c <__do_copy_data+0xc>
+
+00000086 <__do_clear_bss>:
+  86:	11 e0       	ldi	r17, 0x01	; 1
+  88:	a0 e0       	ldi	r26, 0x00	; 0
+  8a:	b1 e0       	ldi	r27, 0x01	; 1
+  8c:	01 c0       	rjmp	.+2      	; 0x90 <.do_clear_bss_start>
+
+0000008e <.do_clear_bss_loop>:
+  8e:	1d 92       	st	X+, r1
+
+00000090 <.do_clear_bss_start>:
+  90:	a0 30       	cpi	r26, 0x00	; 0
+  92:	b1 07       	cpc	r27, r17
+  94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
+  96:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
+  9a:	0c 94 da 00 	jmp	0x1b4	; 0x1b4 <_exit>
+
+0000009e <__bad_interrupt>:
+  9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000a2 <main>:
+
+int main(void)
+{
+	
+	//SET PORTB PIN 7 (PB7) as OUTPUT
+	DDRB |= (1<<ARP_SYNC_LED);
+  a2:	27 9a       	sbi	0x04, 7	; 4
+	
+	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
+	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
+	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
+	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
+  a4:	84 b1       	in	r24, 0x04	; 4
+  a6:	87 62       	ori	r24, 0x27	; 39
+  a8:	84 b9       	out	0x04, r24	; 4
+	
+	//SET SPI_EN and LED_LATCH pins as outputs
+	DDRJ |= (SPI_EN | LED_LATCH);
+  aa:	ec ed       	ldi	r30, 0xDC	; 220
+  ac:	f0 e0       	ldi	r31, 0x00	; 0
+  ae:	80 81       	ld	r24, Z
+  b0:	8c 60       	ori	r24, 0x0C	; 12
+  b2:	80 83       	st	Z, r24
+	
+	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
+	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
+  b4:	85 b1       	in	r24, 0x05	; 5
+  b6:	89 7d       	andi	r24, 0xD9	; 217
+  b8:	85 b9       	out	0x05, r24	; 5
+	
+	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
+	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
+  ba:	ed ed       	ldi	r30, 0xDD	; 221
+  bc:	f0 e0       	ldi	r31, 0x00	; 0
+  be:	80 81       	ld	r24, Z
+  c0:	83 7f       	andi	r24, 0xF3	; 243
+  c2:	80 83       	st	Z, r24
+	
+	//SET UP SPI
+	SPCR = (1<<SPE) | (1<<MSTR); //Start SPI as MASTER
+  c4:	80 e5       	ldi	r24, 0x50	; 80
+  c6:	8c bd       	out	0x2c, r24	; 44
+	
+	//Pull LED_LATCH LOW
+	SPI_LATCH_PORT &= ~LED_LATCH;
+  c8:	80 81       	ld	r24, Z
+  ca:	87 7f       	andi	r24, 0xF7	; 247
+  cc:	80 83       	st	Z, r24
+	////Wait for SPI shift to complete
+	//while (!(SPSR & (1<<SPIF)));
+	
+	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+	
+	SPI_LATCH_PORT &= ~LED_LATCH;
+  ce:	80 81       	ld	r24, Z
+  d0:	87 7f       	andi	r24, 0xF7	; 247
+  d2:	80 83       	st	Z, r24
+	SPI_LATCH_PORT |= LED_LATCH;
+  d4:	80 81       	ld	r24, Z
+  d6:	88 60       	ori	r24, 0x08	; 8
+  d8:	80 83       	st	Z, r24
+	uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
+	uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
+	uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+	
+	//set up LED display
+	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
+  da:	81 b1       	in	r24, 0x01	; 1
+  dc:	8f ef       	ldi	r24, 0xFF	; 255
+  de:	81 b9       	out	0x01, r24	; 1
+	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
+  e0:	92 b1       	in	r25, 0x02	; 2
+  e2:	82 b9       	out	0x02, r24	; 2
+	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
+  e4:	e9 ed       	ldi	r30, 0xD9	; 217
+  e6:	f0 e0       	ldi	r31, 0x00	; 0
+  e8:	80 81       	ld	r24, Z
+  ea:	80 63       	ori	r24, 0x30	; 48
+  ec:	80 83       	st	Z, r24
+	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
+  ee:	ea ed       	ldi	r30, 0xDA	; 218
+  f0:	f0 e0       	ldi	r31, 0x00	; 0
+  f2:	80 81       	ld	r24, Z
+  f4:	8f 7c       	andi	r24, 0xCF	; 207
+  f6:	80 83       	st	Z, r24
+	SPI_LATCH_PORT &= ~LED_LATCH;
+	SPI_LATCH_PORT |= LED_LATCH;
+	
+	uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
+	uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
+	uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+  f8:	50 e0       	ldi	r21, 0x00	; 0
+		while (!(SPSR & (1<<SPIF)));
+		
+		//Now read SPDR for switch data shifted in from 74XX165 U14		
+		if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
+		{
+			ISW4_SW_ON = 1;
+  fa:	c1 e0       	ldi	r28, 0x01	; 1
+  fc:	40 e0       	ldi	r20, 0x00	; 0
+		SPDR = 0;
+		while (!(SPSR & (1<<SPIF)));
+					
+		//SHIFT 1st BYTE
+		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+  fe:	01 e0       	ldi	r16, 0x01	; 1
+ 100:	10 e0       	ldi	r17, 0x00	; 0
+ 102:	ee 24       	eor	r14, r14
+ 104:	ff 24       	eor	r15, r15
+		//Wait for SPI shift to complete
+		while (!(SPSR & (1<<SPIF)));
+		
+		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+		
+		SPI_LATCH_PORT &= ~LED_LATCH;
+ 106:	ad ed       	ldi	r26, 0xDD	; 221
+ 108:	b0 e0       	ldi	r27, 0x00	; 0
+		
+		//clear SPI_SW_LATCH
+		SPI_PORT &= ~SPI_SW_LATCH;
+		
+		//LIGHT SOME SEGMENTS OF 7-SEG LED DISPLAY
+		DATA_BUS = 0b1111; //set bits for anode
+ 10a:	df e0       	ldi	r29, 0x0F	; 15
+	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
+	
+	while(1)
+	{
+		
+		PORTB |= (1<<ARP_SYNC_LED);
+ 10c:	2f 9a       	sbi	0x05, 7	; 5
+		
+		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
+		SPI_PORT |= SPI_SW_LATCH;		
+ 10e:	2d 9a       	sbi	0x05, 5	; 5
+		
+		//SHIFT 5th BYTE
+		SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
+ 110:	85 2f       	mov	r24, r21
+ 112:	90 e0       	ldi	r25, 0x00	; 0
+ 114:	88 0f       	add	r24, r24
+ 116:	99 1f       	adc	r25, r25
+ 118:	80 68       	ori	r24, 0x80	; 128
+ 11a:	8e bd       	out	0x2e, r24	; 46
+		while (!(SPSR & (1<<SPIF)));
+ 11c:	0d b4       	in	r0, 0x2d	; 45
+ 11e:	07 fe       	sbrs	r0, 7
+ 120:	fd cf       	rjmp	.-6      	; 0x11c <main+0x7a>
+		
+		//Now read SPDR for switch data shifted in from 74XX165 U14		
+		if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
+		{
+			ISW4_SW_ON = 1;
+ 122:	5c 2f       	mov	r21, r28
+ 124:	0e b4       	in	r0, 0x2e	; 46
+ 126:	07 fe       	sbrs	r0, 7
+ 128:	54 2f       	mov	r21, r20
+		else
+		{
+			ISW4_SW_ON = 0;
+		}		
+		//SHIFT 4th BYTE
+		SPDR = 0; //no LEDs connected in current test set up
+ 12a:	4e bd       	out	0x2e, r20	; 46
+		while (!(SPSR & (1<<SPIF)));
+ 12c:	0d b4       	in	r0, 0x2d	; 45
+ 12e:	07 fe       	sbrs	r0, 7
+ 130:	fd cf       	rjmp	.-6      	; 0x12c <main+0x8a>
+		//Now read SPDR for switch data shifted in from 74XX165 (U9)
+		//check if ISW12_SW bit is set
+		if (SPDR >> 5 & 1)
+ 132:	8e b5       	in	r24, 0x2e	; 46
+ 134:	90 e0       	ldi	r25, 0x00	; 0
+ 136:	bc 01       	movw	r22, r24
+ 138:	60 72       	andi	r22, 0x20	; 32
+ 13a:	70 70       	andi	r23, 0x00	; 0
+		else
+		{
+			ISW12_SW_ON = 0;
+		}
+		//check if ISW13_SW bit is set
+		if (SPDR >> 6 & 1)
+ 13c:	8e b5       	in	r24, 0x2e	; 46
+ 13e:	90 e0       	ldi	r25, 0x00	; 0
+ 140:	9c 01       	movw	r18, r24
+ 142:	20 74       	andi	r18, 0x40	; 64
+ 144:	30 70       	andi	r19, 0x00	; 0
+		{
+			ISW13_SW_ON = 0;
+		}
+		
+		//SHIFT 3th BYTE
+		SPDR = 0;
+ 146:	4e bd       	out	0x2e, r20	; 46
+		while (!(SPSR & (1<<SPIF)));				
+ 148:	0d b4       	in	r0, 0x2d	; 45
+ 14a:	07 fe       	sbrs	r0, 7
+ 14c:	fd cf       	rjmp	.-6      	; 0x148 <main+0xa6>
+
+		//SHIFT 2th BYTE
+		SPDR = 0;
+ 14e:	4e bd       	out	0x2e, r20	; 46
+		while (!(SPSR & (1<<SPIF)));
+ 150:	0d b4       	in	r0, 0x2d	; 45
+ 152:	07 fe       	sbrs	r0, 7
+ 154:	fd cf       	rjmp	.-6      	; 0x150 <main+0xae>
+					
+		//SHIFT 1st BYTE
+		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+ 156:	c8 01       	movw	r24, r16
+ 158:	21 15       	cp	r18, r1
+ 15a:	31 05       	cpc	r19, r1
+ 15c:	09 f4       	brne	.+2      	; 0x160 <main+0xbe>
+ 15e:	c7 01       	movw	r24, r14
+ 160:	9c 01       	movw	r18, r24
+ 162:	36 95       	lsr	r19
+ 164:	32 2f       	mov	r19, r18
+ 166:	22 27       	eor	r18, r18
+ 168:	37 95       	ror	r19
+ 16a:	27 95       	ror	r18
+ 16c:	c8 01       	movw	r24, r16
+ 16e:	61 15       	cp	r22, r1
+ 170:	71 05       	cpc	r23, r1
+ 172:	09 f4       	brne	.+2      	; 0x176 <main+0xd4>
+ 174:	c7 01       	movw	r24, r14
+ 176:	88 0f       	add	r24, r24
+ 178:	99 1f       	adc	r25, r25
+ 17a:	88 0f       	add	r24, r24
+ 17c:	99 1f       	adc	r25, r25
+ 17e:	82 2b       	or	r24, r18
+ 180:	8e bd       	out	0x2e, r24	; 46
+		//Wait for SPI shift to complete
+		while (!(SPSR & (1<<SPIF)));
+ 182:	0d b4       	in	r0, 0x2d	; 45
+ 184:	07 fe       	sbrs	r0, 7
+ 186:	fd cf       	rjmp	.-6      	; 0x182 <main+0xe0>
+		
+		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+		
+		SPI_LATCH_PORT &= ~LED_LATCH;
+ 188:	8c 91       	ld	r24, X
+ 18a:	87 7f       	andi	r24, 0xF7	; 247
+ 18c:	8c 93       	st	X, r24
+		SPI_LATCH_PORT |= LED_LATCH;
+ 18e:	8c 91       	ld	r24, X
+ 190:	88 60       	ori	r24, 0x08	; 8
+ 192:	8c 93       	st	X, r24
+		
+		//clear SPI_SW_LATCH
+		SPI_PORT &= ~SPI_SW_LATCH;
+ 194:	2d 98       	cbi	0x05, 5	; 5
+		
+		//LIGHT SOME SEGMENTS OF 7-SEG LED DISPLAY
+		DATA_BUS = 0b1111; //set bits for anode
+ 196:	d2 b9       	out	0x02, r29	; 2
+		//latch data to anode lines
+		DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);	
+ 198:	80 81       	ld	r24, Z
+ 19a:	80 62       	ori	r24, 0x20	; 32
+ 19c:	80 83       	st	Z, r24
+		DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
+ 19e:	80 81       	ld	r24, Z
+ 1a0:	8f 7d       	andi	r24, 0xDF	; 223
+ 1a2:	80 83       	st	Z, r24
+		
+		DATA_BUS = 0b00000001; //set bits for cathode (current sinks, active LOW)
+ 1a4:	c2 b9       	out	0x02, r28	; 2
+		//toggle data to cathode lines
+		DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
+ 1a6:	80 81       	ld	r24, Z
+ 1a8:	80 61       	ori	r24, 0x10	; 16
+ 1aa:	80 83       	st	Z, r24
+		DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
+ 1ac:	80 81       	ld	r24, Z
+ 1ae:	8f 7e       	andi	r24, 0xEF	; 239
+ 1b0:	80 83       	st	Z, r24
+	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
+	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
+	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
+	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
+	
+	while(1)
+ 1b2:	ac cf       	rjmp	.-168    	; 0x10c <main+0x6a>
+
+000001b4 <_exit>:
+ 1b4:	f8 94       	cli
+
+000001b6 <__stop_program>:
+ 1b6:	ff cf       	rjmp	.-2      	; 0x1b6 <__stop_program>

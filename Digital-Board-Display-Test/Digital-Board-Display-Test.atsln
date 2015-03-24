@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "Digital-Board-Display-Test", "Digital-Board-Display-Test\Digital-Board-Display-Test.cppproj", "{92ACAE4B-DC68-4254-8DD5-5BB9DFAD4EAF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92ACAE4B-DC68-4254-8DD5-5BB9DFAD4EAF}.Debug|AVR.ActiveCfg = Debug|AVR
+		{92ACAE4B-DC68-4254-8DD5-5BB9DFAD4EAF}.Debug|AVR.Build.0 = Debug|AVR
+		{92ACAE4B-DC68-4254-8DD5-5BB9DFAD4EAF}.Release|AVR.ActiveCfg = Release|AVR
+		{92ACAE4B-DC68-4254-8DD5-5BB9DFAD4EAF}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
