@@ -15,13 +15,15 @@ Leave it alone as much as possible and try to get LED 7-segment display working 
 interrupt-based updates whilst keeping SPI working
 
 Basic testing of 7-segment display is done. Cathode and anode latches and databus can
-be used to light individual segments
+be used to light individual segments.
+
+Main scannig interrupt (~3.3ms) implemented and SPI and LED display driving code
+moved into main interrupt handler routine
  
  TO DO:
  ==============================================================================
  
-implement scanning interrupt routine to light display one digit at a time. Have a look
-at DAC Development Board code.
+Write display_DEC routine to display a specific value - see DAC development board code.
  
  ==============================================================================
  
@@ -80,9 +82,128 @@ at DAC Development Board code.
 #define DISP_ANODE_LATCH	PH5
 #define DISP_CATHODE_LATCH	PH4
 
+//define digit anodes
+#define ONES	0b00000111
+#define TENS	0b00001011
+#define HUNDS	0b00001101
+#define THOUS	0b00001110
+
+//define digit cathodes (current sink, active low)
+#define a ~(0x80)
+#define b ~(0x40)
+#define c ~(0x20)
+#define d ~(0x10)
+#define e ~(0x08)
+#define f ~(0x04)
+#define g ~(0x02)
+
+//define decimal digits
+#define ZERO	(a | b | c | d | e | f)
+#define ONE		(b | c)
+#define TWO		(a | b | d | e | g)
+#define THREE	(a | b | c | d | g)
+#define FOUR	(b | c | f | g)
+#define FIVE	(a | c | d | f | g)
+#define SIX		(a | c | d | e | f | g)
+#define SEVEN	(a | b | c)
+#define EIGHT	(a | b | c | d | e | f | g)
+#define NINE	(a | b | c | d | f | g)
+
+//define hex digits
+#define A		(a | b | c | e | f | g)
+#define B		(c | d | e | f | g)
+#define C		(a | d | e | f)
+#define D		(b | c | d | e | g)
+#define E		(a | d | e | f | g)
+#define F		(a | e | f | g)
+
+volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
+volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
+volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+
+//main scanning interrupt handler
+ISR (TIMER2_OVF_vect) {
+	
+	//toggle ARP_SYNC LED
+	PINB = (1<<ARP_SYNC_LED);
+	SPI_PORT |= SPI_SW_LATCH;
+		
+	//SHIFT 5th BYTE
+	SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
+	while (!(SPSR & (1<<SPIF)));
+		
+	//Now read SPDR for switch data shifted in from 74XX165 U14
+	if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
+	{
+		ISW4_SW_ON = 1;
+	}
+	else
+	{
+		ISW4_SW_ON = 0;
+	}
+	//SHIFT 4th BYTE
+	SPDR = 0; //no LEDs connected in current test set up
+	while (!(SPSR & (1<<SPIF)));
+	//Now read SPDR for switch data shifted in from 74XX165 (U9)
+	//check if ISW12_SW bit is set
+	if (SPDR >> 5 & 1)
+	{
+		ISW12_SW_ON = 1;
+	}
+	else
+	{
+		ISW12_SW_ON = 0;
+	}
+	//check if ISW13_SW bit is set
+	if (SPDR >> 6 & 1)
+	{
+		ISW13_SW_ON = 1;
+	}
+	else
+	{
+		ISW13_SW_ON = 0;
+	}
+		
+	//SHIFT 3th BYTE
+	SPDR = 0;
+	while (!(SPSR & (1<<SPIF)));
+
+	//SHIFT 2th BYTE
+	SPDR = 0;
+	while (!(SPSR & (1<<SPIF)));
+		
+	//SHIFT 1st BYTE
+	//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+	SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+	//Wait for SPI shift to complete
+	while (!(SPSR & (1<<SPIF)));
+		
+	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+		
+	SPI_LATCH_PORT &= ~LED_LATCH;
+	SPI_LATCH_PORT |= LED_LATCH;
+		
+	//clear SPI_SW_LATCH
+	SPI_PORT &= ~SPI_SW_LATCH;
+		
+	//LIGHT SOME SEGMENTS OF 7-SEG LED DISPLAY
+	DATA_BUS = 0b1111; //set bits for anode
+	//latch data to anode lines
+	DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);
+	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
+		
+	DATA_BUS = 0b00000001; //set bits for cathode (current sinks, active LOW)
+	//toggle data to cathode lines
+	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
+	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);	
+}	
 int main(void)
 {
-	
+	//turn off JTAG so all outputs of PORTC can be used
+	//not used yet, but PORTC will be used for DAC bits
+	MCUCR = (1<<JTD);
+	MCUCR = (1<<JTD);
+		
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
 	
@@ -116,92 +237,25 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	SPI_LATCH_PORT |= LED_LATCH;
 	
-	uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
-	uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
-	uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
-	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
 	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
 	
+	//set up main timer interrupt
+	//this generates the main scanning interrupt
+	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
+	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
+	sei(); //enable global interrupts
+		
 	while(1)
 	{
 		
-		PORTB |= (1<<ARP_SYNC_LED);
+		//PORTB |= (1<<ARP_SYNC_LED);
 		
 		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
-		SPI_PORT |= SPI_SW_LATCH;		
-		
-		//SHIFT 5th BYTE
-		SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
-		while (!(SPSR & (1<<SPIF)));
-		
-		//Now read SPDR for switch data shifted in from 74XX165 U14		
-		if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
-		{
-			ISW4_SW_ON = 1;
-		}
-		else
-		{
-			ISW4_SW_ON = 0;
-		}		
-		//SHIFT 4th BYTE
-		SPDR = 0; //no LEDs connected in current test set up
-		while (!(SPSR & (1<<SPIF)));
-		//Now read SPDR for switch data shifted in from 74XX165 (U9)
-		//check if ISW12_SW bit is set
-		if (SPDR >> 5 & 1)
-		{
-			ISW12_SW_ON = 1;
-		}
-		else
-		{
-			ISW12_SW_ON = 0;
-		}
-		//check if ISW13_SW bit is set
-		if (SPDR >> 6 & 1)
-		{
-			ISW13_SW_ON = 1;
-		}
-		else
-		{
-			ISW13_SW_ON = 0;
-		}
-		
-		//SHIFT 3th BYTE
-		SPDR = 0;
-		while (!(SPSR & (1<<SPIF)));				
 
-		//SHIFT 2th BYTE
-		SPDR = 0;
-		while (!(SPSR & (1<<SPIF)));
-					
-		//SHIFT 1st BYTE
-		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
-		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
-		//Wait for SPI shift to complete
-		while (!(SPSR & (1<<SPIF)));
-		
-		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
-		
-		SPI_LATCH_PORT &= ~LED_LATCH;
-		SPI_LATCH_PORT |= LED_LATCH;
-		
-		//clear SPI_SW_LATCH
-		SPI_PORT &= ~SPI_SW_LATCH;
-		
-		//LIGHT SOME SEGMENTS OF 7-SEG LED DISPLAY
-		DATA_BUS = 0b1111; //set bits for anode
-		//latch data to anode lines
-		DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);	
-		DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
-		
-		DATA_BUS = 0b00000001; //set bits for cathode (current sinks, active LOW)
-		//toggle data to cathode lines
-		DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
-		DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
 		
 		
 		
