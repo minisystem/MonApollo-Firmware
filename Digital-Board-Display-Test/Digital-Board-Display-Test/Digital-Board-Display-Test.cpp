@@ -101,6 +101,7 @@ Write ADC code.
 #define e		0b10000000
 #define f		0b00000010
 #define g		0b00001000
+#define dp		0b00100000
 
 //define decimal digits
 #define ZERO	(a | b | c | d | e | f)
@@ -122,11 +123,18 @@ Write ADC code.
 #define E		(a | d | e | f | g)
 #define F		(a | e | f | g)
 
+//define POTMUX_EN bits
+#define POTMUX_EN0	PH6
+#define POTMUX_EN1	PH7
+
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
 
 volatile uint8_t place = 0; //digit place for LED display
+
+volatile uint16_t adc_previous = 0;
+volatile uint16_t adc_value = 0;
 
 void display_DEC(uint16_t number, uint8_t digit)
 {
@@ -184,7 +192,7 @@ void display_DEC(uint16_t number, uint8_t digit)
 	}
 	
 	//set cathode byte
-	DATA_BUS = ~cathode_byte; //set bits for cathode (current sinks, active LOW)
+	DATA_BUS = ~(cathode_byte); //set bits for cathode (current sinks, active LOW)
 	//latch data to cathode lines
 	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
 	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
@@ -197,9 +205,52 @@ volatile uint8_t digit[] = {
 	HUNDS,
 	THOUS,
 };
-//main scanning interrupt handler
-ISR (TIMER2_OVF_vect) {
+
+void setupADC(void)
+{
+	ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
 	
+	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
+	
+	//MUX2:0 is 000 by default in ADMUX
+	//ADMUX &= ~(1<<MUX0); //set ADC multiplexer to read ADC0 (PF0 on PORTF, pin 97)
+	
+	//ADCSRA |= (1<<ADATE); //set ADC in free running mode
+	
+	DIDR0 |= 0x01; //disable digital input buffer for ADC0
+	ADCSRA |= (1<<ADEN); //enable ADC
+	
+	ADCSRA |= (1<<ADSC); //start ADC
+	
+	//do an initial read to set adc_previous	
+	DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+	PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+	ADCSRA |= (1<<ADSC); //start ADC conversion
+	while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+	adc_value = ADCL;
+	adc_value = adc_value | (ADCH <<8);
+	adc_previous = adc_value;
+	PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+	
+}
+
+ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
+	
+	if (place == 0) { //if place is 0, start a new ADC conversion
+		//select POTMUX input
+		DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+		PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+		ADCSRA |= (1<<ADSC); //start ADC conversion
+		while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+		adc_previous = adc_value;
+		adc_value = ADCL;
+		adc_value = adc_value | (ADCH <<8);				 		
+		PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+		
+		int deflection = adc_value - adc_previous;
+		if (deflection < 0 ) deflection = adc_previous - adc_value;
+		if (deflection <= 1) adc_value = adc_previous;
+	}				
 	//toggle ARP_SYNC LED
 	PINB = (1<<ARP_SYNC_LED);
 	SPI_PORT |= SPI_SW_LATCH;
@@ -263,13 +314,16 @@ ISR (TIMER2_OVF_vect) {
 	SPI_PORT &= ~SPI_SW_LATCH;
 		
 	//update 7-segment LED display 
-	display_DEC(4242,digit[place]);
-		
+	display_DEC(adc_value, digit[place]);
+	
 	//increment digit display place
 	if (place++ == 3) //post increment
 	{
 		place = 0;
 	}
+	
+
+	
 }	
 
 
@@ -315,11 +369,19 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	SPI_LATCH_PORT |= LED_LATCH;
 	
+	
+	DDRH |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins as outputs
+	PORTH |= (1<<POTMUX_EN0) | (1<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
+	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
 	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
+	
+
+	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
+    setupADC();	
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
