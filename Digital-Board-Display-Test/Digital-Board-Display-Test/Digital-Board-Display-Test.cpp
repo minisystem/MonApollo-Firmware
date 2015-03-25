@@ -210,8 +210,9 @@ volatile uint8_t digit[] = {
 
 void setupADC(void)
 {
-	ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
-	
+	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
+	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1); //set ADC clock to 312.5 KHz for 20 MHz clock
+	ADCSRA |= (1<<ADPS2); //set ADC clock to 1.25 MHz for 20 MHz clock
 	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
 	
 	//MUX2:0 is 000 by default in ADMUX
@@ -243,7 +244,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		//select POTMUX input
 		if (ISW4_SW_ON) {
 			DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
 			ADCSRA |= (1<<ADSC); //start ADC conversion
 			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
 			adc_previous = adc_value;
@@ -252,7 +253,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
 		} else {
 			DATA_BUS = 0b00001001; //select Y9 (VR27 POT)
-			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9
+			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9 on U4
 			ADCSRA |= (1<<ADSC); //start ADC conversion
 			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
 			adc_previous = adc_value;

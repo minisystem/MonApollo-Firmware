@@ -262,18 +262,17 @@ void display_DEC(uint16_t number, uint8_t digit)
  182:	08 95       	ret
 
 00000184 <_Z8setupADCv>:
-	THOUS,
-};
 
 void setupADC(void)
 {
-	ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
+	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
+	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1); //set ADC clock to 312.5 KHz for 20 MHz clock
+	ADCSRA |= (1<<ADPS2); //set ADC clock to 1.25 MHz for 20 MHz clock
  184:	ea e7       	ldi	r30, 0x7A	; 122
  186:	f0 e0       	ldi	r31, 0x00	; 0
  188:	80 81       	ld	r24, Z
- 18a:	87 60       	ori	r24, 0x07	; 7
+ 18a:	84 60       	ori	r24, 0x04	; 4
  18c:	80 83       	st	Z, r24
-	
 	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
  18e:	ac e7       	ldi	r26, 0x7C	; 124
  190:	b0 e0       	ldi	r27, 0x00	; 0
@@ -343,7 +342,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
  1e4:	87 e0       	ldi	r24, 0x07	; 7
  1e6:	82 b9       	out	0x02, r24	; 2
-			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
  1e8:	ea ed       	ldi	r30, 0xDA	; 218
  1ea:	f0 e0       	ldi	r31, 0x00	; 0
  1ec:	80 81       	ld	r24, Z
@@ -390,7 +389,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			DATA_BUS = 0b00001001; //select Y9 (VR27 POT)
  248:	89 e0       	ldi	r24, 0x09	; 9
  24a:	82 b9       	out	0x02, r24	; 2
-			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9
+			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9 on U4
  24c:	ea ed       	ldi	r30, 0xDA	; 218
  24e:	f0 e0       	ldi	r31, 0x00	; 0
  250:	80 81       	ld	r24, Z
