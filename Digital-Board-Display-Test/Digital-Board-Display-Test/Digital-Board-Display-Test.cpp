@@ -337,7 +337,16 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	SPI_PORT &= ~SPI_SW_LATCH;
 		
 	//update 7-segment LED display 
-	display_DEC(adc_value, digit[place]);
+	int display_value;
+	if (ISW4_SW_ON) {
+		
+			display_value = (float(adc_value)/4092)*10000;
+		
+		} else {
+		
+			display_value = (float(adc_value)/1024)*10000;
+		}			
+	display_DEC(display_value, digit[place]);
 	
 	//increment digit display place
 	if (place++ == 3) //post increment
