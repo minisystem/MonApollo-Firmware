@@ -127,6 +127,8 @@ Write ADC code.
 #define POTMUX_EN0	PH6
 #define POTMUX_EN1	PH7
 
+#define GATE PF1 //define gate output
+
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
@@ -218,19 +220,20 @@ void setupADC(void)
 	//ADCSRA |= (1<<ADATE); //set ADC in free running mode
 	
 	DIDR0 |= 0x01; //disable digital input buffer for ADC0
+	
 	ADCSRA |= (1<<ADEN); //enable ADC
 	
 	ADCSRA |= (1<<ADSC); //start ADC
 	
-	//do an initial read to set adc_previous	
-	DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-	PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
-	ADCSRA |= (1<<ADSC); //start ADC conversion
-	while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-	adc_value = ADCL;
-	adc_value = adc_value | (ADCH <<8);
-	adc_previous = adc_value;
-	PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+	////do an initial read to set adc_previous	
+	//DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+	//PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+	//ADCSRA |= (1<<ADSC); //start ADC conversion
+	//while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+	//adc_value = ADCL;
+	//adc_value = adc_value | (ADCH <<8);
+	//adc_previous = adc_value;
+	//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
 	
 }
 
@@ -238,15 +241,25 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 	if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
-		DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-		PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
-		ADCSRA |= (1<<ADSC); //start ADC conversion
-		while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-		adc_previous = adc_value;
-		adc_value = ADCL;
-		adc_value = adc_value | (ADCH <<8);				 		
-		PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
-		
+		if (ISW4_SW_ON) {
+			DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
+			ADCSRA |= (1<<ADSC); //start ADC conversion
+			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+			adc_previous = adc_value;
+			adc_value = ADCL;
+			adc_value = adc_value | (ADCH <<8);				 		
+			PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+		} else {
+			DATA_BUS = 0b00001001; //select Y9 (VR27 POT)
+			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9
+			ADCSRA |= (1<<ADSC); //start ADC conversion
+			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+			adc_previous = adc_value;
+			adc_value = ADCL;
+			adc_value = adc_value | (ADCH <<8);
+			PORTH |= (1<<POTMUX_EN1); //set POTMUX_EN1						
+		}		
 		int deflection = adc_value - adc_previous;
 		if (deflection < 0 ) deflection = adc_previous - adc_value;
 		if (deflection <= 1) adc_value = adc_previous;
@@ -338,6 +351,8 @@ int main(void)
 		
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
+	
+	DDRF |= (1<<GATE); //set gate as output
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
