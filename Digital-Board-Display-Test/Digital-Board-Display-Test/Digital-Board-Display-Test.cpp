@@ -242,15 +242,24 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 	if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
-		if (ISW4_SW_ON) {
-			DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
-			ADCSRA |= (1<<ADSC); //start ADC conversion
-			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+		if (ISW4_SW_ON) { //16X oversampling
+			
+			uint16_t adc_sum = 0;
+			for (int i = 0; i < 16; i++) {
+				DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+				PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
+				ADCSRA |= (1<<ADSC); //start ADC conversion
+				while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+				
+				adc_value = ADCL;
+				adc_value = adc_value | (ADCH <<8);				 		
+				PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+				adc_sum += adc_value;
+			}				
 			adc_previous = adc_value;
-			adc_value = ADCL;
-			adc_value = adc_value | (ADCH <<8);				 		
-			PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+			adc_value = adc_sum>>2; //right shift by 2 to convert 14 bit sum to 12 bit result
+	
+				
 		} else {
 			DATA_BUS = 0b00001001; //select Y9 (VR27 POT)
 			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9 on U4
@@ -261,9 +270,9 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			adc_value = adc_value | (ADCH <<8);
 			PORTH |= (1<<POTMUX_EN1); //set POTMUX_EN1						
 		}		
-		int deflection = adc_value - adc_previous;
-		if (deflection < 0 ) deflection = adc_previous - adc_value;
-		if (deflection <= 1) adc_value = adc_previous;
+		//int deflection = adc_value - adc_previous;
+		//if (deflection < 0 ) deflection = adc_previous - adc_value;
+		//if (deflection <= 1) adc_value = adc_previous;
 	}				
 	//toggle ARP_SYNC LED
 	PINB = (1<<ARP_SYNC_LED);
