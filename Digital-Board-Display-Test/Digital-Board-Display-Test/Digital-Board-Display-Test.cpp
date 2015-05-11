@@ -21,14 +21,16 @@ Main scanning interrupt (~3.3ms) implemented and SPI and LED display driving cod
 moved into main interrupt handler routine.
 
 dispay_DEC function can now take any value between 0 and 9999 and display it on display
-cycling through 4 places, andoe 1 to 4
+cycling through 4 places, anode 1 to 4
+
+ADC operates with 1X and 16X oversampling, depending on button press. Seems a pretty noisy. Most pot demuxer
+inputs are floating because only 2 pots are soldered on board. This could be a source of noise.
  
  TO DO:
  ==============================================================================
  
 Handle decimal points
 
-Write ADC code.
  
  ==============================================================================
  
@@ -372,6 +374,7 @@ int main(void)
 	DDRB |= (1<<ARP_SYNC_LED);
 	
 	DDRF |= (1<<GATE); //set gate as output
+	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)

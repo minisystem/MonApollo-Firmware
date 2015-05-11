@@ -746,6 +746,7 @@ int main(void)
 	
 	DDRF |= (1<<GATE); //set gate as output
  450:	81 9a       	sbi	0x10, 1	; 16
+	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
