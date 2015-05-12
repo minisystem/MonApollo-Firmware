@@ -11,6 +11,8 @@
  DONE:
  ==============================================================================
  
+DAC setup is working.
+
 SPI LED driving and switch reading is done but only in a rudimentary fashion for testing
 Leave it alone as much as possible and try to get LED 7-segment display working with
 interrupt-based updates whilst keeping SPI working
@@ -30,7 +32,6 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
  TO DO:
  ==============================================================================
  
-*TEST DAC
 *DAC MULTIPLEXING
 *Handle decimal points on LED display
 *break up code into header files
@@ -69,10 +70,18 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 #define LED_LATCH		(1<<PJ3)
 
 //define PORTS
-#define SPI_PORT PORTB
-#define SPI_LATCH_PORT PORTJ
-#define DATA_BUS PORTA
-#define DISPLAY_PORT PORTH
+#define SPI_PORT		PORTB
+#define SPI_LATCH_PORT	PORTJ
+#define DATA_BUS		PORTA
+#define DISPLAY_PORT	PORTH
+#define DAC_BUS_LOW		PORTD
+#define DAC_BUS_HIGH	PORTC
+#define DAC_CTRL		PORTG
+#define DAC_MUX			PORTH
+
+//define DAC bits
+#define DAC_WR			PG0
+#define DAC_RS			PG1
 
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
@@ -142,6 +151,35 @@ volatile uint8_t place = 0; //digit place for LED display
 
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
+
+void setupDAC(void) //set up DAC
+{
+	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
+	DDRD = 0xFF; //set DAC_BUS_LOW bits to outputs
+	DDRC |= 0xFF;//set DAC_BUS_HIGH bits to outputs
+	
+	
+	
+	DAC_CTRL |= (1<<DAC_RS) | (1<<DAC_WR); //disable DAC
+	
+	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
+	DAC_CTRL |= (1<<DAC_RS);
+	
+	DAC_CTRL &= ~(1<<DAC_WR); //write DATA - falling edge then rising edge to toggle DAC bits to output register
+	DAC_CTRL |= (1<<DAC_WR);
+}
+void set_dac(uint8_t channel, uint16_t value)
+{
+	DAC_BUS_LOW = value & 0b00000011111111; //mask top 6 MSBs to set low byte
+	
+	DAC_BUS_HIGH = value >> 8; //shift away bottom LSBs to set high byte
+	
+	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
+	DAC_CTRL |= (1<<DAC_WR);
+	
+	
+}
+
 
 void display_DEC(uint16_t number, uint8_t digit)
 {
@@ -245,6 +283,7 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
+	set_dac(0,adc_value << 4);
 	if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
 		if (ISW4_SW_ON) { //16X oversampling
@@ -266,14 +305,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 				
 		} else {
-			DATA_BUS = 0b00001001; //select Y9 (VR27 POT)
-			PORTH &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input Y9 on U4
+			DATA_BUS = 0b00000000; //select Y7 (VR2 POT)
+			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
 			ADCSRA |= (1<<ADSC); //start ADC conversion
 			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
 			adc_previous = adc_value;
 			adc_value = ADCL;
 			adc_value = adc_value | (ADCH <<8);
-			PORTH |= (1<<POTMUX_EN1); //set POTMUX_EN1						
+			PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+			PORTH |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.					
 		}		
 		//int deflection = adc_value - adc_previous;
 		//if (deflection < 0 ) deflection = adc_previous - adc_value;
@@ -422,6 +462,9 @@ int main(void)
 
 	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
     setupADC();	
+	
+	//setup DAC
+	setupDAC();
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
