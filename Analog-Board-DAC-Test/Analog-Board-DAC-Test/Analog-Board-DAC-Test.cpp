@@ -11,7 +11,7 @@
  DONE:
  ==============================================================================
  
-DAC setup is working.
+DAC setup is working. Value is determined by reading 10 bit pot value
 
 SPI LED driving and switch reading is done but only in a rudimentary fashion for testing
 Leave it alone as much as possible and try to get LED 7-segment display working with
@@ -32,7 +32,10 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
  TO DO:
  ==============================================================================
  
-*DAC MULTIPLEXING
+*DAC MULTIPLEXING:
+	-Only U13 DG408 VDAC multiplexor and associated S&Hs is installed
+	-Read 8 pot values and assigns those values to each of the 8 DAC multiplexor channles
+	
 *Handle decimal points on LED display
 *break up code into header files
  
@@ -78,10 +81,15 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 #define DAC_BUS_HIGH	PORTC
 #define DAC_CTRL		PORTG
 #define DAC_MUX			PORTH
+#define POT_MUX			PORTH
 
 //define DAC bits
 #define DAC_WR			PG0
 #define DAC_RS			PG1
+#define DAC_MUX_EN0		PH0 //DG408 enable is active HIGH
+#define DAC_MUX_EN1		PH1
+#define DAC_MUX_EN2		PH2
+#define DAC_MUX_EN3		PH3
 
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
@@ -152,13 +160,25 @@ volatile uint8_t place = 0; //digit place for LED display
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
 
+volatile uint16_t dac_channel[] = { //array to store 8 14 bit DAC values, which are determined by ADC readings of 8 pots
+	
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
 void setupDAC(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
 	DDRD = 0xFF; //set DAC_BUS_LOW bits to outputs
 	DDRC |= 0xFF;//set DAC_BUS_HIGH bits to outputs
+	DDRH |= (1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3); //set DAC_MUX_EN pins as outputs
 	
-	
+	DAC_MUX &= ~((1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3)); //disable DG408 VDAC mulitplexers 
 	
 	DAC_CTRL |= (1<<DAC_RS) | (1<<DAC_WR); //disable DAC
 	
@@ -170,6 +190,8 @@ void setupDAC(void) //set up DAC
 }
 void set_dac(uint8_t channel, uint16_t value)
 {
+	
+	
 	DAC_BUS_LOW = value & 0b00000011111111; //mask top 6 MSBs to set low byte
 	
 	DAC_BUS_HIGH = value >> 8; //shift away bottom LSBs to set high byte
@@ -177,6 +199,10 @@ void set_dac(uint8_t channel, uint16_t value)
 	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
 	DAC_CTRL |= (1<<DAC_WR);
 	
+	DATA_BUS = channel; //set channel for DG408 multiplexer output
+	DAC_MUX |= (1<<DAC_MUX_EN0); //enable multiplexer
+	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
+	DAC_MUX &= (1<<DAC_MUX_EN0); //disable multiplexer
 	
 }
 
@@ -283,42 +309,49 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	set_dac(0,adc_value << 4);
-	if (place == 0) { //if place is 0, start a new ADC conversion
+	
+	//if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
-		if (ISW4_SW_ON) { //16X oversampling
+	//	if (ISW4_SW_ON) { //16X oversampling
 			
-			uint16_t adc_sum = 0;
-			for (int i = 0; i < 16; i++) {
-				DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-				PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
-				ADCSRA |= (1<<ADSC); //start ADC conversion
-				while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-				
-				adc_value = ADCL;
-				adc_value = adc_value | (ADCH <<8);				 		
-				PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
-				adc_sum += adc_value;
-			}				
-			adc_previous = adc_value;
-			adc_value = adc_sum>>2; //right shift by 2 to convert 14 bit sum to 12 bit result
+			//uint16_t adc_sum = 0;
+			//for (int i = 0; i < 16; i++) {
+				//DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
+				//PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
+				//ADCSRA |= (1<<ADSC); //start ADC conversion
+				//while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
+				//
+				//adc_value = ADCL;
+				//adc_value = adc_value | (ADCH <<8);				 		
+				//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+				//adc_sum += adc_value;
+			//}				
+			//adc_previous = adc_value;
+			//adc_value = adc_sum>>2; //right shift by 2 to convert 14 bit sum to 12 bit result
 	
 				
-		} else {
-			DATA_BUS = 0b00000000; //select Y7 (VR2 POT)
-			PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
-			ADCSRA |= (1<<ADSC); //start ADC conversion
-			while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-			adc_previous = adc_value;
-			adc_value = ADCL;
-			adc_value = adc_value | (ADCH <<8);
-			PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
-			PORTH |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.					
-		}		
+	//	} else {
+			
+			for (int i = 0; i < 8; i++)
+			{
+				DATA_BUS = i; //select
+				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+				ADCSRA |= (1<<ADSC); //start ADC conversion
+				while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+				adc_previous = adc_value;
+				adc_value = ADCL;
+				adc_value = adc_value | (ADCH <<8);
+				dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
+				set_dac(i, dac_channel[i]); //set DAC
+				POT_MUX |= (1<<POTMUX_EN0); //set POTMUX_EN0
+				POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.			
+			}
+			
+	//	}		
 		//int deflection = adc_value - adc_previous;
 		//if (deflection < 0 ) deflection = adc_previous - adc_value;
 		//if (deflection <= 1) adc_value = adc_previous;
-	}				
+	//}				
 	//toggle ARP_SYNC LED
 	PINB = (1<<ARP_SYNC_LED);
 	SPI_PORT |= SPI_SW_LATCH;
@@ -389,7 +422,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 		} else {
 		
-			display_value = (float(adc_value)/1024)*10000;
+			display_value = (float(adc_value)/1024)*10000; //at the moment, only last read POT (0b111) value is displayed
 		}			
 	display_DEC(display_value, digit[place]);
 	
