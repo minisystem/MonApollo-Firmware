@@ -178,7 +178,7 @@ void setupDAC(void) //set up DAC
 	DDRC |= 0xFF;//set DAC_BUS_HIGH bits to outputs
 	DDRH |= (1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3); //set DAC_MUX_EN pins as outputs
 	
-	DAC_MUX &= ~((1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3)); //disable DG408 VDAC mulitplexers 
+	DAC_MUX &= ~((1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3)); //disable DG408 VDAC multiplexers 
 	
 	DAC_CTRL |= (1<<DAC_RS) | (1<<DAC_WR); //disable DAC
 	
@@ -200,9 +200,10 @@ void set_dac(uint8_t channel, uint16_t value)
 	DAC_CTRL |= (1<<DAC_WR);
 	
 	DATA_BUS = channel; //set channel for DG408 multiplexer output
+	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
 	DAC_MUX |= (1<<DAC_MUX_EN0); //enable multiplexer
 	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
-	DAC_MUX &= (1<<DAC_MUX_EN0); //disable multiplexer
+	DAC_MUX &= ~(1<<DAC_MUX_EN0); //disable multiplexer
 	
 }
 
@@ -267,7 +268,8 @@ void display_DEC(uint16_t number, uint8_t digit)
 	//latch data to cathode lines
 	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
 	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
-
+	
+	//DATA_BUS = 0; //clear DATA_BUS before return
 }
 
 volatile uint8_t digit[] = {
@@ -309,7 +311,7 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	
+	//display_DEC(adc_value, digit[place]);
 	//if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
 	//	if (ISW4_SW_ON) { //16X oversampling
@@ -331,22 +333,35 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 				
 	//	} else {
-			
-			for (int i = 0; i < 8; i++)
+			//DATA_BUS = 0;
+			for (int i = 0; i <=7; i++)
 			{
-				DATA_BUS = i; //select
+				//int i = 0;	
+				//DATA_BUS = i; //set pot mux address on databus
+				//DELAYS ADDED HERE TO ALLOW SETTLING TIMES FOR POT MUTLIPLEXER INPUTS.
+				//NEED TO HAVE ONE CHANNEL GROUNDED TO RESET MULTIPLEXER INPUT - NOT IF DELAY BETWEEN SETTING CHANNEL ADDRESS ON MUX AND 
+				//READING POT IS SUFFICIENTLY LONG. 8-10us IS ENOUGH TO PRODUCE >1-2 mV OFFSET FROM FULL SWEEP OF PREVIOUS POT CHANNEL
+				//DATA_BUS = 0; //set multiplexer to pot 0, kept at GND				
 				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+				//_delay_us(4);
+				DATA_BUS = i; //set pot mux address on databus
+				_delay_us(10);			
 				ADCSRA |= (1<<ADSC); //start ADC conversion
 				while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				adc_previous = adc_value;
+				
+				//adc_previous = adc_value;
 				adc_value = ADCL;
 				adc_value = adc_value | (ADCH <<8);
-				dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
-				set_dac(i, dac_channel[i]); //set DAC
-				POT_MUX |= (1<<POTMUX_EN0); //set POTMUX_EN0
-				POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.			
+				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
+				//set_dac(i, dac_channel[i]); //set DAC
+                set_dac(i, adc_value << 4);
+				//POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
+						
 			}
-			
+			DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
+			DAC_CTRL |= (1<<DAC_RS);	
 	//	}		
 		//int deflection = adc_value - adc_previous;
 		//if (deflection < 0 ) deflection = adc_previous - adc_value;
@@ -415,16 +430,16 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	SPI_PORT &= ~SPI_SW_LATCH;
 		
 	//update 7-segment LED display 
-	int display_value;
-	if (ISW4_SW_ON) {
-		
-			display_value = (float(adc_value)/4092)*10000;
-		
-		} else {
-		
-			display_value = (float(adc_value)/1024)*10000; //at the moment, only last read POT (0b111) value is displayed
-		}			
-	display_DEC(display_value, digit[place]);
+	//int display_value;
+	//if (ISW4_SW_ON) {
+		//
+			//display_value = (float(adc_value)/4092)*10000;
+		//
+		//} else {
+		//
+			//display_value = (float(adc_value)/1024)*10000; //at the moment, only last read POT (0b111) value is displayed
+		//}			
+	//display_DEC(display_value, digit[place]);
 	
 	//increment digit display place
 	if (place++ == 3) //post increment
@@ -484,7 +499,8 @@ int main(void)
 	
 	
 	DDRH |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins as outputs
-	PORTH |= (1<<POTMUX_EN0) | (1<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
+	POT_MUX |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
+	//POT_MUX |= (1<<POTMUX_EN1);
 	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
@@ -504,7 +520,7 @@ int main(void)
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
 	sei(); //enable global interrupts
-		
+	//POT_MUX |= (1<<POTMUX_EN1); //set pot mux en1 again - it is getting cleared somewhere	
 	while(1)
 	{
 		
