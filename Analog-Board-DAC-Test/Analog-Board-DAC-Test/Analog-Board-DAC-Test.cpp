@@ -311,7 +311,7 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	//display_DEC(adc_value, digit[place]);
+	display_DEC(adc_value, digit[place]);
 	//if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
 	//	if (ISW4_SW_ON) { //16X oversampling
