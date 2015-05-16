@@ -12,6 +12,9 @@
  ==============================================================================
  
 DAC setup is working. Value is determined by reading 10 bit pot value
+DAC MULTIPLEXING:
+-Only U13 DG408 VDAC multiplexer and associated S&Hs is installed
+-Read 8 pot values and assigns those values to each of the 8 DAC multiplexer channels
 
 SPI LED driving and switch reading is done but only in a rudimentary fashion for testing
 Leave it alone as much as possible and try to get LED 7-segment display working with
@@ -32,9 +35,7 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
  TO DO:
  ==============================================================================
  
-*DAC MULTIPLEXING:
-	-Only U13 DG408 VDAC multiplexor and associated S&Hs is installed
-	-Read 8 pot values and assigns those values to each of the 8 DAC multiplexor channles
+
 	
 *Handle decimal points on LED display
 *break up code into header files
@@ -199,11 +200,11 @@ void set_dac(uint8_t channel, uint16_t value)
 	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
 	DAC_CTRL |= (1<<DAC_WR);
 	
-	DATA_BUS = channel; //set channel for DG408 multiplexer output
+	//DATA_BUS = channel; //set channel for DG408 multiplexer output
 	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
-	DAC_MUX |= (1<<DAC_MUX_EN0); //enable multiplexer
-	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
-	DAC_MUX &= ~(1<<DAC_MUX_EN0); //disable multiplexer
+	//DAC_MUX |= (1<<DAC_MUX_EN0); //enable multiplexer
+	//_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
+	//DAC_MUX &= ~(1<<DAC_MUX_EN0); //disable multiplexer
 	
 }
 
@@ -283,7 +284,7 @@ void setupADC(void)
 {
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1); //set ADC clock to 312.5 KHz for 20 MHz clock
-	ADCSRA |= (1<<ADPS2); //set ADC clock to 1.25 MHz for 20 MHz clock
+	ADCSRA |= (1<<ADPS2);// | (1<<ADPS0); //set ADC clock to 1.25 MHz for 20 MHz clock
 	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
 	
 	//MUX2:0 is 000 by default in ADMUX
@@ -295,7 +296,7 @@ void setupADC(void)
 	
 	ADCSRA |= (1<<ADEN); //enable ADC
 	
-	ADCSRA |= (1<<ADSC); //start ADC
+	//ADCSRA |= (1<<ADSC); //start ADC
 	
 	////do an initial read to set adc_previous	
 	//DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
@@ -334,21 +335,23 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				
 	//	} else {
 			//DATA_BUS = 0;
-			for (int i = 0; i <=7; i++)
+			for (int i = 0; i <=15; i++)
 			{
-				//int i = 0;	
+				//int i = 7;	
 				//DATA_BUS = i; //set pot mux address on databus
 				//DELAYS ADDED HERE TO ALLOW SETTLING TIMES FOR POT MUTLIPLEXER INPUTS.
 				//NEED TO HAVE ONE CHANNEL GROUNDED TO RESET MULTIPLEXER INPUT - NOT IF DELAY BETWEEN SETTING CHANNEL ADDRESS ON MUX AND 
-				//READING POT IS SUFFICIENTLY LONG. 8-10us IS ENOUGH TO PRODUCE >1-2 mV OFFSET FROM FULL SWEEP OF PREVIOUS POT CHANNEL
+				//READING POT IS SUFFICIENTLY LONG. 2us IS ENOUGH TO PRODUCE >1-2 mV OFFSET FROM FULL SWEEP OF PREVIOUS POT CHANNEL
 				//DATA_BUS = 0; //set multiplexer to pot 0, kept at GND				
 				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
 				//_delay_us(4);
 				DATA_BUS = i; //set pot mux address on databus
-				_delay_us(10);			
+				_delay_us(2); //2 us is minimum delay required to produce mux channel cross talk of <= 1 bit. Still need to see if this is affected by S&H			
 				ADCSRA |= (1<<ADSC); //start ADC conversion
-				while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				
+				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+			
+								
 				//adc_previous = adc_value;
 				adc_value = ADCL;
 				adc_value = adc_value | (ADCH <<8);
@@ -356,10 +359,10 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
 				//set_dac(i, dac_channel[i]); //set DAC
                 set_dac(i, adc_value << 4);
-				//POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+
 				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
 						
-			}
+			}			
 			DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 			DAC_CTRL |= (1<<DAC_RS);	
 	//	}		
@@ -457,7 +460,6 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 int main(void)
 {
 	//turn off JTAG so all outputs of PORTC can be used
-	//not used yet, but PORTC will be used for DAC bits
 	MCUCR = (1<<JTD);
 	MCUCR = (1<<JTD);
 		
