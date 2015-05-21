@@ -200,11 +200,19 @@ void set_dac(uint8_t channel, uint16_t value)
 	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
 	DAC_CTRL |= (1<<DAC_WR);
 	
-	//DATA_BUS = channel; //set channel for DG408 multiplexer output
+	DATA_BUS = channel; //set channel for DG408 multiplexer output
+	uint8_t dac_mux_address;
+	if (channel < 8)
+	{
+		dac_mux_address = DAC_MUX_EN0;
+	} else {
+		
+		dac_mux_address = DAC_MUX_EN1;
+	}
 	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
-	//DAC_MUX |= (1<<DAC_MUX_EN0); //enable multiplexer
-	//_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
-	//DAC_MUX &= ~(1<<DAC_MUX_EN0); //disable multiplexer
+	DAC_MUX |= (1<<dac_mux_address); //enable multiplexer
+	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
+	DAC_MUX &= ~(1<<dac_mux_address); //disable multiplexer
 	
 }
 
@@ -343,10 +351,8 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//NEED TO HAVE ONE CHANNEL GROUNDED TO RESET MULTIPLEXER INPUT - NOT IF DELAY BETWEEN SETTING CHANNEL ADDRESS ON MUX AND 
 				//READING POT IS SUFFICIENTLY LONG. 2us IS ENOUGH TO PRODUCE >1-2 mV OFFSET FROM FULL SWEEP OF PREVIOUS POT CHANNEL
 				//DATA_BUS = 0; //set multiplexer to pot 0, kept at GND				
-				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-				//_delay_us(4);
-				DATA_BUS = i; //set pot mux address on databus
-				_delay_us(2); //2 us is minimum delay required to produce mux channel cross talk of <= 1 bit. Still need to see if this is affected by S&H			
+
+				//_delay_us(4); //2 us is minimum delay required to produce mux channel cross talk of <= 1 bit. Still need to see if this is affected by S&H			
 				ADCSRA |= (1<<ADSC); //start ADC conversion
 				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
 				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
@@ -355,11 +361,16 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//adc_previous = adc_value;
 				adc_value = ADCL;
 				adc_value = adc_value | (ADCH <<8);
-				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+				
+				//set up mux for next ADC read
+				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+				DATA_BUS = i; //set pot mux address on databus				
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
 				//set_dac(i, dac_channel[i]); //set DAC
-                set_dac(i, adc_value << 4);
-
+				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
+				if (i == 5) {set_dac(i, 0x2000);} else {set_dac(i, adc_value << 4);}
+                //set_dac(i, adc_value << 4);
+				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
 						
 			}			
