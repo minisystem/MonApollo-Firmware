@@ -5,16 +5,17 @@
  *  Author: jeff
 
  
- *DAC TEST
+ *Board Evaluation
  ==========================================================
  
  DONE:
  ==============================================================================
+
  
 DAC setup is working. Value is determined by reading 10 bit pot value
 DAC MULTIPLEXING:
--Only U13 DG408 VDAC multiplexer and associated S&Hs is installed
--Read 8 pot values and assigns those values to each of the 8 DAC multiplexer channels
+-Only U13/U14 DG408 VDAC multiplexer and associated S&Hs is installed
+-Read 16 pot values and assigns those values to each of the 8 DAC multiplexer channels
 
 SPI LED driving and switch reading is done but only in a rudimentary fashion for testing
 Leave it alone as much as possible and try to get LED 7-segment display working with
@@ -35,7 +36,7 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
  TO DO:
  ==============================================================================
  
-
+*VCO waveform switching
 	
 *Handle decimal points on LED display
 *break up code into header files
@@ -73,16 +74,22 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 //LED latch pin on PORTJ
 #define LED_LATCH		(1<<PJ3)
 
+//define analog switch latch (VCO waveform switching)
+#define VCO_SW_LATCH		PJ6
+//define LFO waveform switch latch (not yet implemented in hardware)
+#define LFO_SW_LATCH		PJ5
+
 //define PORTS
-#define SPI_PORT		PORTB
-#define SPI_LATCH_PORT	PORTJ
-#define DATA_BUS		PORTA
-#define DISPLAY_PORT	PORTH
-#define DAC_BUS_LOW		PORTD
-#define DAC_BUS_HIGH	PORTC
-#define DAC_CTRL		PORTG
-#define DAC_MUX			PORTH
-#define POT_MUX			PORTH
+#define SPI_PORT			PORTB
+#define SPI_LATCH_PORT		PORTJ
+#define VCO_SW_LATCH_PORT	PORTJ
+#define DATA_BUS			PORTA
+#define DISPLAY_PORT		PORTH
+#define DAC_BUS_LOW			PORTD
+#define DAC_BUS_HIGH		PORTC
+#define DAC_CTRL			PORTG
+#define DAC_MUX				PORTH
+#define POT_MUX				PORTH
 
 //define DAC bits
 #define DAC_WR			PG0
@@ -160,6 +167,7 @@ volatile uint8_t place = 0; //digit place for LED display
 
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
+volatile uint16_t tune_offset = 0; //fine tune offset to display 
 
 volatile uint16_t dac_channel[] = { //array to store 8 14 bit DAC values, which are determined by ADC readings of 8 pots
 	
@@ -320,7 +328,7 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	display_DEC(adc_value, digit[place]);
+	display_DEC(tune_offset, digit[place]);
 	//if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
 	//	if (ISW4_SW_ON) { //16X oversampling
@@ -368,7 +376,14 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
 				//set_dac(i, dac_channel[i]); //set DAC
 				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
-				if (i == 5) {set_dac(i, 0x2000);} else {set_dac(i, adc_value << 4);}
+				//currently using this to set OSCA_INIT_CV and do fine tuning
+				if (i == 4) 
+				{
+					uint16_t tune_value = 9759; //init CV offset of about -5.8V
+					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
+					//set_dac(i, tune_value);
+					
+				} else {set_dac(i, adc_value << 4);}
                 //set_dac(i, adc_value << 4);
 				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
@@ -454,7 +469,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			//display_value = (float(adc_value)/1024)*10000; //at the moment, only last read POT (0b111) value is displayed
 		//}			
 	//display_DEC(display_value, digit[place]);
-	
+
 	//increment digit display place
 	if (place++ == 3) //post increment
 	{
@@ -485,8 +500,8 @@ int main(void)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
 	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
 	
-	//SET SPI_EN and LED_LATCH pins as outputs
-	DDRJ |= (SPI_EN | LED_LATCH);
+	//SET SPI_EN and LED_LATCH and VCO_SW_LATCH pins as outputs
+	DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH));
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
 	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
@@ -534,6 +549,13 @@ int main(void)
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
 	sei(); //enable global interrupts
 	//POT_MUX |= (1<<POTMUX_EN1); //set pot mux en1 again - it is getting cleared somewhere	
+	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+	//enable output on VCO analog switch latch:
+	DATA_BUS = 0b00000100; //enable VCO1 SAW
+	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
+	_delay_us(1);
+	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+	DATA_BUS = 0;
 	while(1)
 	{
 		
