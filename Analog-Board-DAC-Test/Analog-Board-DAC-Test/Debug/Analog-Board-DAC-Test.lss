@@ -556,14 +556,14 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
 				//set_dac(i, dac_channel[i]); //set DAC
 				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
-				//currently using this to set OSCA_INIT_CV
+				//currently using this to set OSCA_INIT_CV and do fine tuning
 				if (i == 4) 
  2f2:	f4 e0       	ldi	r31, 0x04	; 4
  2f4:	ef 16       	cp	r14, r31
  2f6:	f1 04       	cpc	r15, r1
  2f8:	91 f5       	brne	.+100    	; 0x35e <__vector_5+0x136>
 				{
-					uint16_t tune_value = 9759;
+					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
  2fa:	80 91 20 01 	lds	r24, 0x0120
  2fe:	90 91 21 01 	lds	r25, 0x0121
@@ -573,8 +573,8 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  308:	c0 f0       	brcs	.+48     	; 0x33a <__vector_5+0x112>
  30a:	60 91 20 01 	lds	r22, 0x0120
  30e:	70 91 21 01 	lds	r23, 0x0121
- 312:	61 5e       	subi	r22, 0xE1	; 225
- 314:	7b 4d       	sbci	r23, 0xDB	; 219
+ 312:	61 56       	subi	r22, 0x61	; 97
+ 314:	79 4e       	sbci	r23, 0xE9	; 233
  316:	8e 2d       	mov	r24, r14
  318:	0e 94 6a 00 	call	0xd4	; 0xd4 <_Z7set_dachj>
  31c:	80 91 20 01 	lds	r24, 0x0120
@@ -594,15 +594,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  336:	80 83       	st	Z, r24
  338:	b6 cf       	rjmp	.-148    	; 0x2a6 <__vector_5+0x7e>
 				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
-				//currently using this to set OSCA_INIT_CV
+				//currently using this to set OSCA_INIT_CV and do fine tuning
 				if (i == 4) 
 				{
-					uint16_t tune_value = 9759;
+					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
  33a:	60 91 20 01 	lds	r22, 0x0120
  33e:	70 91 21 01 	lds	r23, 0x0121
- 342:	61 5e       	subi	r22, 0xE1	; 225
- 344:	7b 4d       	sbci	r23, 0xDB	; 219
+ 342:	61 56       	subi	r22, 0x61	; 97
+ 344:	79 4e       	sbci	r23, 0xE9	; 233
  346:	8e 2d       	mov	r24, r14
  348:	0e 94 6a 00 	call	0xd4	; 0xd4 <_Z7set_dachj>
  34c:	80 91 20 01 	lds	r24, 0x0120

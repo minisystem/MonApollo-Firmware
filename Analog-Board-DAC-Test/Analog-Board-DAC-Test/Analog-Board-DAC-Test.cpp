@@ -379,7 +379,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//currently using this to set OSCA_INIT_CV and do fine tuning
 				if (i == 4) 
 				{
-					uint16_t tune_value = 9759; //init CV offset of about -5.8V
+					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
 					//set_dac(i, tune_value);
 					
