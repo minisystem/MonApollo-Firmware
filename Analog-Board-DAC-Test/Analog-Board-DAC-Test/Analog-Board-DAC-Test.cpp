@@ -377,7 +377,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//set_dac(i, dac_channel[i]); //set DAC
 				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
 				//currently using this to set OSCA_INIT_CV and do fine tuning
-				if (i == 4) 
+				if (i == 4 || i == 13) 
 				{
 					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
@@ -551,7 +551,8 @@ int main(void)
 	//POT_MUX |= (1<<POTMUX_EN1); //set pot mux en1 again - it is getting cleared somewhere	
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 	//enable output on VCO analog switch latch:
-	DATA_BUS = 0b00000100; //enable VCO1 SAW
+	//switch latch: bit 0: A SAW 1: A PULSE 2: A TRI 3: SYNC 4: B MOD 5: B PULSE 6: SAW 7: B TRI
+	DATA_BUS = 0b10001101; //enable VCO1 SAW
 	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 	_delay_us(1);
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
