@@ -90,6 +90,7 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 #define DAC_CTRL			PORTG
 #define DAC_MUX				PORTH
 #define POT_MUX				PORTH
+#define SWITCH_PORT			PINF //direct reading by MCU of some switches occurs on this port
 
 //define DAC bits
 #define DAC_WR			PG0
@@ -102,13 +103,28 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
 #define ISW11_LED			0b10000000
-#define ISW8_LED			0b10000000
-#define ISW4_LED			0b00000010
+#define ISW8_LED			0b10000000 //B MOD
+#define ISW4_LED			0b00000010 //SYNC U16
+#define ISW1_LED			0b00000100 //VCO1 SAW U16
+#define ISW2_LED			0b00001000 //VCO1 TRI U16
+#define ISW3_LED			0b00000001 //VCO1 PULSE U16
+#define ISW5_LED			0b00010000 //VCO2 SAW U16
+#define ISW6_LED			0b00100000 //VCO2 TRI U16
+#define ISW7_LED			0b01000000 //VCO2 PULSE U16
 
-//define switch bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
+//define SPI switch bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_SW			0b00100000
 #define ISW13_SW			0b01000000
-#define ISW4_SW				0b10000000
+
+#define ISW1_SW				0b00000100 //VCO1 SAW U14
+#define ISW2_SW				0b00000010 //VCO1 TRI U14
+#define ISW3_SW				0b00000001 //VCO1 PULSE U14
+#define ISW4_SW				0b10000000 //SYNC U14
+#define ISW5_SW				0b00010000 //VCO2 SAW U14
+#define ISW6_SW				0b00100000 //VCO2 TRI U14
+#define ISW7_SW				0b01000000 //VCO2 PULSE U14
+//define direct MCU input switch bits
+#define ISW8_SW				PF2
 
 //SPI switch latch
 #define SPI_SW_LATCH		(1<<PB5)
@@ -162,6 +178,7 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
+volatile uint8_t ISW8_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 
 volatile uint8_t place = 0; //digit place for LED display
 
@@ -401,7 +418,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	SPI_PORT |= SPI_SW_LATCH;
 		
 	//SHIFT 5th BYTE
-	SPDR =  ISW4_SW_ON << 1 | ISW8_LED; //ISW8_LED is MSB on 74XX595 U16
+	SPDR =  ISW4_SW_ON << 1 | ISW8_SW_ON << 7; //ISW8_LED is MSB on 74XX595 U16
 	while (!(SPSR & (1<<SPIF)));
 		
 	//Now read SPDR for switch data shifted in from 74XX165 U14
@@ -457,7 +474,14 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 	//clear SPI_SW_LATCH
 	SPI_PORT &= ~SPI_SW_LATCH;
-		
+	
+	//check it see if ISW8_SW is ON
+	if (SWITCH_PORT & (1<<ISW8_SW))
+	{
+		ISW8_SW_ON = 1;
+	} else {
+		ISW8_SW_ON = 0;
+	}	
 	//update 7-segment LED display 
 	//int display_value;
 	//if (ISW4_SW_ON) {
@@ -536,7 +560,8 @@ int main(void)
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
 	
-
+	//set up switch port
+	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
 	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
     setupADC();	
 	
@@ -552,7 +577,7 @@ int main(void)
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 	//enable output on VCO analog switch latch:
 	//switch latch: bit 0: A SAW 1: A PULSE 2: A TRI 3: SYNC 4: B MOD 5: B PULSE 6: SAW 7: B TRI
-	DATA_BUS = 0b10001101; //enable VCO1 SAW
+	DATA_BUS = 0b11010101; //enable VCO1 SAW
 	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 	_delay_us(1);
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
