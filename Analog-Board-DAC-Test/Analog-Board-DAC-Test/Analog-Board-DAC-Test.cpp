@@ -175,10 +175,21 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 
 #define GATE PF1 //define gate output
 
+//switch flags
+//ultimately combine these into a single byte and do bit manipulations to determine switch states
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
 volatile uint8_t ISW8_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
+
+//debounce switch state flags
+//again, combine into a single byte and do bit maninpulations to determine previous switch states
+volatile uint8_t previous_sw_state = 0;
+volatile uint8_t current_sw_state = 0;
+
+
+//counter for switch debouncing
+volatile uint8_t switch_timer = 0;
 
 volatile uint8_t place = 0; //digit place for LED display
 
@@ -475,24 +486,24 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	//clear SPI_SW_LATCH
 	SPI_PORT &= ~SPI_SW_LATCH;
 	
-	//check it see if ISW8_SW is ON
-	if (SWITCH_PORT & (1<<ISW8_SW))
+	//check it see if ISW8_SW is ON every 10 interrupts
+	if (switch_timer++ == 10)
 	{
-		ISW8_SW_ON = 1;
-	} else {
-		ISW8_SW_ON = 0;
-	}	
-	//update 7-segment LED display 
-	//int display_value;
-	//if (ISW4_SW_ON) {
-		//
-			//display_value = (float(adc_value)/4092)*10000;
-		//
-		//} else {
-		//
-			//display_value = (float(adc_value)/1024)*10000; //at the moment, only last read POT (0b111) value is displayed
-		//}			
-	//display_DEC(display_value, digit[place]);
+		switch_timer = 0;
+		//this toggle code works, but I haven't figured out how it works
+		//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
+		current_sw_state = SWITCH_PORT;
+		current_sw_state ^= previous_sw_state;
+		previous_sw_state ^= current_sw_state;
+		current_sw_state &= previous_sw_state;
+		
+		if (current_sw_state & (1<<ISW8_SW)) 
+		{
+			ISW8_SW_ON ^= 1 << 0; //toggle switch state
+		}			  	
+	}
+	
+	
 
 	//increment digit display place
 	if (place++ == 3) //post increment
