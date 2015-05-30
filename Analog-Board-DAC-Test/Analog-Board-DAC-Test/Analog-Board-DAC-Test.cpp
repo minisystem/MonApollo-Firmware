@@ -103,26 +103,27 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
 #define ISW11_LED			0b10000000
-#define ISW8_LED			0b10000000 //B MOD
-#define ISW4_LED			0b00000010 //SYNC U16
-#define ISW1_LED			0b00000100 //VCO1 SAW U16
-#define ISW2_LED			0b00001000 //VCO1 TRI U16
-#define ISW3_LED			0b00000001 //VCO1 PULSE U16
-#define ISW5_LED			0b00010000 //VCO2 SAW U16
-#define ISW6_LED			0b00100000 //VCO2 TRI U16
-#define ISW7_LED			0b01000000 //VCO2 PULSE U16
+#define ISW8_LED			7 //B MOD
+#define ISW4_LED			1 //SYNC U16
+#define ISW1_LED			2 //VCO1 SAW U16
+#define ISW2_LED			3 //VCO1 TRI U16
+#define ISW3_LED			0 //VCO1 PULSE U16
+#define ISW5_LED			4 //VCO2 SAW U16
+#define ISW6_LED			5 //VCO2 TRI U16
+#define ISW7_LED			6 //VCO2 PULSE U16
 
 //define SPI switch bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_SW			0b00100000
 #define ISW13_SW			0b01000000
 
-#define ISW1_SW				0b00000100 //VCO1 SAW U14
-#define ISW2_SW				0b00000010 //VCO1 TRI U14
-#define ISW3_SW				0b00000001 //VCO1 PULSE U14
-#define ISW4_SW				0b10000000 //SYNC U14
-#define ISW5_SW				0b00010000 //VCO2 SAW U14
-#define ISW6_SW				0b00100000 //VCO2 TRI U14
-#define ISW7_SW				0b01000000 //VCO2 PULSE U14
+//these switch bits are defined asin bit order coming in on SPI bus (same as data line connected to 74HC165)
+#define ISW1_SW				2 //VCO1 SAW U14
+#define ISW2_SW				1 //VCO1 TRI U14
+#define ISW3_SW				0 //VCO1 PULSE U14
+#define ISW4_SW				7 //SYNC U14
+#define ISW5_SW				4 //VCO2 SAW U14
+#define ISW6_SW				5 //VCO2 TRI U14
+#define ISW7_SW				6 //VCO2 PULSE U14
 //define direct MCU input switch bits
 #define ISW8_SW				PF2
 
@@ -183,10 +184,19 @@ volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
 volatile uint8_t ISW8_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 
 //debounce switch state flags
-//again, combine into a single byte and do bit maninpulations to determine previous switch states
+//again, combine into a single byte and do bit manipulations to determine previous switch states
+//flags for direct (into MCU) input switches
 volatile uint8_t previous_sw_state = 0;
 volatile uint8_t current_sw_state = 0;
-
+//flags for SPI input switches (currently only 1 SPDR byte - will need to make these variables wider or have multiple flag bytes for each successive SPI byte)
+volatile uint8_t spi_sw_current_state = 0;
+volatile uint8_t spi_sw_previous_state = 0;
+//switch state holder
+volatile uint8_t sw_latch_five = 0; //U16 5th switch latch in SPI chain
+volatile uint8_t sw_latch_four = 0;
+volatile uint8_t sw_latch_three = 0;
+volatile uint8_t sw_latch_two = 0;
+volatile uint8_t sw_latch_one = 0;
 
 //counter for switch debouncing
 volatile uint8_t switch_timer = 0;
@@ -424,72 +434,97 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		//if (deflection < 0 ) deflection = adc_previous - adc_value;
 		//if (deflection <= 1) adc_value = adc_previous;
 	//}				
-	//toggle ARP_SYNC LED
-	PINB = (1<<ARP_SYNC_LED);
-	SPI_PORT |= SPI_SW_LATCH;
-		
-	//SHIFT 5th BYTE
-	SPDR =  ISW4_SW_ON << 1 | ISW8_SW_ON << 7; //ISW8_LED is MSB on 74XX595 U16
-	while (!(SPSR & (1<<SPIF)));
-		
-	//Now read SPDR for switch data shifted in from 74XX165 U14
-	if (SPDR >> 7 & 1) //check if ISW4_SW bit is set (MSB on U14)
-	{
-		ISW4_SW_ON = 1;
-	}
-	else
-	{
-		ISW4_SW_ON = 0;
-	}
-	//SHIFT 4th BYTE
-	SPDR = 0; //no LEDs connected in current test set up
-	while (!(SPSR & (1<<SPIF)));
-	//Now read SPDR for switch data shifted in from 74XX165 (U9)
-	//check if ISW12_SW bit is set
-	if (SPDR >> 5 & 1)
-	{
-		ISW12_SW_ON = 1;
-	}
-	else
-	{
-		ISW12_SW_ON = 0;
-	}
-	//check if ISW13_SW bit is set
-	if (SPDR >> 6 & 1)
-	{
-		ISW13_SW_ON = 1;
-	}
-	else
-	{
-		ISW13_SW_ON = 0;
-	}
-		
-	//SHIFT 3th BYTE
-	SPDR = 0;
-	while (!(SPSR & (1<<SPIF)));
 
-	//SHIFT 2th BYTE
-	SPDR = 0;
-	while (!(SPSR & (1<<SPIF)));
-		
-	//SHIFT 1st BYTE
-	//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
-	SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
-	//Wait for SPI shift to complete
-	while (!(SPSR & (1<<SPIF)));
-		
-	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
-		
-	SPI_LATCH_PORT &= ~LED_LATCH;
-	SPI_LATCH_PORT |= LED_LATCH;
-		
-	//clear SPI_SW_LATCH
-	SPI_PORT &= ~SPI_SW_LATCH;
-	
-	//check it see if ISW8_SW is ON every 10 interrupts
-	if (switch_timer++ == 10)
+
+	//do SPI read/write every 5 interrupts (16.5 ms)
+	if (switch_timer++ == 5)
 	{
 		switch_timer = 0;
+		
+		
+		SPI_PORT |= SPI_SW_LATCH;
+		
+		//SHIFT 5th BYTE
+		SPDR =  
+		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+		((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
+		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+		((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+		((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+		ISW8_SW_ON << ISW8_LED; 
+		
+		while (!(SPSR & (1<<SPIF)));
+		
+		//Now read SPDR for switch data shifted in from 74XX165 U14
+		spi_sw_current_state = SPDR;
+		
+		spi_sw_current_state ^= spi_sw_previous_state;
+		spi_sw_previous_state ^= spi_sw_current_state;
+		spi_sw_current_state &= spi_sw_previous_state;
+		
+		//toggle switch state 		
+
+		if (spi_sw_current_state & (1<<ISW1_SW)) sw_latch_five ^= (1 << ISW1_SW);
+		if (spi_sw_current_state & (1<<ISW2_SW)) {
+			sw_latch_five ^= (1 << ISW2_SW);
+			PINB = (1<<ARP_SYNC_LED);
+		}				
+		if (spi_sw_current_state & (1<<ISW3_SW)) {
+			sw_latch_five ^= (1 << ISW3_SW);
+			//sw_latch_five ^= (1 << ISW2_SW);
+			//toggle ARP_SYNC LED
+			PINB = (1<<ARP_SYNC_LED);
+		}			
+		if (spi_sw_current_state & (1<<ISW4_SW))  sw_latch_five ^= (1 << ISW4_SW);	
+		if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
+		if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
+		if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
+		//SHIFT 4th BYTE
+		SPDR = 0; //no LEDs connected in current test set up
+		while (!(SPSR & (1<<SPIF)));
+		//Now read SPDR for switch data shifted in from 74XX165 (U9)
+		//check if ISW12_SW bit is set
+		if (SPDR >> 5 & 1)
+		{
+			ISW12_SW_ON = 1;
+		}
+		else
+		{
+			ISW12_SW_ON = 0;
+		}
+		//check if ISW13_SW bit is set
+		if (SPDR >> 6 & 1)
+		{
+			ISW13_SW_ON = 1;
+		}
+		else
+		{
+			ISW13_SW_ON = 0;
+		}
+		
+		//SHIFT 3th BYTE
+		SPDR = 0;
+		while (!(SPSR & (1<<SPIF)));
+
+		//SHIFT 2th BYTE
+		SPDR = 0;
+		while (!(SPSR & (1<<SPIF)));
+		
+		//SHIFT 1st BYTE
+		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+		//Wait for SPI shift to complete
+		while (!(SPSR & (1<<SPIF)));
+		
+		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+		
+		SPI_LATCH_PORT &= ~LED_LATCH;
+		SPI_LATCH_PORT |= LED_LATCH;
+		
+		//clear SPI_SW_LATCH
+		SPI_PORT &= ~SPI_SW_LATCH;	
 		//this toggle code works, but I haven't figured out how it works
 		//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
 		current_sw_state = SWITCH_PORT;
