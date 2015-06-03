@@ -248,6 +248,8 @@ void set_dac(uint8_t channel, uint16_t value)
 	
 	DATA_BUS = channel; //set channel for DG408 multiplexer output
 	uint8_t dac_mux_address;
+	//use switch:case statement here to set appropriate DAC_MUC_EN bit. Could probably do some
+	//bit shifting to derive it from channel number too (0-7: DAC_MUX_EN0, 8-15: DAC_MUX_EN1, 9-23: DAC_MUX_EN2, 24-31: DAC_MUX_EN3
 	if (channel < 8)
 	{
 		dac_mux_address = DAC_MUX_EN0;
@@ -257,7 +259,7 @@ void set_dac(uint8_t channel, uint16_t value)
 	}
 	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
 	DAC_MUX |= (1<<dac_mux_address); //enable multiplexer
-	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more efficiently
+	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more time efficiently
 	DAC_MUX &= ~(1<<dac_mux_address); //disable multiplexer
 	
 }
@@ -391,24 +393,16 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			//DATA_BUS = 0;
 			for (int i = 0; i <=15; i++)
 			{
-				//int i = 7;	
-				//DATA_BUS = i; //set pot mux address on databus
-				//DELAYS ADDED HERE TO ALLOW SETTLING TIMES FOR POT MUTLIPLEXER INPUTS.
-				//NEED TO HAVE ONE CHANNEL GROUNDED TO RESET MULTIPLEXER INPUT - NOT IF DELAY BETWEEN SETTING CHANNEL ADDRESS ON MUX AND 
-				//READING POT IS SUFFICIENTLY LONG. 2us IS ENOUGH TO PRODUCE >1-2 mV OFFSET FROM FULL SWEEP OF PREVIOUS POT CHANNEL
-				//DATA_BUS = 0; //set multiplexer to pot 0, kept at GND				
-
-				//_delay_us(4); //2 us is minimum delay required to produce mux channel cross talk of <= 1 bit. Still need to see if this is affected by S&H			
+					
 				ADCSRA |= (1<<ADSC); //start ADC conversion
 				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
 				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
-			
 								
 				//adc_previous = adc_value;
 				adc_value = ADCL;
 				adc_value = adc_value | (ADCH <<8);
 				
-				//set up mux for next ADC read
+				//set up mux for next ADC read - allows pot mux node settling time while DAC is being set.
 				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
 				DATA_BUS = i; //set pot mux address on databus				
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
@@ -418,6 +412,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				if (i == 4 || i == 13) 
 				{
 					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
+					if (i == 13)tune_value += 1638; //add an octave (1V) to VCO2 pitch
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
 					//set_dac(i, tune_value);
 					
@@ -467,20 +462,13 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		//toggle switch state 		
 
 		if (spi_sw_current_state & (1<<ISW1_SW)) sw_latch_five ^= (1 << ISW1_SW);
-		if (spi_sw_current_state & (1<<ISW2_SW)) {
-			sw_latch_five ^= (1 << ISW2_SW);
-			PINB = (1<<ARP_SYNC_LED);
-		}				
-		if (spi_sw_current_state & (1<<ISW3_SW)) {
-			sw_latch_five ^= (1 << ISW3_SW);
-			//sw_latch_five ^= (1 << ISW2_SW);
-			//toggle ARP_SYNC LED
-			PINB = (1<<ARP_SYNC_LED);
-		}			
-		if (spi_sw_current_state & (1<<ISW4_SW))  sw_latch_five ^= (1 << ISW4_SW);	
+		if (spi_sw_current_state & (1<<ISW2_SW)) sw_latch_five ^= (1 << ISW2_SW);					
+		if (spi_sw_current_state & (1<<ISW3_SW)) sw_latch_five ^= (1 << ISW3_SW);
+		if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);	
 		if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
 		if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
 		if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
+		
 		//SHIFT 4th BYTE
 		SPDR = 0; //no LEDs connected in current test set up
 		while (!(SPSR & (1<<SPIF)));
@@ -535,7 +523,25 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		if (current_sw_state & (1<<ISW8_SW)) 
 		{
 			ISW8_SW_ON ^= 1 << 0; //toggle switch state
-		}			  	
+		}
+		
+		//update analog switch latch:
+		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+		//enable output on VCO analog switch latch:
+		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+		DATA_BUS =
+		((sw_latch_five >> ISW4_SW) & 1) << 3 |
+		((sw_latch_five >> ISW1_SW) & 1) << 0 |
+		((sw_latch_five >> ISW2_SW) & 1) << 2 |
+		((sw_latch_five >> ISW3_SW) & 1) << 1 |
+		((sw_latch_five >> ISW5_SW) & 1) << 6 |
+		((sw_latch_five >> ISW6_SW) & 1) << 7 |
+		((sw_latch_five >> ISW7_SW) & 1) << 5 |
+		ISW8_SW_ON << 4;
+		VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
+		_delay_us(1);
+		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+		DATA_BUS = 0;			  	
 	}
 	
 	
@@ -620,14 +626,14 @@ int main(void)
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
 	sei(); //enable global interrupts
 	//POT_MUX |= (1<<POTMUX_EN1); //set pot mux en1 again - it is getting cleared somewhere	
-	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	//enable output on VCO analog switch latch:
-	//switch latch: bit 0: A SAW 1: A PULSE 2: A TRI 3: SYNC 4: B MOD 5: B PULSE 6: SAW 7: B TRI
-	DATA_BUS = 0b11010101; //enable VCO1 SAW
-	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
-	_delay_us(1);
-	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	DATA_BUS = 0;
+	//VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+	////enable output on VCO analog switch latch:
+	////switch latch: bit 0: A SAW 1: A PULSE 2: A TRI 3: SYNC 4: B MOD 5: B PULSE 6: SAW 7: B TRI
+	//DATA_BUS = 0b11010101; //enable VCO1 SAW
+	//VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
+	//_delay_us(1);
+	//VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+	//DATA_BUS = 0;
 	while(1)
 	{
 		
