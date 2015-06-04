@@ -207,6 +207,8 @@ volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
 volatile uint16_t tune_offset = 0; //fine tune offset to display 
 
+volatile uint16_t value_to_display = 0; //global to hold display value
+
 volatile uint16_t dac_channel[] = { //array to store 8 14 bit DAC values, which are determined by ADC readings of 8 pots
 	
 	0,
@@ -368,7 +370,7 @@ void setupADC(void)
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	display_DEC(tune_offset, digit[place]);
+	display_DEC(value_to_display, digit[place]);
 	//if (place == 0) { //if place is 0, start a new ADC conversion
 		//select POTMUX input
 	//	if (ISW4_SW_ON) { //16X oversampling
@@ -390,7 +392,16 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 				
 	//	} else {
-			//DATA_BUS = 0;
+            //ADC is set up to set dac based on pot i-1, so when i = 0, ADC is set up to read 16th pot on the mux (i = 15)
+			//this set up leaves ADC S&H too long between interrupts (droop, noise), so here the ADC to read pot 15 is set up
+			//before the ADC read/DAC write loop executes.
+			//this is stupidly baroque and it might be possible to read ADC and write DAC for same i (ie. not i-1 as currently implemented)
+			//in fact, this first set up does away with the delay and there doesn't seem to be much noise on pot 15 read, but it's hard to tell as it
+			//is VCO1 FM depth control. Oh wait, not there is plenty of noise without settling time introduced by delay
+            DATA_BUS = 15; //set pot mux address on databus
+		    POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+			_delay_us(10);
+			POT_MUX |= (1<<POTMUX_EN0);
 			for (int i = 0; i <=15; i++)
 			{
 					
@@ -402,7 +413,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				adc_value = ADCL;
 				adc_value = adc_value | (ADCH <<8);
 				
-				//set up mux for next ADC read - allows pot mux node settling time while DAC is being set.
+				//set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
 				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
 				DATA_BUS = i; //set pot mux address on databus				
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
@@ -416,7 +427,12 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 					if (adc_value >= 512) {set_dac(i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
 					//set_dac(i, tune_value);
 					
+				} else if (i == 0)
+				{
+					set_dac(i, adc_value << 4);
+					value_to_display = adc_value;
 				} else {set_dac(i, adc_value << 4);}
+					
                 //set_dac(i, adc_value << 4);
 				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
