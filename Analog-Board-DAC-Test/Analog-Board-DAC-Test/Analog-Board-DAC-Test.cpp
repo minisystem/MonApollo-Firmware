@@ -257,42 +257,42 @@ volatile uint16_t dac_channel[] = { //array to store 8 14 bit DAC values, which 
 //First group of pots inputs 0-15 on U2 demulitplexer
 volatile uint8_t dac_pot_decoder_0 [16][2] = { //[DAC MUX CHANNEL][DAC MUX ADDRESS]
 	
-	{VCO2_MIX,		1}, 
-	{VCO1_MIX,		1},
-	{PITCH_EG2,		1},
-	{PITCH_VCO2,	0},
-	{PITCH_LFO,		0},
-	{PWM_LFO,		0},
-	{PWM_EG2,		0},
-	{VCO1_PW,		0},
-	{FINE,			1},
-	{TUNE,			0},
-	{LFO_RATE,		0},
-	{8,				4}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now
-	{GLIDE,			1},
-	{AMP_LFO,		2},
-	{VOLUME,		2},
-	{VCO2_PW,		1}															
+	{VCO2_MIX,		DAC_MUX_EN1}, 
+	{VCO1_MIX,		DAC_MUX_EN1},
+	{PITCH_EG2,		DAC_MUX_EN1},
+	{PITCH_VCO2,	DAC_MUX_EN0},
+	{PITCH_LFO,		DAC_MUX_EN0},
+	{PWM_LFO,		DAC_MUX_EN0},
+	{PWM_EG2,		DAC_MUX_EN0},
+	{VCO1_PW,		DAC_MUX_EN0},
+	{FINE,			DAC_MUX_EN1},
+	{TUNE,			DAC_MUX_EN0},
+	{LFO_RATE,		DAC_MUX_EN0},
+	{VOLUME,		DAC_MUX_EN2}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now -set VOLUME S&H CV as I'm not using it yet
+	{GLIDE,			DAC_MUX_EN1},
+	{AMP_LFO,		DAC_MUX_EN2},
+	{VOLUME,		DAC_MUX_EN2},
+	{VCO2_PW,		DAC_MUX_EN1}															
 };
 
 //Second group of pot inputs 1-15 (input 0 is grounded) on U4 demultiplexer
 volatile uint8_t dac_pot_decoder_1 [15][2] = {
 	
-	{FIL_EG2,		2},
-	{RES,			2},
-	{CUTOFF,		2},
-	{KEY_TRACK,		2},
-	{FIL_VCO2,		2},
-	{FIL_LFO,		2},
-	{NOISE_MIX,		0},				
-	{ATTACK_2,		3},
-	{ATTACK_1,		3},
-	{DECAY_2,		3},
-	{DECAY_1,		3},
-	{SUSTAIN_2,		3},
-	{SUSTAIN_1,		3},
-	{RELEASE_2,		3},
-	{RELEASE_1,		3}							
+	{FIL_EG2,		DAC_MUX_EN2},
+	{RES,			DAC_MUX_EN2},
+	{CUTOFF,		DAC_MUX_EN2},
+	{KEY_TRACK,		DAC_MUX_EN2},
+	{FIL_VCO2,		DAC_MUX_EN2},
+	{FIL_LFO,		DAC_MUX_EN2},
+	{NOISE_MIX,		DAC_MUX_EN0},				
+	{ATTACK_2,		DAC_MUX_EN3},
+	{ATTACK_1,		DAC_MUX_EN3},
+	{DECAY_2,		DAC_MUX_EN3},
+	{DECAY_1,		DAC_MUX_EN3},
+	{SUSTAIN_2,		DAC_MUX_EN3},
+	{SUSTAIN_1,		DAC_MUX_EN3},
+	{RELEASE_2,		DAC_MUX_EN3},
+	{RELEASE_1,		DAC_MUX_EN3}							
 };
 
 void setupDAC(void) //set up DAC
@@ -329,6 +329,7 @@ void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
 	//bit shifting to derive it from channel number too (0-7: DAC_MUX_EN0, 8-15: DAC_MUX_EN1, 9-23: DAC_MUX_EN2, 24-31: DAC_MUX_EN3
 	//if (channel < 8)
 	//{
+		
 		//dac_mux_address = DAC_MUX_EN0;
 	//} else {
 		//
@@ -473,16 +474,20 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			//this is stupidly baroque and it might be possible to read ADC and write DAC for same i (ie. not i-1 as currently implemented)
 			//in fact, this first set up does away with the delay and there doesn't seem to be much noise on pot 15 read, but it's hard to tell as it
 			//is VCO1 FM depth control. Oh wait, not there is plenty of noise without settling time introduced by delay
-            DATA_BUS = 15; //set pot mux address on databus
-		    POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-			_delay_us(10);
-			POT_MUX |= (1<<POTMUX_EN0);
+            //DATA_BUS = 15; //set pot mux address on databus
+		    //POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+			//_delay_us(10);
+			//POT_MUX |= (1<<POTMUX_EN0);
 			
+			//read pots on U2 and set appriate DAC S&H channel
 			for (int i = 0; i <=15; i++)
 			{
-					
+				DATA_BUS = i;
+				POT_MUX &= ~(1<<POTMUX_EN0);
+				_delay_us(10);	
 				ADCSRA |= (1<<ADSC); //start ADC conversion
 				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 								
 				//adc_previous = adc_value;
@@ -490,35 +495,37 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				adc_value = adc_value | (ADCH <<8);
 				
 				//set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
-				POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-				DATA_BUS = i; //set pot mux address on databus				
+				//POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
+				//DATA_BUS = i; //set pot mux address on databus				
 				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
 				//set_dac(i, dac_channel[i]); //set DAC
 				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
 				//currently using this to set OSCA_INIT_CV and do fine tuning
-				uint8_t dac_mux_address = 0;
-				if (i < 8) 
-				{
-					dac_mux_address = DAC_MUX_EN0;
-				} else {
-					dac_mux_address = DAC_MUX_EN1;
-				}				
+							
 				
-				if (i == 4 || i == 13) 
+				if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
 				{
 					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
-					if (i == 13)tune_value += 1638; //add an octave (1V) to VCO2 pitch
-					if (adc_value >= 512) {set_dac(dac_mux_address,i,(tune_value + (adc_value - 512))); tune_offset = adc_value - 512;} else {set_dac(dac_mux_address,i,(tune_value - (512- adc_value))); tune_offset = adc_value;}
+					if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
+					if (adc_value >= 512) {
+						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
+						tune_offset = adc_value - 512;
+					} else {
+						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value))); 
+						tune_offset = adc_value;
+					}
 					//set_dac(i, tune_value);
 					
-				} else if (i == 0)
-				{
-					set_dac(dac_mux_address,i, adc_value << 4);
-					value_to_display = adc_value;
-				} else {set_dac(dac_mux_address,i, adc_value << 4);}
+				//} else if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U2
+				//{
+					//set_dac(dac_pot_decoder_0[15][1],dac_pot_decoder_0[15][0], adc_value << 4);
+					//value_to_display = adc_value;
+				} else {
+					set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+				}
 					
                 //set_dac(i, adc_value << 4);
-				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+				//POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
 						
 			}			
@@ -526,33 +533,35 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			//DAC_CTRL |= (1<<DAC_RS);	
 			
 			//now read second set of pots form U4 databus should already = 15 from previous loop.
-		    POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
-			_delay_us(10);
-			POT_MUX |= (1<<POTMUX_EN1);
-			for (int i = 1; i <=15; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
-			{
-				
-				ADCSRA |= (1<<ADSC); //start ADC conversion
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
-				
-				//adc_previous = adc_value;
-				adc_value = ADCL;
-				adc_value = adc_value | (ADCH <<8);
-				
-				//set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
-				POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
-				DATA_BUS = i; //set pot mux address on databus
-				uint8_t dac_mux_address = 0;
-				if (i < 8)
-				{
-					dac_mux_address = DAC_MUX_EN2;
-				} else {
-					dac_mux_address = DAC_MUX_EN3; 
-				}				
-				set_dac(dac_mux_address,i, adc_value << 4);					
-				POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U4
-		  }
+		    //POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
+			//_delay_us(10);
+			//POT_MUX |= (1<<POTMUX_EN1);
+			//for (int i = 0; i <=15; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+			//{
+				//
+				//ADCSRA |= (1<<ADSC); //start ADC conversion
+				//while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+				////note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+				//
+				////adc_previous = adc_value;
+				//adc_value = ADCL;
+				//adc_value = adc_value | (ADCH <<8);
+				//
+				////set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
+				//POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
+				//DATA_BUS = i; //set pot mux address on databus
+				////uint8_t dac_mux_address = 0;
+				//
+				//if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U4
+				//{
+					//set_dac(dac_pot_decoder_1[14][1],dac_pot_decoder_1[14][0], adc_value << 4);
+					////value_to_display = adc_value;
+				//} else {
+					//set_dac(dac_pot_decoder_1[i-1][1],dac_pot_decoder_1[i-1][0], adc_value << 4);
+				//}
+								//
+				//POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U4
+		  //}
 
 		DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 		DAC_CTRL |= (1<<DAC_RS);
