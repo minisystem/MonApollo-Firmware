@@ -74,6 +74,9 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 //LED latch pin on PORTJ
 #define LED_LATCH		(1<<PJ3)
 
+//EG2 polarity pin on PORTJ
+#define EG2_POL			PJ4
+
 //define analog switch latch (VCO waveform switching)
 #define VCO_SW_LATCH		PJ6
 //define LFO waveform switch latch (not yet implemented in hardware)
@@ -83,6 +86,7 @@ inputs are floating because only 2 pots are soldered on board. This could be a s
 #define SPI_PORT			PORTB
 #define SPI_LATCH_PORT		PORTJ
 #define VCO_SW_LATCH_PORT	PORTJ
+#define EG2_POL_PORT		PORTJ
 #define DATA_BUS			PORTA
 #define DISPLAY_PORT		PORTH
 #define DAC_BUS_LOW			PORTD
@@ -484,7 +488,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 			{
 				DATA_BUS = i;
 				POT_MUX &= ~(1<<POTMUX_EN0);
-				_delay_us(10);	
+				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
 				ADCSRA |= (1<<ADSC); //start ADC conversion
 				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
 				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
@@ -536,32 +540,31 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		    //POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
 			//_delay_us(10);
 			//POT_MUX |= (1<<POTMUX_EN1);
-			//for (int i = 0; i <=15; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
-			//{
-				//
-				//ADCSRA |= (1<<ADSC); //start ADC conversion
-				//while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				////note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
-				//
-				////adc_previous = adc_value;
-				//adc_value = ADCL;
-				//adc_value = adc_value | (ADCH <<8);
-				//
-				////set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
-				//POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
-				//DATA_BUS = i; //set pot mux address on databus
-				////uint8_t dac_mux_address = 0;
-				//
+			for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+			{
+				
+				DATA_BUS = i+1; //U4 input 0 is not used (grounded)
+				POT_MUX &= ~(1<<POTMUX_EN1);
+				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+				ADCSRA |= (1<<ADSC); //start ADC conversion
+				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+				POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
+				//adc_previous = adc_value;
+				adc_value = ADCL;
+				adc_value = adc_value | (ADCH <<8);
+				
+
+				
 				//if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U4
 				//{
 					//set_dac(dac_pot_decoder_1[14][1],dac_pot_decoder_1[14][0], adc_value << 4);
 					////value_to_display = adc_value;
 				//} else {
-					//set_dac(dac_pot_decoder_1[i-1][1],dac_pot_decoder_1[i-1][0], adc_value << 4);
+					set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
 				//}
-								//
+								
 				//POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U4
-		  //}
+		  }
 
 		DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 		DAC_CTRL |= (1<<DAC_RS);
@@ -710,8 +713,8 @@ int main(void)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
 	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
 	
-	//SET SPI_EN and LED_LATCH and VCO_SW_LATCH pins as outputs
-	DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH));
+	//SET SPI_EN and LED_LATCH and VCO_SW_LATCH and EG2_POL pins as outputs
+	DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH) | (1<<EG2_POL));
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
 	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
@@ -735,6 +738,8 @@ int main(void)
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	SPI_LATCH_PORT |= LED_LATCH;
 	
+	//set EG2 POL
+	EG2_POL_PORT &= ~(1 << EG2_POL); //0 for normal, 1 for inverted
 	
 	DDRH |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins as outputs
 	POT_MUX |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
