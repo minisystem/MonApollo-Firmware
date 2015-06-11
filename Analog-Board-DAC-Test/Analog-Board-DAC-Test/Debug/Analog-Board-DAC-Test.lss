@@ -3,11 +3,11 @@ Analog-Board-DAC-Test.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000004c  00800100  00000840  000008d4  2**0
+  0 .data         0000004c  00800100  0000083e  000008d2  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000840  00000000  00000000  00000094  2**1
+  1 .text         0000083e  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000027  0080014c  0080014c  00000920  2**0
+  2 .bss          00000027  0080014c  0080014c  0000091e  2**0
                   ALLOC
   3 .stab         000006cc  00000000  00000000  00000920  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -19,7 +19,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 00000218  00000000  00000000  00001a02  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000051e  00000000  00000000  00001c1a  2**0
+  8 .debug_line   0000051d  00000000  00000000  00001c1a  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000124  00000000  00000000  00002138  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -71,7 +71,7 @@ Disassembly of section .text:
   70:	11 e0       	ldi	r17, 0x01	; 1
   72:	a0 e0       	ldi	r26, 0x00	; 0
   74:	b1 e0       	ldi	r27, 0x01	; 1
-  76:	e0 e4       	ldi	r30, 0x40	; 64
+  76:	ee e3       	ldi	r30, 0x3E	; 62
   78:	f8 e0       	ldi	r31, 0x08	; 8
   7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
   7c:	05 90       	lpm	r0, Z+
@@ -94,7 +94,7 @@ Disassembly of section .text:
   92:	b1 07       	cpc	r27, r17
   94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
   96:	0e 94 c1 03 	call	0x782	; 0x782 <main>
-  9a:	0c 94 1e 04 	jmp	0x83c	; 0x83c <_exit>
+  9a:	0c 94 1d 04 	jmp	0x83a	; 0x83a <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -290,7 +290,7 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[(number % 10)]; //print first decimal digit
  174:	6a e0       	ldi	r22, 0x0A	; 10
  176:	70 e0       	ldi	r23, 0x00	; 0
- 178:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 178:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  17c:	fe 01       	movw	r30, r28
  17e:	e8 0f       	add	r30, r24
  180:	f9 1f       	adc	r31, r25
@@ -302,10 +302,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 100) / 10)]; //print second decimal digit
  186:	64 e6       	ldi	r22, 0x64	; 100
  188:	70 e0       	ldi	r23, 0x00	; 0
- 18a:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 18a:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  18e:	6a e0       	ldi	r22, 0x0A	; 10
  190:	70 e0       	ldi	r23, 0x00	; 0
- 192:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 192:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  196:	fe 01       	movw	r30, r28
  198:	e6 0f       	add	r30, r22
  19a:	f7 1f       	adc	r31, r23
@@ -317,10 +317,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 1000) / 100)]; //print third decimal digit
  1a0:	68 ee       	ldi	r22, 0xE8	; 232
  1a2:	73 e0       	ldi	r23, 0x03	; 3
- 1a4:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 1a4:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  1a8:	64 e6       	ldi	r22, 0x64	; 100
  1aa:	70 e0       	ldi	r23, 0x00	; 0
- 1ac:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 1ac:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  1b0:	fe 01       	movw	r30, r28
  1b2:	e6 0f       	add	r30, r22
  1b4:	f7 1f       	adc	r31, r23
@@ -332,10 +332,10 @@ void display_DEC(uint16_t number, uint8_t digit)
 		cathode_byte = DEC[((number % 10000) / 1000)]; //print fourth decimal digit
  1ba:	60 e1       	ldi	r22, 0x10	; 16
  1bc:	77 e2       	ldi	r23, 0x27	; 39
- 1be:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 1be:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  1c2:	68 ee       	ldi	r22, 0xE8	; 232
  1c4:	73 e0       	ldi	r23, 0x03	; 3
- 1c6:	0e 94 0a 04 	call	0x814	; 0x814 <__udivmodhi4>
+ 1c6:	0e 94 09 04 	call	0x812	; 0x812 <__udivmodhi4>
  1ca:	fe 01       	movw	r30, r28
  1cc:	e6 0f       	add	r30, r22
  1ce:	f7 1f       	adc	r31, r23
@@ -1267,159 +1267,156 @@ int main(void)
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
  788:	27 9a       	sbi	0x04, 7	; 4
-	
-	DDRF |= (1<<GATE); //set gate as output
- 78a:	81 9a       	sbi	0x10, 1	; 16
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
 	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
 	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
 	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
- 78c:	84 b1       	in	r24, 0x04	; 4
- 78e:	87 62       	ori	r24, 0x27	; 39
- 790:	84 b9       	out	0x04, r24	; 4
+ 78a:	84 b1       	in	r24, 0x04	; 4
+ 78c:	87 62       	ori	r24, 0x27	; 39
+ 78e:	84 b9       	out	0x04, r24	; 4
 	
 	//SET SPI_EN and LED_LATCH and VCO_SW_LATCH and EG2_POL pins as outputs
 	DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH) | (1<<EG2_POL));
- 792:	ec ed       	ldi	r30, 0xDC	; 220
- 794:	f0 e0       	ldi	r31, 0x00	; 0
- 796:	80 81       	ld	r24, Z
- 798:	8c 65       	ori	r24, 0x5C	; 92
- 79a:	80 83       	st	Z, r24
+ 790:	ec ed       	ldi	r30, 0xDC	; 220
+ 792:	f0 e0       	ldi	r31, 0x00	; 0
+ 794:	80 81       	ld	r24, Z
+ 796:	8c 65       	ori	r24, 0x5C	; 92
+ 798:	80 83       	st	Z, r24
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
 	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
- 79c:	85 b1       	in	r24, 0x05	; 5
- 79e:	89 7d       	andi	r24, 0xD9	; 217
- 7a0:	85 b9       	out	0x05, r24	; 5
+ 79a:	85 b1       	in	r24, 0x05	; 5
+ 79c:	89 7d       	andi	r24, 0xD9	; 217
+ 79e:	85 b9       	out	0x05, r24	; 5
 	
 	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
 	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
- 7a2:	ed ed       	ldi	r30, 0xDD	; 221
- 7a4:	f0 e0       	ldi	r31, 0x00	; 0
- 7a6:	80 81       	ld	r24, Z
- 7a8:	83 7f       	andi	r24, 0xF3	; 243
- 7aa:	80 83       	st	Z, r24
+ 7a0:	ed ed       	ldi	r30, 0xDD	; 221
+ 7a2:	f0 e0       	ldi	r31, 0x00	; 0
+ 7a4:	80 81       	ld	r24, Z
+ 7a6:	83 7f       	andi	r24, 0xF3	; 243
+ 7a8:	80 83       	st	Z, r24
 	
 	//SET UP SPI
 	SPCR = (1<<SPE) | (1<<MSTR); //Start SPI as MASTER
- 7ac:	80 e5       	ldi	r24, 0x50	; 80
- 7ae:	8c bd       	out	0x2c, r24	; 44
+ 7aa:	80 e5       	ldi	r24, 0x50	; 80
+ 7ac:	8c bd       	out	0x2c, r24	; 44
 	
 	//Pull LED_LATCH LOW
 	SPI_LATCH_PORT &= ~LED_LATCH;
- 7b0:	80 81       	ld	r24, Z
- 7b2:	87 7f       	andi	r24, 0xF7	; 247
- 7b4:	80 83       	st	Z, r24
+ 7ae:	80 81       	ld	r24, Z
+ 7b0:	87 7f       	andi	r24, 0xF7	; 247
+ 7b2:	80 83       	st	Z, r24
 	////Wait for SPI shift to complete
 	//while (!(SPSR & (1<<SPIF)));
 	
 	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 	
 	SPI_LATCH_PORT &= ~LED_LATCH;
- 7b6:	80 81       	ld	r24, Z
- 7b8:	87 7f       	andi	r24, 0xF7	; 247
- 7ba:	80 83       	st	Z, r24
+ 7b4:	80 81       	ld	r24, Z
+ 7b6:	87 7f       	andi	r24, 0xF7	; 247
+ 7b8:	80 83       	st	Z, r24
 	SPI_LATCH_PORT |= LED_LATCH;
- 7bc:	80 81       	ld	r24, Z
- 7be:	88 60       	ori	r24, 0x08	; 8
- 7c0:	80 83       	st	Z, r24
+ 7ba:	80 81       	ld	r24, Z
+ 7bc:	88 60       	ori	r24, 0x08	; 8
+ 7be:	80 83       	st	Z, r24
 	
 	//set EG2 POL
-	EG2_POL_PORT &= ~(1 << EG2_POL);
- 7c2:	80 81       	ld	r24, Z
- 7c4:	8f 7e       	andi	r24, 0xEF	; 239
- 7c6:	80 83       	st	Z, r24
+	EG2_POL_PORT &= ~(1 << EG2_POL); //0 for normal, 1 for inverted
+ 7c0:	80 81       	ld	r24, Z
+ 7c2:	8f 7e       	andi	r24, 0xEF	; 239
+ 7c4:	80 83       	st	Z, r24
 	
 	DDRH |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins as outputs
- 7c8:	a9 ed       	ldi	r26, 0xD9	; 217
- 7ca:	b0 e0       	ldi	r27, 0x00	; 0
- 7cc:	8c 91       	ld	r24, X
- 7ce:	80 6c       	ori	r24, 0xC0	; 192
- 7d0:	8c 93       	st	X, r24
+ 7c6:	a9 ed       	ldi	r26, 0xD9	; 217
+ 7c8:	b0 e0       	ldi	r27, 0x00	; 0
+ 7ca:	8c 91       	ld	r24, X
+ 7cc:	80 6c       	ori	r24, 0xC0	; 192
+ 7ce:	8c 93       	st	X, r24
 	POT_MUX |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
- 7d2:	ea ed       	ldi	r30, 0xDA	; 218
- 7d4:	f0 e0       	ldi	r31, 0x00	; 0
- 7d6:	80 81       	ld	r24, Z
- 7d8:	80 6c       	ori	r24, 0xC0	; 192
- 7da:	80 83       	st	Z, r24
+ 7d0:	ea ed       	ldi	r30, 0xDA	; 218
+ 7d2:	f0 e0       	ldi	r31, 0x00	; 0
+ 7d4:	80 81       	ld	r24, Z
+ 7d6:	80 6c       	ori	r24, 0xC0	; 192
+ 7d8:	80 83       	st	Z, r24
 	//POT_MUX |= (1<<POTMUX_EN1);
 	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
- 7dc:	81 b1       	in	r24, 0x01	; 1
- 7de:	8f ef       	ldi	r24, 0xFF	; 255
- 7e0:	81 b9       	out	0x01, r24	; 1
+ 7da:	81 b1       	in	r24, 0x01	; 1
+ 7dc:	8f ef       	ldi	r24, 0xFF	; 255
+ 7de:	81 b9       	out	0x01, r24	; 1
 	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
- 7e2:	92 b1       	in	r25, 0x02	; 2
- 7e4:	82 b9       	out	0x02, r24	; 2
+ 7e0:	92 b1       	in	r25, 0x02	; 2
+ 7e2:	82 b9       	out	0x02, r24	; 2
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
- 7e6:	8c 91       	ld	r24, X
- 7e8:	80 63       	ori	r24, 0x30	; 48
- 7ea:	8c 93       	st	X, r24
+ 7e4:	8c 91       	ld	r24, X
+ 7e6:	80 63       	ori	r24, 0x30	; 48
+ 7e8:	8c 93       	st	X, r24
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
- 7ec:	80 81       	ld	r24, Z
- 7ee:	8f 7c       	andi	r24, 0xCF	; 207
- 7f0:	80 83       	st	Z, r24
+ 7ea:	80 81       	ld	r24, Z
+ 7ec:	8f 7c       	andi	r24, 0xCF	; 207
+ 7ee:	80 83       	st	Z, r24
 	
 	//set up switch port
 	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
- 7f2:	82 98       	cbi	0x10, 2	; 16
+ 7f0:	82 98       	cbi	0x10, 2	; 16
 	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
     setupADC();	
- 7f4:	0e 94 fc 00 	call	0x1f8	; 0x1f8 <_Z8setupADCv>
+ 7f2:	0e 94 fc 00 	call	0x1f8	; 0x1f8 <_Z8setupADCv>
 	
 	//setup DAC
 	setupDAC();
- 7f8:	0e 94 51 00 	call	0xa2	; 0xa2 <_Z8setupDACv>
+ 7f6:	0e 94 51 00 	call	0xa2	; 0xa2 <_Z8setupDACv>
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
- 7fc:	e0 eb       	ldi	r30, 0xB0	; 176
- 7fe:	f0 e0       	ldi	r31, 0x00	; 0
- 800:	80 81       	ld	r24, Z
- 802:	86 60       	ori	r24, 0x06	; 6
- 804:	80 83       	st	Z, r24
+ 7fa:	e0 eb       	ldi	r30, 0xB0	; 176
+ 7fc:	f0 e0       	ldi	r31, 0x00	; 0
+ 7fe:	80 81       	ld	r24, Z
+ 800:	86 60       	ori	r24, 0x06	; 6
+ 802:	80 83       	st	Z, r24
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
- 806:	e0 e7       	ldi	r30, 0x70	; 112
- 808:	f0 e0       	ldi	r31, 0x00	; 0
- 80a:	80 81       	ld	r24, Z
- 80c:	81 60       	ori	r24, 0x01	; 1
- 80e:	80 83       	st	Z, r24
+ 804:	e0 e7       	ldi	r30, 0x70	; 112
+ 806:	f0 e0       	ldi	r31, 0x00	; 0
+ 808:	80 81       	ld	r24, Z
+ 80a:	81 60       	ori	r24, 0x01	; 1
+ 80c:	80 83       	st	Z, r24
 	sei(); //enable global interrupts
- 810:	78 94       	sei
- 812:	ff cf       	rjmp	.-2      	; 0x812 <main+0x90>
+ 80e:	78 94       	sei
+ 810:	ff cf       	rjmp	.-2      	; 0x810 <main+0x8e>
 
-00000814 <__udivmodhi4>:
- 814:	aa 1b       	sub	r26, r26
- 816:	bb 1b       	sub	r27, r27
- 818:	51 e1       	ldi	r21, 0x11	; 17
- 81a:	07 c0       	rjmp	.+14     	; 0x82a <__udivmodhi4_ep>
+00000812 <__udivmodhi4>:
+ 812:	aa 1b       	sub	r26, r26
+ 814:	bb 1b       	sub	r27, r27
+ 816:	51 e1       	ldi	r21, 0x11	; 17
+ 818:	07 c0       	rjmp	.+14     	; 0x828 <__udivmodhi4_ep>
 
-0000081c <__udivmodhi4_loop>:
- 81c:	aa 1f       	adc	r26, r26
- 81e:	bb 1f       	adc	r27, r27
- 820:	a6 17       	cp	r26, r22
- 822:	b7 07       	cpc	r27, r23
- 824:	10 f0       	brcs	.+4      	; 0x82a <__udivmodhi4_ep>
- 826:	a6 1b       	sub	r26, r22
- 828:	b7 0b       	sbc	r27, r23
+0000081a <__udivmodhi4_loop>:
+ 81a:	aa 1f       	adc	r26, r26
+ 81c:	bb 1f       	adc	r27, r27
+ 81e:	a6 17       	cp	r26, r22
+ 820:	b7 07       	cpc	r27, r23
+ 822:	10 f0       	brcs	.+4      	; 0x828 <__udivmodhi4_ep>
+ 824:	a6 1b       	sub	r26, r22
+ 826:	b7 0b       	sbc	r27, r23
 
-0000082a <__udivmodhi4_ep>:
- 82a:	88 1f       	adc	r24, r24
- 82c:	99 1f       	adc	r25, r25
- 82e:	5a 95       	dec	r21
- 830:	a9 f7       	brne	.-22     	; 0x81c <__udivmodhi4_loop>
- 832:	80 95       	com	r24
- 834:	90 95       	com	r25
- 836:	bc 01       	movw	r22, r24
- 838:	cd 01       	movw	r24, r26
- 83a:	08 95       	ret
+00000828 <__udivmodhi4_ep>:
+ 828:	88 1f       	adc	r24, r24
+ 82a:	99 1f       	adc	r25, r25
+ 82c:	5a 95       	dec	r21
+ 82e:	a9 f7       	brne	.-22     	; 0x81a <__udivmodhi4_loop>
+ 830:	80 95       	com	r24
+ 832:	90 95       	com	r25
+ 834:	bc 01       	movw	r22, r24
+ 836:	cd 01       	movw	r24, r26
+ 838:	08 95       	ret
 
-0000083c <_exit>:
- 83c:	f8 94       	cli
+0000083a <_exit>:
+ 83a:	f8 94       	cli
 
-0000083e <__stop_program>:
- 83e:	ff cf       	rjmp	.-2      	; 0x83e <__stop_program>
+0000083c <__stop_program>:
+ 83c:	ff cf       	rjmp	.-2      	; 0x83c <__stop_program>

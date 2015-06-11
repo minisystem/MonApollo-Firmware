@@ -705,7 +705,7 @@ int main(void)
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
 	
-	DDRF |= (1<<GATE); //set gate as output
+	//DDRF |= (1<<GATE); //set gate as output
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
