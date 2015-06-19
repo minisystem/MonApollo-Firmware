@@ -272,7 +272,7 @@ volatile uint8_t dac_pot_decoder_0 [16][2] = { //[DAC MUX CHANNEL][DAC MUX ADDRE
 	{FINE,			DAC_MUX_EN1},
 	{TUNE,			DAC_MUX_EN0},
 	{LFO_RATE,		DAC_MUX_EN0},
-	{VOLUME,		DAC_MUX_EN2}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now -set VOLUME S&H CV as I'm not using it yet
+	{0,				0}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now -set VOLUME S&H CV as I'm not using it yet
 	{GLIDE,			DAC_MUX_EN1},
 	{AMP_LFO,		DAC_MUX_EN2},
 	{VOLUME,		DAC_MUX_EN2},
@@ -524,6 +524,10 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 				//{
 					//set_dac(dac_pot_decoder_0[15][1],dac_pot_decoder_0[15][0], adc_value << 4);
 					//value_to_display = adc_value;
+				} else if (i == 11) //exception to handle ARP_RATE pot
+				{
+					//store ARP pot value, but don't set DAC
+									
 				} else {
 					set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
 				}
