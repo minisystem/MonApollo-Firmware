@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   5 .debug_aranges 000000a0  00000000  00000000  00001178  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000a10  00000000  00000000  00001218  2**0
+  6 .debug_info   00000a0a  00000000  00000000  00001218  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000232  00000000  00000000  00001c28  2**0
+  7 .debug_abbrev 00000249  00000000  00000000  00001c22  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000056a  00000000  00000000  00001e5a  2**0
+  8 .debug_line   00000556  00000000  00000000  00001e6b  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000158  00000000  00000000  000023c4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000002ee  00000000  00000000  0000251c  2**0
+ 10 .debug_str    000002f0  00000000  00000000  0000251c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000046a  00000000  00000000  0000280a  2**0
+ 11 .debug_loc    0000046a  00000000  00000000  0000280c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000038  00000000  00000000  00002c74  2**0
+ 12 .debug_ranges 00000038  00000000  00000000  00002c76  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -118,8 +118,8 @@ void setup_midi_usart(void)
 }
   b2:	08 95       	ret
 
-000000b4 <setupDAC>:
-void setupDAC(void) //set up DAC
+000000b4 <setup_dac>:
+void setup_dac(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
   b4:	83 b3       	in	r24, 0x13	; 19
@@ -225,10 +225,10 @@ void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
 }
  126:	08 95       	ret
 
-00000128 <display_DEC>:
+00000128 <display_dec>:
 
 
-void display_DEC(uint16_t number, uint8_t digit)
+void display_dec(uint16_t number, uint8_t digit)
 {
  128:	cf 93       	push	r28
  12a:	df 93       	push	r29
@@ -240,7 +240,7 @@ void display_DEC(uint16_t number, uint8_t digit)
  136:	de bf       	out	0x3e, r29	; 62
  138:	0f be       	out	0x3f, r0	; 63
  13a:	cd bf       	out	0x3d, r28	; 61
-	uint8_t DEC[] = {
+	uint8_t dec[] = {
  13c:	de 01       	movw	r26, r28
  13e:	11 96       	adiw	r26, 0x01	; 1
  140:	e0 e0       	ldi	r30, 0x00	; 0
@@ -249,7 +249,7 @@ void display_DEC(uint16_t number, uint8_t digit)
  146:	01 90       	ld	r0, Z+
  148:	0d 92       	st	X+, r0
  14a:	31 50       	subi	r19, 0x01	; 1
- 14c:	e1 f7       	brne	.-8      	; 0x146 <display_DEC+0x1e>
+ 14c:	e1 f7       	brne	.-8      	; 0x146 <display_dec+0x1e>
 		
 		
 	};
@@ -289,19 +289,19 @@ void display_DEC(uint16_t number, uint8_t digit)
 	
 	switch(digit) {
  170:	62 30       	cpi	r22, 0x02	; 2
- 172:	f9 f0       	breq	.+62     	; 0x1b2 <display_DEC+0x8a>
+ 172:	f9 f0       	breq	.+62     	; 0x1b2 <display_dec+0x8a>
  174:	63 30       	cpi	r22, 0x03	; 3
- 176:	18 f4       	brcc	.+6      	; 0x17e <display_DEC+0x56>
+ 176:	18 f4       	brcc	.+6      	; 0x17e <display_dec+0x56>
  178:	61 30       	cpi	r22, 0x01	; 1
- 17a:	a1 f5       	brne	.+104    	; 0x1e4 <display_DEC+0xbc>
- 17c:	0d c0       	rjmp	.+26     	; 0x198 <display_DEC+0x70>
+ 17a:	a1 f5       	brne	.+104    	; 0x1e4 <display_dec+0xbc>
+ 17c:	0d c0       	rjmp	.+26     	; 0x198 <display_dec+0x70>
  17e:	64 30       	cpi	r22, 0x04	; 4
- 180:	29 f1       	breq	.+74     	; 0x1cc <display_DEC+0xa4>
+ 180:	29 f1       	breq	.+74     	; 0x1cc <display_dec+0xa4>
  182:	68 30       	cpi	r22, 0x08	; 8
- 184:	79 f5       	brne	.+94     	; 0x1e4 <display_DEC+0xbc>
+ 184:	79 f5       	brne	.+94     	; 0x1e4 <display_dec+0xbc>
 		
 		case ONES:
-		cathode_byte = DEC[(number % 10)]; //print first decimal digit
+		cathode_byte = dec[(number % 10)]; //print first decimal digit
  186:	6a e0       	ldi	r22, 0x0A	; 10
  188:	70 e0       	ldi	r23, 0x00	; 0
  18a:	0e 94 8b 04 	call	0x916	; 0x916 <__udivmodhi4>
@@ -310,10 +310,10 @@ void display_DEC(uint16_t number, uint8_t digit)
  192:	f9 1f       	adc	r31, r25
  194:	21 81       	ldd	r18, Z+1	; 0x01
 		break;
- 196:	26 c0       	rjmp	.+76     	; 0x1e4 <display_DEC+0xbc>
+ 196:	26 c0       	rjmp	.+76     	; 0x1e4 <display_dec+0xbc>
 		
 		case TENS:
-		cathode_byte = DEC[((number % 100) / 10)]; //print second decimal digit
+		cathode_byte = dec[((number % 100) / 10)]; //print second decimal digit
  198:	64 e6       	ldi	r22, 0x64	; 100
  19a:	70 e0       	ldi	r23, 0x00	; 0
  19c:	0e 94 8b 04 	call	0x916	; 0x916 <__udivmodhi4>
@@ -325,10 +325,10 @@ void display_DEC(uint16_t number, uint8_t digit)
  1ac:	f7 1f       	adc	r31, r23
  1ae:	21 81       	ldd	r18, Z+1	; 0x01
 		break;
- 1b0:	19 c0       	rjmp	.+50     	; 0x1e4 <display_DEC+0xbc>
+ 1b0:	19 c0       	rjmp	.+50     	; 0x1e4 <display_dec+0xbc>
 		
 		case HUNDS:
-		cathode_byte = DEC[((number % 1000) / 100)]; //print third decimal digit
+		cathode_byte = dec[((number % 1000) / 100)]; //print third decimal digit
  1b2:	68 ee       	ldi	r22, 0xE8	; 232
  1b4:	73 e0       	ldi	r23, 0x03	; 3
  1b6:	0e 94 8b 04 	call	0x916	; 0x916 <__udivmodhi4>
@@ -340,10 +340,10 @@ void display_DEC(uint16_t number, uint8_t digit)
  1c6:	f7 1f       	adc	r31, r23
  1c8:	21 81       	ldd	r18, Z+1	; 0x01
 		break;
- 1ca:	0c c0       	rjmp	.+24     	; 0x1e4 <display_DEC+0xbc>
+ 1ca:	0c c0       	rjmp	.+24     	; 0x1e4 <display_dec+0xbc>
 		
 		case THOUS:
-		cathode_byte = DEC[((number % 10000) / 1000)]; //print fourth decimal digit
+		cathode_byte = dec[((number % 10000) / 1000)]; //print fourth decimal digit
  1cc:	60 e1       	ldi	r22, 0x10	; 16
  1ce:	77 e2       	ldi	r23, 0x27	; 39
  1d0:	0e 94 8b 04 	call	0x916	; 0x916 <__udivmodhi4>
@@ -386,9 +386,9 @@ void display_DEC(uint16_t number, uint8_t digit)
  206:	cf 91       	pop	r28
  208:	08 95       	ret
 
-0000020a <setupADC>:
+0000020a <setup_adc>:
 
-void setupADC(void)
+void setup_adc(void)
 {
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1); //set ADC clock to 312.5 KHz for 20 MHz clock
@@ -398,16 +398,12 @@ void setupADC(void)
  20e:	80 81       	ld	r24, Z
  210:	84 60       	ori	r24, 0x04	; 4
  212:	80 83       	st	Z, r24
-	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
+	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)	
  214:	ac e7       	ldi	r26, 0x7C	; 124
  216:	b0 e0       	ldi	r27, 0x00	; 0
  218:	8c 91       	ld	r24, X
  21a:	80 64       	ori	r24, 0x40	; 64
  21c:	8c 93       	st	X, r24
-	//MUX2:0 is 000 by default in ADMUX
-	//ADMUX &= ~(1<<MUX0); //set ADC multiplexer to read ADC0 (PF0 on PORTF, pin 97)
-	
-	//ADCSRA |= (1<<ADATE); //set ADC in free running mode
 	
 	DIDR0 |= 0x01; //disable digital input buffer for ADC0
  21e:	ae e7       	ldi	r26, 0x7E	; 126
@@ -420,10 +416,7 @@ void setupADC(void)
  228:	80 81       	ld	r24, Z
  22a:	80 68       	ori	r24, 0x80	; 128
  22c:	80 83       	st	Z, r24
-	//adc_value = ADCL;
-	//adc_value = adc_value | (ADCH <<8);
-	//adc_previous = adc_value;
-	//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+
 	
 }
  22e:	08 95       	ret
@@ -530,7 +523,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  2d6:	ef 93       	push	r30
  2d8:	ff 93       	push	r31
 	
-	display_DEC(value_to_display, digit[place]);
+	display_dec(value_to_display, digit[place]);
  2da:	80 91 4c 01 	lds	r24, 0x014C
  2de:	90 91 4d 01 	lds	r25, 0x014D
  2e2:	20 91 64 01 	lds	r18, 0x0164
@@ -539,50 +532,50 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  2ea:	e2 0f       	add	r30, r18
  2ec:	f1 1d       	adc	r31, r1
  2ee:	60 81       	ld	r22, Z
- 2f0:	0e 94 94 00 	call	0x128	; 0x128 <display_DEC>
+ 2f0:	0e 94 94 00 	call	0x128	; 0x128 <display_dec>
  2f4:	cc 24       	eor	r12, r12
  2f6:	dd 24       	eor	r13, r13
  2f8:	c3 94       	inc	r12
  2fa:	00 e0       	ldi	r16, 0x00	; 0
  2fc:	10 e0       	ldi	r17, 0x00	; 0
 			
-			//read pots on U2 and set appriate DAC S&H channel
-			for (int i = 0; i <=15; i++)
-			{
-				DATA_BUS = i;
-				POT_MUX &= ~(1<<POTMUX_EN0);
+	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
+	for (int i = 0; i <=15; i++)
+	{
+		DATA_BUS = i;
+		POT_MUX &= ~(1<<POTMUX_EN0);
  2fe:	0f 2e       	mov	r0, r31
  300:	fa ed       	ldi	r31, 0xDA	; 218
  302:	ef 2e       	mov	r14, r31
  304:	ff 24       	eor	r15, r15
  306:	f0 2d       	mov	r31, r0
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
-				ADCSRA |= (1<<ADSC); //start ADC conversion
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
+		ADCSRA |= (1<<ADSC); //start ADC conversion
  308:	ca e7       	ldi	r28, 0x7A	; 122
  30a:	d0 e0       	ldi	r29, 0x00	; 0
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
-				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 								
-				//adc_previous = adc_value;
-				adc_value = ADCL;
+		//adc_previous = adc_value;
+		adc_value = ADCL;
  30c:	0f 2e       	mov	r0, r31
  30e:	f8 e7       	ldi	r31, 0x78	; 120
  310:	8f 2e       	mov	r8, r31
  312:	99 24       	eor	r9, r9
  314:	f0 2d       	mov	r31, r0
-				adc_value = adc_value | (ADCH <<8);
+		adc_value = adc_value | (ADCH <<8);
  316:	0f 2e       	mov	r0, r31
  318:	f9 e7       	ldi	r31, 0x79	; 121
  31a:	4f 2e       	mov	r4, r31
  31c:	55 24       	eor	r5, r5
  31e:	f0 2d       	mov	r31, r0
-				} else if (i == 11) //exception to handle ARP_RATE pot
-				{
-					//store ARP pot value, but don't set DAC
+		} else if (i == 11) //exception to handle ARP_RATE pot
+		{
+			//store ARP pot value, but don't set DAC
 									
-				} else {
-					set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+		} else {
+			set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
  320:	0f 2e       	mov	r0, r31
  322:	fc e2       	ldi	r31, 0x2C	; 44
  324:	2f 2e       	mov	r2, r31
@@ -595,21 +588,21 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	display_DEC(value_to_display, digit[place]);
+	display_dec(value_to_display, digit[place]);
  32e:	0f 5f       	subi	r16, 0xFF	; 255
  330:	1f 4f       	sbci	r17, 0xFF	; 255
  332:	08 94       	sec
  334:	c1 1c       	adc	r12, r1
  336:	d1 1c       	adc	r13, r1
  338:	f8 01       	movw	r30, r16
-			//POT_MUX |= (1<<POTMUX_EN0);
+	
 			
-			//read pots on U2 and set appriate DAC S&H channel
-			for (int i = 0; i <=15; i++)
-			{
-				DATA_BUS = i;
+	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
+	for (int i = 0; i <=15; i++)
+	{
+		DATA_BUS = i;
  33a:	02 b9       	out	0x02, r16	; 2
-				POT_MUX &= ~(1<<POTMUX_EN0);
+		POT_MUX &= ~(1<<POTMUX_EN0);
  33c:	d7 01       	movw	r26, r14
  33e:	8c 91       	ld	r24, X
  340:	8f 7b       	andi	r24, 0xBF	; 191
@@ -618,30 +611,30 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  346:	ba 95       	dec	r27
  348:	f1 f7       	brne	.-4      	; 0x346 <__vector_5+0xb2>
  34a:	00 00       	nop
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
-				ADCSRA |= (1<<ADSC); //start ADC conversion
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
+		ADCSRA |= (1<<ADSC); //start ADC conversion
  34c:	88 81       	ld	r24, Y
  34e:	80 64       	ori	r24, 0x40	; 64
  350:	88 83       	st	Y, r24
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
  352:	88 81       	ld	r24, Y
  354:	86 fd       	sbrc	r24, 6
  356:	fd cf       	rjmp	.-6      	; 0x352 <__vector_5+0xbe>
-				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
  358:	d7 01       	movw	r26, r14
  35a:	8c 91       	ld	r24, X
  35c:	80 64       	ori	r24, 0x40	; 64
  35e:	8c 93       	st	X, r24
-				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 								
-				//adc_previous = adc_value;
-				adc_value = ADCL;
+		//adc_previous = adc_value;
+		adc_value = ADCL;
  360:	d4 01       	movw	r26, r8
  362:	8c 91       	ld	r24, X
  364:	90 e0       	ldi	r25, 0x00	; 0
  366:	90 93 61 01 	sts	0x0161, r25
  36a:	80 93 60 01 	sts	0x0160, r24
-				adc_value = adc_value | (ADCH <<8);
+		adc_value = adc_value | (ADCH <<8);
  36e:	d2 01       	movw	r26, r4
  370:	2c 91       	ld	r18, X
  372:	80 91 60 01 	lds	r24, 0x0160
@@ -652,44 +645,40 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  380:	9b 29       	or	r25, r11
  382:	90 93 61 01 	sts	0x0161, r25
  386:	80 93 60 01 	sts	0x0160, r24
-				//set_dac(i, dac_channel[i]); //set DAC
-				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
-				//currently using this to set OSCA_INIT_CV and do fine tuning
-							
-				
-				if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
+													
+		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
  38a:	c8 01       	movw	r24, r16
  38c:	08 97       	sbiw	r24, 0x08	; 8
  38e:	82 30       	cpi	r24, 0x02	; 2
  390:	91 05       	cpc	r25, r1
  392:	08 f0       	brcs	.+2      	; 0x396 <__vector_5+0x102>
  394:	44 c0       	rjmp	.+136    	; 0x41e <__vector_5+0x18a>
-				{
-					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
-					if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
+		{
+			uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
+			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
  396:	e9 30       	cpi	r30, 0x09	; 9
  398:	f1 05       	cpc	r31, r1
  39a:	19 f0       	breq	.+6      	; 0x3a2 <__vector_5+0x10e>
-				//currently using this to set OSCA_INIT_CV and do fine tuning
-							
-				
-				if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
-				{
-					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
+		adc_value = ADCL;
+		adc_value = adc_value | (ADCH <<8);
+													
+		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
+		{
+			uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
  39c:	2f e9       	ldi	r18, 0x9F	; 159
  39e:	38 e1       	ldi	r19, 0x18	; 24
  3a0:	02 c0       	rjmp	.+4      	; 0x3a6 <__vector_5+0x112>
-					if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
+			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
  3a2:	25 e0       	ldi	r18, 0x05	; 5
  3a4:	3f e1       	ldi	r19, 0x1F	; 31
-					if (adc_value >= 512) {
+			if (adc_value >= 512) {
  3a6:	80 91 60 01 	lds	r24, 0x0160
  3aa:	90 91 61 01 	lds	r25, 0x0161
  3ae:	b2 e0       	ldi	r27, 0x02	; 2
  3b0:	80 30       	cpi	r24, 0x00	; 0
  3b2:	9b 07       	cpc	r25, r27
  3b4:	d8 f0       	brcs	.+54     	; 0x3ec <__vector_5+0x158>
-						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
+				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
  3b6:	ee 0f       	add	r30, r30
  3b8:	ff 1f       	adc	r31, r31
  3ba:	e2 0d       	add	r30, r2
@@ -703,7 +692,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  3ce:	42 0f       	add	r20, r18
  3d0:	53 1f       	adc	r21, r19
  3d2:	0e 94 73 00 	call	0xe6	; 0xe6 <set_dac>
-						tune_offset = adc_value - 512;
+				tune_offset = adc_value - 512;
  3d6:	80 91 60 01 	lds	r24, 0x0160
  3da:	90 91 61 01 	lds	r25, 0x0161
  3de:	80 50       	subi	r24, 0x00	; 0
@@ -711,8 +700,8 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  3e2:	90 93 5f 01 	sts	0x015F, r25
  3e6:	80 93 5e 01 	sts	0x015E, r24
  3ea:	2f c0       	rjmp	.+94     	; 0x44a <__vector_5+0x1b6>
-					} else {
-						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value))); 
+			} else {
+				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value))); 
  3ec:	ee 0f       	add	r30, r30
  3ee:	ff 1f       	adc	r31, r31
  3f0:	e2 0d       	add	r30, r2
@@ -726,27 +715,24 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  404:	42 0f       	add	r20, r18
  406:	53 1f       	adc	r21, r19
  408:	0e 94 73 00 	call	0xe6	; 0xe6 <set_dac>
-						tune_offset = adc_value;
+				tune_offset = adc_value;
  40c:	80 91 60 01 	lds	r24, 0x0160
  410:	90 91 61 01 	lds	r25, 0x0161
  414:	90 93 5f 01 	sts	0x015F, r25
  418:	80 93 5e 01 	sts	0x015E, r24
  41c:	16 c0       	rjmp	.+44     	; 0x44a <__vector_5+0x1b6>
-					
-				//} else if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U2
-				//{
-					//set_dac(dac_pot_decoder_0[15][1],dac_pot_decoder_0[15][0], adc_value << 4);
-					//value_to_display = adc_value;
-				} else if (i == 11) //exception to handle ARP_RATE pot
+			}
+
+		} else if (i == 11) //exception to handle ARP_RATE pot
  41e:	eb 30       	cpi	r30, 0x0B	; 11
  420:	f1 05       	cpc	r31, r1
  422:	09 f4       	brne	.+2      	; 0x426 <__vector_5+0x192>
  424:	84 cf       	rjmp	.-248    	; 0x32e <__vector_5+0x9a>
-				{
-					//store ARP pot value, but don't set DAC
+		{
+			//store ARP pot value, but don't set DAC
 									
-				} else {
-					set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+		} else {
+			set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
  426:	ee 0f       	add	r30, r30
  428:	ff 1f       	adc	r31, r31
  42a:	e2 0d       	add	r30, r2
@@ -762,12 +748,12 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  442:	40 7f       	andi	r20, 0xF0	; 240
  444:	54 27       	eor	r21, r20
  446:	0e 94 73 00 	call	0xe6	; 0xe6 <set_dac>
-		    //POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-			//_delay_us(10);
-			//POT_MUX |= (1<<POTMUX_EN0);
+	
+	display_dec(value_to_display, digit[place]);
+	
 			
-			//read pots on U2 and set appriate DAC S&H channel
-			for (int i = 0; i <=15; i++)
+	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
+	for (int i = 0; i <=15; i++)
  44a:	e0 e1       	ldi	r30, 0x10	; 16
  44c:	ce 16       	cp	r12, r30
  44e:	d1 04       	cpc	r13, r1
@@ -775,42 +761,38 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  452:	6d cf       	rjmp	.-294    	; 0x32e <__vector_5+0x9a>
  454:	00 e0       	ldi	r16, 0x00	; 0
  456:	10 e0       	ldi	r17, 0x00	; 0
-			//POT_MUX |= (1<<POTMUX_EN1);
-			for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
-			{
+    //now read second set of pots form U4 and set approriate DAC S&H channel
+	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+	{
 				
-				DATA_BUS = i+1; //U4 input 0 is not used (grounded)
-				POT_MUX &= ~(1<<POTMUX_EN1);
+		DATA_BUS = i+1; //U4 input 0 is not used (grounded)
+		POT_MUX &= ~(1<<POTMUX_EN1);
  458:	0f 2e       	mov	r0, r31
  45a:	fa ed       	ldi	r31, 0xDA	; 218
  45c:	ef 2e       	mov	r14, r31
  45e:	ff 24       	eor	r15, r15
  460:	f0 2d       	mov	r31, r0
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
-				ADCSRA |= (1<<ADSC); //start ADC conversion
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+		ADCSRA |= (1<<ADSC); //start ADC conversion
  462:	ca e7       	ldi	r28, 0x7A	; 122
  464:	d0 e0       	ldi	r29, 0x00	; 0
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
-				//adc_previous = adc_value;
-				adc_value = ADCL;
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
+		//adc_previous = adc_value;
+		adc_value = ADCL;
  466:	0f 2e       	mov	r0, r31
  468:	f8 e7       	ldi	r31, 0x78	; 120
  46a:	cf 2e       	mov	r12, r31
  46c:	dd 24       	eor	r13, r13
  46e:	f0 2d       	mov	r31, r0
-				adc_value = adc_value | (ADCH <<8);
+		adc_value = adc_value | (ADCH <<8);				
  470:	0f 2e       	mov	r0, r31
  472:	f9 e7       	ldi	r31, 0x79	; 121
  474:	af 2e       	mov	r10, r31
  476:	bb 24       	eor	r11, r11
  478:	f0 2d       	mov	r31, r0
-				//if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U4
-				//{
-					//set_dac(dac_pot_decoder_1[14][1],dac_pot_decoder_1[14][0], adc_value << 4);
-					////value_to_display = adc_value;
-				//} else {
-					set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
+
+		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
  47a:	0f 2e       	mov	r0, r31
  47c:	fe e0       	ldi	r31, 0x0E	; 14
  47e:	8f 2e       	mov	r8, r31
@@ -825,14 +807,14 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  486:	80 2f       	mov	r24, r16
  488:	8f 5f       	subi	r24, 0xFF	; 255
-			//_delay_us(10);
-			//POT_MUX |= (1<<POTMUX_EN1);
-			for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
-			{
+	
+    //now read second set of pots form U4 and set approriate DAC S&H channel
+	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+	{
 				
-				DATA_BUS = i+1; //U4 input 0 is not used (grounded)
+		DATA_BUS = i+1; //U4 input 0 is not used (grounded)
  48a:	82 b9       	out	0x02, r24	; 2
-				POT_MUX &= ~(1<<POTMUX_EN1);
+		POT_MUX &= ~(1<<POTMUX_EN1);
  48c:	d7 01       	movw	r26, r14
  48e:	8c 91       	ld	r24, X
  490:	8f 77       	andi	r24, 0x7F	; 127
@@ -841,28 +823,28 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  496:	ba 95       	dec	r27
  498:	f1 f7       	brne	.-4      	; 0x496 <__vector_5+0x202>
  49a:	00 00       	nop
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
-				ADCSRA |= (1<<ADSC); //start ADC conversion
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+		ADCSRA |= (1<<ADSC); //start ADC conversion
  49c:	88 81       	ld	r24, Y
  49e:	80 64       	ori	r24, 0x40	; 64
  4a0:	88 83       	st	Y, r24
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
  4a2:	88 81       	ld	r24, Y
  4a4:	86 fd       	sbrc	r24, 6
  4a6:	fd cf       	rjmp	.-6      	; 0x4a2 <__vector_5+0x20e>
-				POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
+		POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
  4a8:	f7 01       	movw	r30, r14
  4aa:	80 81       	ld	r24, Z
  4ac:	80 68       	ori	r24, 0x80	; 128
  4ae:	80 83       	st	Z, r24
-				//adc_previous = adc_value;
-				adc_value = ADCL;
+		//adc_previous = adc_value;
+		adc_value = ADCL;
  4b0:	d6 01       	movw	r26, r12
  4b2:	8c 91       	ld	r24, X
  4b4:	90 e0       	ldi	r25, 0x00	; 0
  4b6:	90 93 61 01 	sts	0x0161, r25
  4ba:	80 93 60 01 	sts	0x0160, r24
-				adc_value = adc_value | (ADCH <<8);
+		adc_value = adc_value | (ADCH <<8);				
  4be:	f5 01       	movw	r30, r10
  4c0:	20 81       	ld	r18, Z
  4c2:	80 91 60 01 	lds	r24, 0x0160
@@ -873,12 +855,8 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  4d0:	97 29       	or	r25, r7
  4d2:	90 93 61 01 	sts	0x0161, r25
  4d6:	80 93 60 01 	sts	0x0160, r24
-				//if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U4
-				//{
-					//set_dac(dac_pot_decoder_1[14][1],dac_pot_decoder_1[14][0], adc_value << 4);
-					////value_to_display = adc_value;
-				//} else {
-					set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
+
+		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
  4da:	f8 01       	movw	r30, r16
  4dc:	ee 0f       	add	r30, r30
  4de:	ff 1f       	adc	r31, r31
@@ -895,27 +873,28 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  4f8:	40 7f       	andi	r20, 0xF0	; 240
  4fa:	54 27       	eor	r21, r20
  4fc:	0e 94 73 00 	call	0xe6	; 0xe6 <set_dac>
-			
-			//now read second set of pots form U4 databus should already = 15 from previous loop.
-		    //POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
-			//_delay_us(10);
-			//POT_MUX |= (1<<POTMUX_EN1);
-			for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+		}
+						
+	}						
+	
+    //now read second set of pots form U4 and set approriate DAC S&H channel
+	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
  500:	0f 5f       	subi	r16, 0xFF	; 255
  502:	1f 4f       	sbci	r17, 0xFF	; 255
  504:	0f 30       	cpi	r16, 0x0F	; 15
  506:	11 05       	cpc	r17, r1
  508:	09 f0       	breq	.+2      	; 0x50c <__vector_5+0x278>
  50a:	bd cf       	rjmp	.-134    	; 0x486 <__vector_5+0x1f2>
-				//}
-								
-				//POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U4
-		  }
 
-		DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
+		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
+
+	}
+
+	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
  50c:	a1 98       	cbi	0x14, 1	; 20
-		DAC_CTRL |= (1<<DAC_RS);
+	DAC_CTRL |= (1<<DAC_RS);
  50e:	a1 9a       	sbi	0x14, 1	; 20
+		
 	//do SPI read/write every 5 interrupts (16.5 ms)
 	if (switch_timer++ == 5)
  510:	80 91 65 01 	lds	r24, 0x0165
@@ -1681,12 +1660,12 @@ int main(void)
 	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
  8f0:	82 98       	cbi	0x10, 2	; 16
 	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
-    setupADC();	
- 8f2:	0e 94 05 01 	call	0x20a	; 0x20a <setupADC>
+    setup_adc();	
+ 8f2:	0e 94 05 01 	call	0x20a	; 0x20a <setup_adc>
 	
 	//setup DAC
-	setupDAC();
- 8f6:	0e 94 5a 00 	call	0xb4	; 0xb4 <setupDAC>
+	setup_dac();
+ 8f6:	0e 94 5a 00 	call	0xb4	; 0xb4 <setup_dac>
 	
 	setup_midi_usart();
  8fa:	0e 94 51 00 	call	0xa2	; 0xa2 <setup_midi_usart>

@@ -260,7 +260,7 @@ void setup_midi_usart(void)
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0) | (1<<RXCIE0);
 	//UCSR0C |= (0<<UMSEL0)|(0<<UMSEL01)|(0<<UPM01)|(0<<UPM00)|(0<<USBS0)|(0<<UCSZ02)|(1<<UCSZ01)|(1<<UCSZ00);  	
 }
-void setupDAC(void) //set up DAC
+void setup_dac(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
 	DDRD = 0xFF; //set DAC_BUS_LOW bits to outputs
@@ -308,9 +308,9 @@ void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
 }
 
 
-void display_DEC(uint16_t number, uint8_t digit)
+void display_dec(uint16_t number, uint8_t digit)
 {
-	uint8_t DEC[] = {
+	uint8_t dec[] = {
 		//this is the 7-segment display encoding table
 		
 		ZERO,
@@ -346,19 +346,19 @@ void display_DEC(uint16_t number, uint8_t digit)
 	switch(digit) {
 		
 		case ONES:
-		cathode_byte = DEC[(number % 10)]; //print first decimal digit
+		cathode_byte = dec[(number % 10)]; //print first decimal digit
 		break;
 		
 		case TENS:
-		cathode_byte = DEC[((number % 100) / 10)]; //print second decimal digit
+		cathode_byte = dec[((number % 100) / 10)]; //print second decimal digit
 		break;
 		
 		case HUNDS:
-		cathode_byte = DEC[((number % 1000) / 100)]; //print third decimal digit
+		cathode_byte = dec[((number % 1000) / 100)]; //print third decimal digit
 		break;
 		
 		case THOUS:
-		cathode_byte = DEC[((number % 10000) / 1000)]; //print fourth decimal digit
+		cathode_byte = dec[((number % 10000) / 1000)]; //print fourth decimal digit
 		break;
 		
 	}
@@ -379,33 +379,17 @@ volatile uint8_t digit[] = {
 	THOUS,
 };
 
-void setupADC(void)
+void setup_adc(void)
 {
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0); //set ADC clock to 156.25 KHz for 20 MHz clock
 	//ADCSRA |= (1<<ADPS2) | (1<<ADPS1); //set ADC clock to 312.5 KHz for 20 MHz clock
 	ADCSRA |= (1<<ADPS2);// | (1<<ADPS0); //set ADC clock to 1.25 MHz for 20 MHz clock
-	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)
-	
-	//MUX2:0 is 000 by default in ADMUX
-	//ADMUX &= ~(1<<MUX0); //set ADC multiplexer to read ADC0 (PF0 on PORTF, pin 97)
-	
-	//ADCSRA |= (1<<ADATE); //set ADC in free running mode
+	ADMUX |= (1<<REFS0); //set ADC reference to AVCC (+5V)	
 	
 	DIDR0 |= 0x01; //disable digital input buffer for ADC0
 	
 	ADCSRA |= (1<<ADEN); //enable ADC
-	
-	//ADCSRA |= (1<<ADSC); //start ADC
-	
-	////do an initial read to set adc_previous	
-	//DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-	//PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7
-	//ADCSRA |= (1<<ADSC); //start ADC conversion
-	//while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-	//adc_value = ADCL;
-	//adc_value = adc_value | (ADCH <<8);
-	//adc_previous = adc_value;
-	//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+
 	
 }
 
@@ -429,128 +413,67 @@ ISR (USART_RX_vect) { // USART receive interrupt
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	display_DEC(value_to_display, digit[place]);
-	//if (place == 0) { //if place is 0, start a new ADC conversion
-		//select POTMUX input
-	//	if (ISW4_SW_ON) { //16X oversampling
-			
-			//uint16_t adc_sum = 0;
-			//for (int i = 0; i < 16; i++) {
-				//DATA_BUS = 0b00000111; //select Y7 (VR2 POT)
-				//PORTH &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input Y7 on U2
-				//ADCSRA |= (1<<ADSC); //start ADC conversion
-				//while (!(ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles)
-				//
-				//adc_value = ADCL;
-				//adc_value = adc_value | (ADCH <<8);				 		
-				//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
-				//adc_sum += adc_value;
-			//}				
-			//adc_previous = adc_value;
-			//adc_value = adc_sum>>2; //right shift by 2 to convert 14 bit sum to 12 bit result
+	display_dec(value_to_display, digit[place]);
 	
-				
-	//	} else {
-            //ADC is set up to set dac based on pot i-1, so when i = 0, ADC is set up to read 16th pot on the mux (i = 15)
-			//this set up leaves ADC S&H too long between interrupts (droop, noise), so here the ADC to read pot 15 is set up
-			//before the ADC read/DAC write loop executes.
-			//this is stupidly baroque and it might be possible to read ADC and write DAC for same i (ie. not i-1 as currently implemented)
-			//in fact, this first set up does away with the delay and there doesn't seem to be much noise on pot 15 read, but it's hard to tell as it
-			//is VCO1 FM depth control. Oh wait, not there is plenty of noise without settling time introduced by delay
-            //DATA_BUS = 15; //set pot mux address on databus
-		    //POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-			//_delay_us(10);
-			//POT_MUX |= (1<<POTMUX_EN0);
 			
-			//read pots on U2 and set appriate DAC S&H channel
-			for (int i = 0; i <=15; i++)
-			{
-				DATA_BUS = i;
-				POT_MUX &= ~(1<<POTMUX_EN0);
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
-				ADCSRA |= (1<<ADSC); //start ADC conversion
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
-				//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
+	for (int i = 0; i <=15; i++)
+	{
+		DATA_BUS = i;
+		POT_MUX &= ~(1<<POTMUX_EN0);
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.	
+		ADCSRA |= (1<<ADSC); //start ADC conversion
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
+		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 								
-				//adc_previous = adc_value;
-				adc_value = ADCL;
-				adc_value = adc_value | (ADCH <<8);
-				
-				//set up mux for next ADC read - allows pot mux ADC node settling time while DAC is being set.
-				//POT_MUX &= ~(1<<POTMUX_EN0); //clear POTMUX_EN0 to select input on U2
-				//DATA_BUS = i; //set pot mux address on databus				
-				//dac_channel[i] = adc_value << 4; //convert 10 bit ADC value to 14 bit DAC value
-				//set_dac(i, dac_channel[i]); //set DAC
-				//for testing, set one DAC S&H channel to a fixed value and measure it as flanking S&H channels are swept from 0-10V
-				//currently using this to set OSCA_INIT_CV and do fine tuning
-							
-				
-				if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
-				{
-					uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
-					if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
-					if (adc_value >= 512) {
-						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
-						tune_offset = adc_value - 512;
-					} else {
-						set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value))); 
-						tune_offset = adc_value;
-					}
-					//set_dac(i, tune_value);
-					
-				//} else if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U2
-				//{
-					//set_dac(dac_pot_decoder_0[15][1],dac_pot_decoder_0[15][0], adc_value << 4);
-					//value_to_display = adc_value;
-				} else if (i == 11) //exception to handle ARP_RATE pot
-				{
-					//store ARP pot value, but don't set DAC
+		//adc_previous = adc_value;
+		adc_value = ADCL;
+		adc_value = adc_value | (ADCH <<8);
+													
+		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
+		{
+			uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
+			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
+			if (adc_value >= 512) {
+				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
+				tune_offset = adc_value - 512;
+			} else {
+				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value))); 
+				tune_offset = adc_value;
+			}
+
+		} else if (i == 11) //exception to handle ARP_RATE pot
+		{
+			//store ARP pot value, but don't set DAC
 									
-				} else {
-					set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
-				}
-					
-                //set_dac(i, adc_value << 4);
-				//POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
-				//POT_MUX |= (1<<POTMUX_EN1); //needed to set this for some reason otherwise was reading both pot demuxers at once - need to check this out.	
+		} else {
+			set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+		}
 						
-			}			
-			//DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
-			//DAC_CTRL |= (1<<DAC_RS);	
-			
-			//now read second set of pots form U4 databus should already = 15 from previous loop.
-		    //POT_MUX &= ~(1<<POTMUX_EN1); //clear POTMUX_EN1 to select input on U4
-			//_delay_us(10);
-			//POT_MUX |= (1<<POTMUX_EN1);
-			for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
-			{
+	}						
+	
+    //now read second set of pots form U4 and set approriate DAC S&H channel
+	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
+	{
 				
-				DATA_BUS = i+1; //U4 input 0 is not used (grounded)
-				POT_MUX &= ~(1<<POTMUX_EN1);
-				_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
-				ADCSRA |= (1<<ADSC); //start ADC conversion
-				while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-				POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
-				//adc_previous = adc_value;
-				adc_value = ADCL;
-				adc_value = adc_value | (ADCH <<8);
-				
+		DATA_BUS = i+1; //U4 input 0 is not used (grounded)
+		POT_MUX &= ~(1<<POTMUX_EN1);
+		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+		ADCSRA |= (1<<ADSC); //start ADC conversion
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2		
+		//adc_previous = adc_value;
+		adc_value = ADCL;
+		adc_value = adc_value | (ADCH <<8);				
 
-				
-				//if (i == 0) //when i = 0 need to set DAC to value read by pot 15 on U4
-				//{
-					//set_dac(dac_pot_decoder_1[14][1],dac_pot_decoder_1[14][0], adc_value << 4);
-					////value_to_display = adc_value;
-				//} else {
-					set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
-				//}
-								
-				//POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U4
-		  }
+		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
 
-		DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
-		DAC_CTRL |= (1<<DAC_RS);
+	}
+
+	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
+	DAC_CTRL |= (1<<DAC_RS);
+		
 	//do SPI read/write every 5 interrupts (16.5 ms)
 	if (switch_timer++ == 5)
 	{
@@ -737,10 +660,10 @@ int main(void)
 	//set up switch port
 	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
 	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
-    setupADC();	
+    setup_adc();	
 	
 	//setup DAC
-	setupDAC();
+	setup_dac();
 	
 	setup_midi_usart();
 	
@@ -749,24 +672,9 @@ int main(void)
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
 	sei(); //enable global interrupts
-	//POT_MUX |= (1<<POTMUX_EN1); //set pot mux en1 again - it is getting cleared somewhere	
-	//VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	////enable output on VCO analog switch latch:
-	////switch latch: bit 0: A SAW 1: A PULSE 2: A TRI 3: SYNC 4: B MOD 5: B PULSE 6: SAW 7: B TRI
-	//DATA_BUS = 0b11010101; //enable VCO1 SAW
-	//VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
-	//_delay_us(1);
-	//VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	//DATA_BUS = 0;
-	while(1)
-	{
-		
-		//PORTB |= (1<<ARP_SYNC_LED);
-		
-		//SET SPI_SW_LATCH HI - this latches switch data into 74XX165 shift registers for SPI transfer
 
-		
-		
-		
+	while(1)
+	{	
+		//PORTB |= (1<<ARP_SYNC_LED);
 	}
 }
