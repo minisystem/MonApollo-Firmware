@@ -1,6 +1,6 @@
-======
+_________________
  DONE:
- =====
+
 
  
 DAC setup is working. Value is determined by reading 10 bit pot value
@@ -24,15 +24,15 @@ VCO waveform switching
 
  
  TO DO:
- ==============================================================================
+ ____________
  
 *Handle decimal points on LED display
 *break up code into header files
  
- ==============================================================================
+ 
  
  COMMENTS:
- ==============================================================================
+ _________
  
  SPI_CLK looks funny on scope. Probing any SCK pin on 165 or 595 with scope probe
  on 1X setting causes ISW12 LED to light as if ISW12 SW had been pressed. Switching
@@ -40,4 +40,4 @@ VCO waveform switching
  and probe impedance. SPI clock is at default - currently don't know what speed it 
  is running at.
  
- ==============================================================================
+ 
