@@ -244,7 +244,7 @@ volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
 volatile uint16_t tune_offset = 0; //fine tune offset to display 
 
-volatile uint16_t value_to_display = 0; //global to hold display value
+volatile uint16_t value_to_display = 747; //global to hold display value
 
 volatile uint16_t dac_channel[] = { //array to store 8 14 bit DAC values, which are determined by ADC readings of 8 pots
 	
@@ -299,6 +299,16 @@ volatile uint8_t dac_pot_decoder_1 [15][2] = {
 	{RELEASE_1,		DAC_MUX_EN3}							
 };
 
+void setup_midi_usart(void)
+{
+    uint16_t ubbr_value = 39; //20MHz/(16*31250 BAUD) - 1
+    //write ubbr_value to H and L UBBR1 registers:
+    UBRR0L = (unsigned char) ubbr_value;
+    UBRR0H = (unsigned char) (ubbr_value >> 8);
+	
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0) | (1<<RXCIE0);
+	//UCSR0C |= (0<<UMSEL0)|(0<<UMSEL01)|(0<<UPM01)|(0<<UPM00)|(0<<USBS0)|(0<<UCSZ02)|(1<<UCSZ01)|(1<<UCSZ00);  	
+}
 void setupDAC(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
@@ -445,6 +455,24 @@ void setupADC(void)
 	//adc_value = adc_value | (ADCH <<8);
 	//adc_previous = adc_value;
 	//PORTH |= (1<<POTMUX_EN0); //set POTMUX_EN0
+	
+}
+
+ISR (USART_RX_vect) { // USART receive interrupt
+	 
+	 //if (UDR0 == 248) {
+		 //PORTB ^= (1<<ARP_SYNC_LED);
+		 //return;
+	 //}		  
+	 value_to_display = UDR0;
+	 uint8_t status_byte = value_to_display >> 4;
+	 
+	 if ((status_byte >> 3) == 1) //if it's a note on or off event, handle it:
+	 { 
+		 if ((status_byte >> 0) & 1) {PORTF |= (1<<GATE);} else {PORTF &= ~(1<<GATE);}
+		//PORTF ^= (1<<GATE);	 
+     }	else if (value_to_display == 0) {PORTF &= ~(1<<GATE);}
+	  
 	
 }
 
@@ -709,7 +737,7 @@ int main(void)
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
 	
-	//DDRF |= (1<<GATE); //set gate as output
+	DDRF |= (1<<GATE); //set gate as output
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
@@ -762,6 +790,8 @@ int main(void)
 	
 	//setup DAC
 	setupDAC();
+	
+	setup_midi_usart();
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
