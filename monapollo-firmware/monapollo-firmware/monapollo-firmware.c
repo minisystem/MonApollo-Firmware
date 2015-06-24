@@ -10,20 +10,18 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include "spi.h"
+//#include "dac.h"
+#include "display.h"
+#include "display_map.h"
+#include "port_map.h"
+//#include "led_map.h"
+//#include "switch_map.h"
 
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7
 
-//SPI pins
-#define SPI_DATA_OUT	(1<<PB2)
-#define SPI_DATA_IN		PB3
-#define SPI_CLK			(1<<PB1)
 
-//SPI EN pin on PORTJ
-#define SPI_EN			(1<<PJ2)
-
-//LED latch pin on PORTJ
-#define LED_LATCH		(1<<PJ3)
 
 //EG2 polarity pin on PORTJ
 #define EG2_POL			PJ4
@@ -32,20 +30,6 @@
 #define VCO_SW_LATCH		PJ6
 //define LFO waveform switch latch (not yet implemented in hardware)
 #define LFO_SW_LATCH		PJ5
-
-//define PORTS
-#define SPI_PORT			PORTB
-#define SPI_LATCH_PORT		PORTJ
-#define VCO_SW_LATCH_PORT	PORTJ
-#define EG2_POL_PORT		PORTJ
-#define DATA_BUS			PORTA
-#define DISPLAY_PORT		PORTH
-#define DAC_BUS_LOW			PORTD
-#define DAC_BUS_HIGH		PORTC
-#define DAC_CTRL			PORTG
-#define DAC_MUX				PORTH
-#define POT_MUX				PORTH
-#define SWITCH_PORT			PINF //direct reading by MCU of some switches occurs on this port
 
 //define DAC bits
 #define DAC_WR			PG0
@@ -85,45 +69,7 @@
 //SPI switch latch
 #define SPI_SW_LATCH		(1<<PB5)
 
-//LED 7-segment display latches
-#define DISP_ANODE_LATCH	PH5
-#define DISP_CATHODE_LATCH	PH4
 
-//define digit anodes
-#define ONES	0b00001000
-#define TENS	0b00000001
-#define HUNDS	0b00000010
-#define THOUS	0b00000100
-
-//define digit cathodes (current sink, active low)
-#define a		0b00000100
-#define b		0b00000001
-#define c		0b00010000
-#define d		0b01000000
-#define e		0b10000000
-#define f		0b00000010
-#define g		0b00001000
-#define dp		0b00100000
-
-//define decimal digits
-#define ZERO	(a | b | c | d | e | f)
-#define ONE		(b | c)
-#define TWO		(a | b | d | e | g)
-#define THREE	(a | b | c | d | g)
-#define FOUR	(b | c | f | g)
-#define FIVE	(a | c | d | f | g)
-#define SIX		(a | c | d | e | f | g)
-#define SEVEN	(a | b | c)
-#define EIGHT	(a | b | c | d | e | f | g)
-#define NINE	(a | b | c | d | f | g)
-
-//define hex digits
-#define A		(a | b | c | e | f | g)
-#define B		(c | d | e | f | g)
-#define C		(a | d | e | f)
-#define D		(b | c | d | e | g)
-#define E		(a | d | e | f | g)
-#define F		(a | e | f | g)
 
 //define POTMUX_EN bits
 #define POTMUX_EN0	PH6
@@ -308,69 +254,7 @@ void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
 }
 
 
-void display_dec(uint16_t number, uint8_t digit)
-{
-	uint8_t dec[] = {
-		//this is the 7-segment display encoding table
-		
-		ZERO,
-		ONE,
-		TWO,
-		THREE,
-		FOUR,
-		FIVE,
-		SIX,
-		SEVEN,
-		EIGHT,
-		NINE,
-		
-		
-	};
-	
-	//clear cathode bits
-	DATA_BUS = 0xFF; //set bits for cathode (current sinks, active LOW)
-	//latch data to cathode lines
-	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
-	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
-	
-	//set anode bit
-	DATA_BUS = digit;
-	//latch data to anode lines
-	DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);
-	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
 
-	
-	//determine cathode byte based on digit to display
-	uint8_t cathode_byte;
-	
-	switch(digit) {
-		
-		case ONES:
-		cathode_byte = dec[(number % 10)]; //print first decimal digit
-		break;
-		
-		case TENS:
-		cathode_byte = dec[((number % 100) / 10)]; //print second decimal digit
-		break;
-		
-		case HUNDS:
-		cathode_byte = dec[((number % 1000) / 100)]; //print third decimal digit
-		break;
-		
-		case THOUS:
-		cathode_byte = dec[((number % 10000) / 1000)]; //print fourth decimal digit
-		break;
-		
-	}
-	
-	//set cathode byte
-	DATA_BUS = ~(cathode_byte); //set bits for cathode (current sinks, active LOW)
-	//latch data to cathode lines
-	DISPLAY_PORT |= (1<<DISP_CATHODE_LATCH);
-	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
-	
-	//DATA_BUS = 0; //clear DATA_BUS before return
-}
 
 volatile uint8_t digit[] = {
 	ONES,
