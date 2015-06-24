@@ -11,9 +11,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "spi.h"
-//#include "dac.h"
+#include "dac.h"
 #include "display.h"
-#include "display_map.h"
 #include "port_map.h"
 //#include "led_map.h"
 //#include "switch_map.h"
@@ -21,23 +20,10 @@
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7
 
-
-
 //EG2 polarity pin on PORTJ
 #define EG2_POL			PJ4
 
-//define analog switch latch (VCO waveform switching)
-#define VCO_SW_LATCH		PJ6
-//define LFO waveform switch latch (not yet implemented in hardware)
-#define LFO_SW_LATCH		PJ5
 
-//define DAC bits
-#define DAC_WR			PG0
-#define DAC_RS			PG1
-#define DAC_MUX_EN0		PH0 //DG408 enable is active HIGH
-#define DAC_MUX_EN1		PH1
-#define DAC_MUX_EN2		PH2
-#define DAC_MUX_EN3		PH3
 
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
@@ -65,11 +51,6 @@
 #define ISW7_SW				6 //VCO2 PULSE U14
 //define direct MCU input switch bits
 #define ISW8_SW				PF2
-
-//SPI switch latch
-#define SPI_SW_LATCH		(1<<PB5)
-
-
 
 //define POTMUX_EN bits
 #define POTMUX_EN0	PH6
@@ -206,54 +187,6 @@ void setup_midi_usart(void)
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0) | (1<<RXCIE0);
 	//UCSR0C |= (0<<UMSEL0)|(0<<UMSEL01)|(0<<UPM01)|(0<<UPM00)|(0<<USBS0)|(0<<UCSZ02)|(1<<UCSZ01)|(1<<UCSZ00);  	
 }
-void setup_dac(void) //set up DAC
-{
-	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
-	DDRD = 0xFF; //set DAC_BUS_LOW bits to outputs
-	DDRC |= 0xFF;//set DAC_BUS_HIGH bits to outputs
-	DDRH |= (1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3); //set DAC_MUX_EN pins as outputs
-	
-	DAC_MUX &= ~((1<<DAC_MUX_EN0) | (1<<DAC_MUX_EN1) | (1<<DAC_MUX_EN2) | (1<<DAC_MUX_EN3)); //disable DG408 VDAC multiplexers 
-	
-	DAC_CTRL |= (1<<DAC_RS) | (1<<DAC_WR); //disable DAC
-	
-	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
-	DAC_CTRL |= (1<<DAC_RS);
-	
-	DAC_CTRL &= ~(1<<DAC_WR); //write DATA - falling edge then rising edge to toggle DAC bits to output register
-	DAC_CTRL |= (1<<DAC_WR);
-}
-void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
-{
-	
-	
-	DAC_BUS_LOW = value & 0b00000011111111; //mask top 6 MSBs to set low byte
-	
-	DAC_BUS_HIGH = value >> 8; //shift away bottom LSBs to set high byte
-	
-	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
-	DAC_CTRL |= (1<<DAC_WR);
-	
-	DATA_BUS = channel; //set channel for DG408 multiplexer output
-	//uint8_t dac_mux_address;
-	//use switch:case statement here to set appropriate DAC_MUC_EN bit. Could probably do some
-	//bit shifting to derive it from channel number too (0-7: DAC_MUX_EN0, 8-15: DAC_MUX_EN1, 9-23: DAC_MUX_EN2, 24-31: DAC_MUX_EN3
-	//if (channel < 8)
-	//{
-		
-		//dac_mux_address = DAC_MUX_EN0;
-	//} else {
-		//
-		//dac_mux_address = DAC_MUX_EN1;
-	//}
-	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
-	DAC_MUX |= (1<<dac_mux_address); //enable multiplexer
-	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more time efficiently
-	DAC_MUX &= ~(1<<dac_mux_address); //disable multiplexer
-	
-}
-
-
 
 
 volatile uint8_t digit[] = {
@@ -388,13 +321,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 		//toggle switch state 		
 
-		if (spi_sw_current_state & (1<<ISW1_SW)) sw_latch_five ^= (1 << ISW1_SW);
-		if (spi_sw_current_state & (1<<ISW2_SW)) sw_latch_five ^= (1 << ISW2_SW);					
-		if (spi_sw_current_state & (1<<ISW3_SW)) sw_latch_five ^= (1 << ISW3_SW);
-		if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);	
-		if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
-		if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
-		if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
+		//if (spi_sw_current_state & (1<<ISW1_SW)) sw_latch_five ^= (1 << ISW1_SW);
+		//if (spi_sw_current_state & (1<<ISW2_SW)) sw_latch_five ^= (1 << ISW2_SW);					
+		//if (spi_sw_current_state & (1<<ISW3_SW)) sw_latch_five ^= (1 << ISW3_SW);
+		//if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);	
+		//if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
+		//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
+		//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
+		
+		sw_latch_five ^= spi_sw_current_state;
 		
 		//SHIFT 4th BYTE
 		SPDR = 0; //no LEDs connected in current test set up
@@ -518,10 +453,6 @@ int main(void)
 	//Pull LED_LATCH LOW
 	SPI_LATCH_PORT &= ~LED_LATCH;
 	
-	////SHIFT DATA IN TO LIGHT ISW12
-	//SPDR = 0b11111111; 
-	////Wait for SPI shift to complete
-	//while (!(SPSR & (1<<SPIF)));
 	
 	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 	
@@ -543,12 +474,12 @@ int main(void)
 	
 	//set up switch port
 	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
-	//setup ADC, free running for now. Not sure if this is the way it should be done. Look into benefits of one-shot ADC
-    setup_adc();	
 	
+	//setup ADC
+    setup_adc();		
 	//setup DAC
 	setup_dac();
-	
+	//setup MIDI USART
 	setup_midi_usart();
 	
 	//set up main timer interrupt

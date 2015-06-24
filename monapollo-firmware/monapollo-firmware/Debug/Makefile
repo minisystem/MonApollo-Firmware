@@ -35,6 +35,7 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../dac.c \
 ../display.c \
 ../monapollo-firmware.c
 
@@ -46,21 +47,25 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+dac.o \
 display.o \
 monapollo-firmware.o
 
 
 OBJS_AS_ARGS +=  \
+dac.o \
 display.o \
 monapollo-firmware.o
 
 
 C_DEPS +=  \
+dac.d \
 display.d \
 monapollo-firmware.d
 
 
 C_DEPS_AS_ARGS +=  \
+dac.d \
 display.d \
 monapollo-firmware.d
 
@@ -74,6 +79,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 
