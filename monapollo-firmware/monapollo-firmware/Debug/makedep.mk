@@ -8,3 +8,5 @@ display.c
 
 monapollo-firmware.c
 
+spi.c
+

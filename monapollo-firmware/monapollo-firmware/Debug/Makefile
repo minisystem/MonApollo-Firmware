@@ -37,7 +37,8 @@ SUBDIRS :=
 C_SRCS +=  \
 ../dac.c \
 ../display.c \
-../monapollo-firmware.c
+../monapollo-firmware.c \
+../spi.c
 
 
 PREPROCESSING_SRCS += 
@@ -49,25 +50,29 @@ ASM_SRCS +=
 OBJS +=  \
 dac.o \
 display.o \
-monapollo-firmware.o
+monapollo-firmware.o \
+spi.o
 
 
 OBJS_AS_ARGS +=  \
 dac.o \
 display.o \
-monapollo-firmware.o
+monapollo-firmware.o \
+spi.o
 
 
 C_DEPS +=  \
 dac.d \
 display.d \
-monapollo-firmware.d
+monapollo-firmware.d \
+spi.d
 
 
 C_DEPS_AS_ARGS +=  \
 dac.d \
 display.d \
-monapollo-firmware.d
+monapollo-firmware.d \
+spi.d
 
 
 OUTPUT_FILE_PATH +=monapollo-firmware.elf
@@ -79,6 +84,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 

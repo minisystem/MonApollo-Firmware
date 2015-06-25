@@ -3,31 +3,31 @@ monapollo-firmware.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000004e  00800100  000008c0  00000954  2**0
+  0 .data         0000004e  00800100  000008e2  00000976  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000008c0  00000000  00000000  00000094  2**1
+  1 .text         000008e2  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000025  0080014e  0080014e  000009a2  2**0
+  2 .bss          00000025  0080014e  0080014e  000009c4  2**0
                   ALLOC
-  3 .stab         000006cc  00000000  00000000  000009a4  2**2
+  3 .stab         000006cc  00000000  00000000  000009c4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      00000085  00000000  00000000  00001070  2**0
+  4 .stabstr      00000085  00000000  00000000  00001090  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_aranges 000000e0  00000000  00000000  000010f8  2**3
+  5 .debug_aranges 00000100  00000000  00000000  00001118  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000b31  00000000  00000000  000011d8  2**0
+  6 .debug_info   00000c22  00000000  00000000  00001218  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000038a  00000000  00000000  00001d09  2**0
+  7 .debug_abbrev 0000048b  00000000  00000000  00001e3a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000756  00000000  00000000  00002093  2**0
+  8 .debug_line   000008cd  00000000  00000000  000022c5  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000180  00000000  00000000  000027ec  2**2
+  9 .debug_frame  000001c8  00000000  00000000  00002b94  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000030a  00000000  00000000  0000296c  2**0
+ 10 .debug_str    0000032a  00000000  00000000  00002d5c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000046a  00000000  00000000  00002c76  2**0
+ 11 .debug_loc    0000046f  00000000  00000000  00003086  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000038  00000000  00000000  000030e0  2**0
+ 12 .debug_ranges 00000038  00000000  00000000  000034f5  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -71,7 +71,7 @@ Disassembly of section .text:
   70:	11 e0       	ldi	r17, 0x01	; 1
   72:	a0 e0       	ldi	r26, 0x00	; 0
   74:	b1 e0       	ldi	r27, 0x01	; 1
-  76:	e0 ec       	ldi	r30, 0xC0	; 192
+  76:	e2 ee       	ldi	r30, 0xE2	; 226
   78:	f8 e0       	ldi	r31, 0x08	; 8
   7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
   7c:	05 90       	lpm	r0, Z+
@@ -93,8 +93,8 @@ Disassembly of section .text:
   90:	a3 37       	cpi	r26, 0x73	; 115
   92:	b1 07       	cpc	r27, r17
   94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
-  96:	0e 94 ff 03 	call	0x7fe	; 0x7fe <main>
-  9a:	0c 94 5e 04 	jmp	0x8bc	; 0x8bc <_exit>
+  96:	0e 94 be 02 	call	0x57c	; 0x57c <main>
+  9a:	0c 94 6f 04 	jmp	0x8de	; 0x8de <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -285,7 +285,7 @@ void display_dec(uint16_t number, uint8_t digit)
 		cathode_byte = dec[(number % 10)]; //print first decimal digit
  16e:	6a e0       	ldi	r22, 0x0A	; 10
  170:	70 e0       	ldi	r23, 0x00	; 0
- 172:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 172:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  176:	fe 01       	movw	r30, r28
  178:	e8 0f       	add	r30, r24
  17a:	f9 1f       	adc	r31, r25
@@ -297,10 +297,10 @@ void display_dec(uint16_t number, uint8_t digit)
 		cathode_byte = dec[((number % 100) / 10)]; //print second decimal digit
  180:	64 e6       	ldi	r22, 0x64	; 100
  182:	70 e0       	ldi	r23, 0x00	; 0
- 184:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 184:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  188:	6a e0       	ldi	r22, 0x0A	; 10
  18a:	70 e0       	ldi	r23, 0x00	; 0
- 18c:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 18c:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  190:	fe 01       	movw	r30, r28
  192:	e6 0f       	add	r30, r22
  194:	f7 1f       	adc	r31, r23
@@ -312,10 +312,10 @@ void display_dec(uint16_t number, uint8_t digit)
 		cathode_byte = dec[((number % 1000) / 100)]; //print third decimal digit
  19a:	68 ee       	ldi	r22, 0xE8	; 232
  19c:	73 e0       	ldi	r23, 0x03	; 3
- 19e:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 19e:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  1a2:	64 e6       	ldi	r22, 0x64	; 100
  1a4:	70 e0       	ldi	r23, 0x00	; 0
- 1a6:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 1a6:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  1aa:	fe 01       	movw	r30, r28
  1ac:	e6 0f       	add	r30, r22
  1ae:	f7 1f       	adc	r31, r23
@@ -327,10 +327,10 @@ void display_dec(uint16_t number, uint8_t digit)
 		cathode_byte = dec[((number % 10000) / 1000)]; //print fourth decimal digit
  1b4:	60 e1       	ldi	r22, 0x10	; 16
  1b6:	77 e2       	ldi	r23, 0x27	; 39
- 1b8:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 1b8:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  1bc:	68 ee       	ldi	r22, 0xE8	; 232
  1be:	73 e0       	ldi	r23, 0x03	; 3
- 1c0:	0e 94 4a 04 	call	0x894	; 0x894 <__udivmodhi4>
+ 1c0:	0e 94 5b 04 	call	0x8b6	; 0x8b6 <__udivmodhi4>
  1c4:	fe 01       	movw	r30, r28
  1c6:	e6 0f       	add	r30, r22
  1c8:	f7 1f       	adc	r31, r23
@@ -411,12 +411,10 @@ void setup_adc(void)
  21e:	81 60       	ori	r24, 0x01	; 1
  220:	8c 93       	st	X, r24
 	
-	ADCSRA |= (1<<ADEN); //enable ADC
+	ADCSRA |= (1<<ADEN); //enable ADC	
  222:	80 81       	ld	r24, Z
  224:	80 68       	ori	r24, 0x80	; 128
  226:	80 83       	st	Z, r24
-
-	
 }
  228:	08 95       	ret
 
@@ -901,771 +899,798 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
  510:	9f 5f       	subi	r25, 0xFF	; 255
  512:	90 93 65 01 	sts	0x0165, r25
  516:	85 30       	cpi	r24, 0x05	; 5
- 518:	09 f0       	breq	.+2      	; 0x51c <__vector_5+0x28e>
- 51a:	44 c1       	rjmp	.+648    	; 0x7a4 <__vector_5+0x516>
+ 518:	21 f4       	brne	.+8      	; 0x522 <__vector_5+0x294>
 	{
 		switch_timer = 0;
- 51c:	10 92 65 01 	sts	0x0165, r1
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
- 520:	2d 9a       	sbi	0x05, 5	; 5
-		
-		//SHIFT 5th BYTE
-		SPDR =  
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
- 522:	50 91 6a 01 	lds	r21, 0x016A
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
- 526:	20 91 6a 01 	lds	r18, 0x016A
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
- 52a:	60 91 6a 01 	lds	r22, 0x016A
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 52e:	30 91 6a 01 	lds	r19, 0x016A
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-		((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
- 532:	40 91 6a 01 	lds	r20, 0x016A
-		((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
- 536:	90 91 6a 01 	lds	r25, 0x016A
-		((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
- 53a:	80 91 6a 01 	lds	r24, 0x016A
-		ISW8_SW_ON << ISW8_LED; 
- 53e:	70 91 6f 01 	lds	r23, 0x016F
- 542:	77 95       	ror	r23
- 544:	77 27       	eor	r23, r23
- 546:	77 95       	ror	r23
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 548:	31 70       	andi	r19, 0x01	; 1
- 54a:	37 2b       	or	r19, r23
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
- 54c:	55 1f       	adc	r21, r21
- 54e:	55 27       	eor	r21, r21
- 550:	55 1f       	adc	r21, r21
- 552:	55 0f       	add	r21, r21
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 554:	53 2b       	or	r21, r19
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
- 556:	26 95       	lsr	r18
- 558:	26 95       	lsr	r18
- 55a:	30 e0       	ldi	r19, 0x00	; 0
- 55c:	21 70       	andi	r18, 0x01	; 1
- 55e:	30 70       	andi	r19, 0x00	; 0
- 560:	22 0f       	add	r18, r18
- 562:	33 1f       	adc	r19, r19
- 564:	22 0f       	add	r18, r18
- 566:	33 1f       	adc	r19, r19
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 568:	25 2b       	or	r18, r21
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
- 56a:	66 95       	lsr	r22
- 56c:	70 e0       	ldi	r23, 0x00	; 0
- 56e:	61 70       	andi	r22, 0x01	; 1
- 570:	70 70       	andi	r23, 0x00	; 0
- 572:	66 0f       	add	r22, r22
- 574:	77 1f       	adc	r23, r23
- 576:	66 0f       	add	r22, r22
- 578:	77 1f       	adc	r23, r23
- 57a:	66 0f       	add	r22, r22
- 57c:	77 1f       	adc	r23, r23
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 57e:	62 2b       	or	r22, r18
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-		((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
- 580:	42 95       	swap	r20
- 582:	4f 70       	andi	r20, 0x0F	; 15
- 584:	50 e0       	ldi	r21, 0x00	; 0
- 586:	41 70       	andi	r20, 0x01	; 1
- 588:	50 70       	andi	r21, 0x00	; 0
- 58a:	42 95       	swap	r20
- 58c:	52 95       	swap	r21
- 58e:	50 7f       	andi	r21, 0xF0	; 240
- 590:	54 27       	eor	r21, r20
- 592:	40 7f       	andi	r20, 0xF0	; 240
- 594:	54 27       	eor	r21, r20
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 596:	46 2b       	or	r20, r22
-		((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-		((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-		((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
- 598:	92 95       	swap	r25
- 59a:	96 95       	lsr	r25
- 59c:	97 70       	andi	r25, 0x07	; 7
- 59e:	29 2f       	mov	r18, r25
- 5a0:	30 e0       	ldi	r19, 0x00	; 0
- 5a2:	21 70       	andi	r18, 0x01	; 1
- 5a4:	30 70       	andi	r19, 0x00	; 0
- 5a6:	22 0f       	add	r18, r18
- 5a8:	33 1f       	adc	r19, r19
- 5aa:	22 95       	swap	r18
- 5ac:	32 95       	swap	r19
- 5ae:	30 7f       	andi	r19, 0xF0	; 240
- 5b0:	32 27       	eor	r19, r18
- 5b2:	20 7f       	andi	r18, 0xF0	; 240
- 5b4:	32 27       	eor	r19, r18
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 5b6:	24 2b       	or	r18, r20
-		((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-		((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-		((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-		((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
-		((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
- 5b8:	82 95       	swap	r24
- 5ba:	86 95       	lsr	r24
- 5bc:	86 95       	lsr	r24
- 5be:	83 70       	andi	r24, 0x03	; 3
- 5c0:	90 e0       	ldi	r25, 0x00	; 0
- 5c2:	81 70       	andi	r24, 0x01	; 1
- 5c4:	90 70       	andi	r25, 0x00	; 0
- 5c6:	00 24       	eor	r0, r0
- 5c8:	96 95       	lsr	r25
- 5ca:	87 95       	ror	r24
- 5cc:	07 94       	ror	r0
- 5ce:	96 95       	lsr	r25
- 5d0:	87 95       	ror	r24
- 5d2:	07 94       	ror	r0
- 5d4:	98 2f       	mov	r25, r24
- 5d6:	80 2d       	mov	r24, r0
-		
-		
-		SPI_PORT |= SPI_SW_LATCH;
-		
-		//SHIFT 5th BYTE
-		SPDR =  
- 5d8:	82 2b       	or	r24, r18
- 5da:	8e bd       	out	0x2e, r24	; 46
-		((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-		((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
-		((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
-		ISW8_SW_ON << ISW8_LED; 
-		
-		while (!(SPSR & (1<<SPIF)));
- 5dc:	0d b4       	in	r0, 0x2d	; 45
- 5de:	07 fe       	sbrs	r0, 7
- 5e0:	fd cf       	rjmp	.-6      	; 0x5dc <__vector_5+0x34e>
-		
-		//Now read SPDR for switch data shifted in from 74XX165 U14
-		spi_sw_current_state = SPDR;
- 5e2:	8e b5       	in	r24, 0x2e	; 46
- 5e4:	80 93 6c 01 	sts	0x016C, r24
-		
-		spi_sw_current_state ^= spi_sw_previous_state;
- 5e8:	80 91 6c 01 	lds	r24, 0x016C
- 5ec:	90 91 6b 01 	lds	r25, 0x016B
- 5f0:	89 27       	eor	r24, r25
- 5f2:	80 93 6c 01 	sts	0x016C, r24
-		spi_sw_previous_state ^= spi_sw_current_state;
- 5f6:	80 91 6b 01 	lds	r24, 0x016B
- 5fa:	90 91 6c 01 	lds	r25, 0x016C
- 5fe:	89 27       	eor	r24, r25
- 600:	80 93 6b 01 	sts	0x016B, r24
-		spi_sw_current_state &= spi_sw_previous_state;
- 604:	80 91 6c 01 	lds	r24, 0x016C
- 608:	90 91 6b 01 	lds	r25, 0x016B
- 60c:	89 23       	and	r24, r25
- 60e:	80 93 6c 01 	sts	0x016C, r24
-		//if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);	
-		//if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
-		//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
-		//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
-		
-		sw_latch_five ^= spi_sw_current_state;
- 612:	80 91 6a 01 	lds	r24, 0x016A
- 616:	90 91 6c 01 	lds	r25, 0x016C
- 61a:	89 27       	eor	r24, r25
- 61c:	80 93 6a 01 	sts	0x016A, r24
-		
-		//SHIFT 4th BYTE
-		SPDR = 0; //no LEDs connected in current test set up
- 620:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));
- 622:	0d b4       	in	r0, 0x2d	; 45
- 624:	07 fe       	sbrs	r0, 7
- 626:	fd cf       	rjmp	.-6      	; 0x622 <__vector_5+0x394>
-		//Now read SPDR for switch data shifted in from 74XX165 (U9)
-		//check if ISW12_SW bit is set
-		if (SPDR >> 5 & 1)
- 628:	8e b5       	in	r24, 0x2e	; 46
- 62a:	82 95       	swap	r24
- 62c:	86 95       	lsr	r24
- 62e:	87 70       	andi	r24, 0x07	; 7
- 630:	80 ff       	sbrs	r24, 0
- 632:	04 c0       	rjmp	.+8      	; 0x63c <__vector_5+0x3ae>
-		{
-			ISW12_SW_ON = 1;
- 634:	81 e0       	ldi	r24, 0x01	; 1
- 636:	80 93 72 01 	sts	0x0172, r24
- 63a:	02 c0       	rjmp	.+4      	; 0x640 <__vector_5+0x3b2>
-		}
-		else
-		{
-			ISW12_SW_ON = 0;
- 63c:	10 92 72 01 	sts	0x0172, r1
-		}
-		//check if ISW13_SW bit is set
-		if (SPDR >> 6 & 1)
- 640:	8e b5       	in	r24, 0x2e	; 46
- 642:	82 95       	swap	r24
- 644:	86 95       	lsr	r24
- 646:	86 95       	lsr	r24
- 648:	83 70       	andi	r24, 0x03	; 3
- 64a:	80 ff       	sbrs	r24, 0
- 64c:	04 c0       	rjmp	.+8      	; 0x656 <__vector_5+0x3c8>
-		{
-			ISW13_SW_ON = 1;
- 64e:	81 e0       	ldi	r24, 0x01	; 1
- 650:	80 93 71 01 	sts	0x0171, r24
- 654:	02 c0       	rjmp	.+4      	; 0x65a <__vector_5+0x3cc>
-		}
-		else
-		{
-			ISW13_SW_ON = 0;
- 656:	10 92 71 01 	sts	0x0171, r1
-		}
-		
-		//SHIFT 3th BYTE
-		SPDR = 0;
- 65a:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));
- 65c:	0d b4       	in	r0, 0x2d	; 45
- 65e:	07 fe       	sbrs	r0, 7
- 660:	fd cf       	rjmp	.-6      	; 0x65c <__vector_5+0x3ce>
-
-		//SHIFT 2th BYTE
-		SPDR = 0;
- 662:	1e bc       	out	0x2e, r1	; 46
-		while (!(SPSR & (1<<SPIF)));
- 664:	0d b4       	in	r0, 0x2d	; 45
- 666:	07 fe       	sbrs	r0, 7
- 668:	fd cf       	rjmp	.-6      	; 0x664 <__vector_5+0x3d6>
-		
-		//SHIFT 1st BYTE
-		//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
-		SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
- 66a:	80 91 72 01 	lds	r24, 0x0172
- 66e:	90 91 71 01 	lds	r25, 0x0171
- 672:	97 95       	ror	r25
- 674:	99 27       	eor	r25, r25
- 676:	97 95       	ror	r25
- 678:	88 0f       	add	r24, r24
- 67a:	88 0f       	add	r24, r24
- 67c:	89 2b       	or	r24, r25
- 67e:	8e bd       	out	0x2e, r24	; 46
-		//Wait for SPI shift to complete
-		while (!(SPSR & (1<<SPIF)));
- 680:	0d b4       	in	r0, 0x2d	; 45
- 682:	07 fe       	sbrs	r0, 7
- 684:	fd cf       	rjmp	.-6      	; 0x680 <__vector_5+0x3f2>
-		
-		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
-		
-		SPI_LATCH_PORT &= ~LED_LATCH;
- 686:	ed ed       	ldi	r30, 0xDD	; 221
- 688:	f0 e0       	ldi	r31, 0x00	; 0
- 68a:	80 81       	ld	r24, Z
- 68c:	87 7f       	andi	r24, 0xF7	; 247
- 68e:	80 83       	st	Z, r24
-		SPI_LATCH_PORT |= LED_LATCH;
- 690:	80 81       	ld	r24, Z
- 692:	88 60       	ori	r24, 0x08	; 8
- 694:	80 83       	st	Z, r24
-		
-		//clear SPI_SW_LATCH
-		SPI_PORT &= ~SPI_SW_LATCH;	
- 696:	2d 98       	cbi	0x05, 5	; 5
-		//this toggle code works, but I haven't figured out how it works
-		//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
-		current_sw_state = SWITCH_PORT;
- 698:	8f b1       	in	r24, 0x0f	; 15
- 69a:	80 93 6d 01 	sts	0x016D, r24
-		current_sw_state ^= previous_sw_state;
- 69e:	80 91 6d 01 	lds	r24, 0x016D
- 6a2:	90 91 6e 01 	lds	r25, 0x016E
- 6a6:	89 27       	eor	r24, r25
- 6a8:	80 93 6d 01 	sts	0x016D, r24
-		previous_sw_state ^= current_sw_state;
- 6ac:	80 91 6e 01 	lds	r24, 0x016E
- 6b0:	90 91 6d 01 	lds	r25, 0x016D
- 6b4:	89 27       	eor	r24, r25
- 6b6:	80 93 6e 01 	sts	0x016E, r24
-		current_sw_state &= previous_sw_state;
- 6ba:	80 91 6d 01 	lds	r24, 0x016D
- 6be:	90 91 6e 01 	lds	r25, 0x016E
- 6c2:	89 23       	and	r24, r25
- 6c4:	80 93 6d 01 	sts	0x016D, r24
-		
-		if (current_sw_state & (1<<ISW8_SW)) 
- 6c8:	80 91 6d 01 	lds	r24, 0x016D
- 6cc:	82 ff       	sbrs	r24, 2
- 6ce:	06 c0       	rjmp	.+12     	; 0x6dc <__vector_5+0x44e>
-		{
-			ISW8_SW_ON ^= 1 << 0; //toggle switch state
- 6d0:	90 91 6f 01 	lds	r25, 0x016F
- 6d4:	81 e0       	ldi	r24, 0x01	; 1
- 6d6:	89 27       	eor	r24, r25
- 6d8:	80 93 6f 01 	sts	0x016F, r24
-		}
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
- 6dc:	ed ed       	ldi	r30, 0xDD	; 221
- 6de:	f0 e0       	ldi	r31, 0x00	; 0
- 6e0:	80 81       	ld	r24, Z
- 6e2:	8f 7b       	andi	r24, 0xBF	; 191
- 6e4:	80 83       	st	Z, r24
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
- 6e6:	20 91 6a 01 	lds	r18, 0x016A
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 6ea:	50 91 6a 01 	lds	r21, 0x016A
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
- 6ee:	40 91 6a 01 	lds	r20, 0x016A
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
- 6f2:	60 91 6a 01 	lds	r22, 0x016A
-		((sw_latch_five >> ISW5_SW) & 1) << 6 |
- 6f6:	90 91 6a 01 	lds	r25, 0x016A
-		((sw_latch_five >> ISW6_SW) & 1) << 7 |
- 6fa:	30 91 6a 01 	lds	r19, 0x016A
-		((sw_latch_five >> ISW7_SW) & 1) << 5 |
- 6fe:	80 91 6a 01 	lds	r24, 0x016A
-		ISW8_SW_ON << 4;
- 702:	70 91 6f 01 	lds	r23, 0x016F
- 706:	72 95       	swap	r23
- 708:	70 7f       	andi	r23, 0xF0	; 240
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 70a:	56 95       	lsr	r21
- 70c:	56 95       	lsr	r21
- 70e:	51 70       	andi	r21, 0x01	; 1
- 710:	57 2b       	or	r21, r23
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
- 712:	70 e0       	ldi	r23, 0x00	; 0
- 714:	61 70       	andi	r22, 0x01	; 1
- 716:	70 70       	andi	r23, 0x00	; 0
- 718:	66 0f       	add	r22, r22
- 71a:	77 1f       	adc	r23, r23
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 71c:	65 2b       	or	r22, r21
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
-		((sw_latch_five >> ISW5_SW) & 1) << 6 |
-		((sw_latch_five >> ISW6_SW) & 1) << 7 |
- 71e:	32 95       	swap	r19
- 720:	36 95       	lsr	r19
- 722:	37 70       	andi	r19, 0x07	; 7
- 724:	37 95       	ror	r19
- 726:	33 27       	eor	r19, r19
- 728:	37 95       	ror	r19
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 72a:	63 2b       	or	r22, r19
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
- 72c:	22 1f       	adc	r18, r18
- 72e:	22 27       	eor	r18, r18
- 730:	22 1f       	adc	r18, r18
- 732:	22 0f       	add	r18, r18
- 734:	22 0f       	add	r18, r18
- 736:	22 0f       	add	r18, r18
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 738:	26 2b       	or	r18, r22
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
- 73a:	46 95       	lsr	r20
- 73c:	50 e0       	ldi	r21, 0x00	; 0
- 73e:	41 70       	andi	r20, 0x01	; 1
- 740:	50 70       	andi	r21, 0x00	; 0
- 742:	44 0f       	add	r20, r20
- 744:	55 1f       	adc	r21, r21
- 746:	44 0f       	add	r20, r20
- 748:	55 1f       	adc	r21, r21
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 74a:	42 2b       	or	r20, r18
-		((sw_latch_five >> ISW4_SW) & 1) << 3 |
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
-		((sw_latch_five >> ISW5_SW) & 1) << 6 |
- 74c:	92 95       	swap	r25
- 74e:	9f 70       	andi	r25, 0x0F	; 15
- 750:	29 2f       	mov	r18, r25
- 752:	30 e0       	ldi	r19, 0x00	; 0
- 754:	21 70       	andi	r18, 0x01	; 1
- 756:	30 70       	andi	r19, 0x00	; 0
- 758:	00 24       	eor	r0, r0
- 75a:	36 95       	lsr	r19
- 75c:	27 95       	ror	r18
- 75e:	07 94       	ror	r0
- 760:	36 95       	lsr	r19
- 762:	27 95       	ror	r18
- 764:	07 94       	ror	r0
- 766:	32 2f       	mov	r19, r18
- 768:	20 2d       	mov	r18, r0
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 76a:	24 2b       	or	r18, r20
-		((sw_latch_five >> ISW1_SW) & 1) << 0 |
-		((sw_latch_five >> ISW2_SW) & 1) << 2 |
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
-		((sw_latch_five >> ISW5_SW) & 1) << 6 |
-		((sw_latch_five >> ISW6_SW) & 1) << 7 |
-		((sw_latch_five >> ISW7_SW) & 1) << 5 |
- 76c:	82 95       	swap	r24
- 76e:	86 95       	lsr	r24
- 770:	86 95       	lsr	r24
- 772:	83 70       	andi	r24, 0x03	; 3
- 774:	90 e0       	ldi	r25, 0x00	; 0
- 776:	81 70       	andi	r24, 0x01	; 1
- 778:	90 70       	andi	r25, 0x00	; 0
- 77a:	88 0f       	add	r24, r24
- 77c:	99 1f       	adc	r25, r25
- 77e:	82 95       	swap	r24
- 780:	92 95       	swap	r25
- 782:	90 7f       	andi	r25, 0xF0	; 240
- 784:	98 27       	eor	r25, r24
- 786:	80 7f       	andi	r24, 0xF0	; 240
- 788:	98 27       	eor	r25, r24
-		
-		//update analog switch latch:
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-		//enable output on VCO analog switch latch:
-		//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-		DATA_BUS =
- 78a:	82 2b       	or	r24, r18
- 78c:	82 b9       	out	0x02, r24	; 2
-		((sw_latch_five >> ISW3_SW) & 1) << 1 |
-		((sw_latch_five >> ISW5_SW) & 1) << 6 |
-		((sw_latch_five >> ISW6_SW) & 1) << 7 |
-		((sw_latch_five >> ISW7_SW) & 1) << 5 |
-		ISW8_SW_ON << 4;
-		VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
- 78e:	80 81       	ld	r24, Z
- 790:	80 64       	ori	r24, 0x40	; 64
- 792:	80 83       	st	Z, r24
- 794:	46 e0       	ldi	r20, 0x06	; 6
- 796:	4a 95       	dec	r20
- 798:	f1 f7       	brne	.-4      	; 0x796 <__vector_5+0x508>
- 79a:	00 c0       	rjmp	.+0      	; 0x79c <__vector_5+0x50e>
-		_delay_us(1);
-		VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
- 79c:	80 81       	ld	r24, Z
- 79e:	8f 7b       	andi	r24, 0xBF	; 191
- 7a0:	80 83       	st	Z, r24
-		DATA_BUS = 0;			  	
- 7a2:	12 b8       	out	0x02, r1	; 2
+ 51a:	10 92 65 01 	sts	0x0165, r1
+		update_spi();	
+ 51e:	0e 94 0c 03 	call	0x618	; 0x618 <update_spi>
 	}
 	
 	
 
 	//increment digit display place
 	if (place++ == 3) //post increment
- 7a4:	80 91 64 01 	lds	r24, 0x0164
- 7a8:	98 2f       	mov	r25, r24
- 7aa:	9f 5f       	subi	r25, 0xFF	; 255
- 7ac:	90 93 64 01 	sts	0x0164, r25
- 7b0:	83 30       	cpi	r24, 0x03	; 3
- 7b2:	11 f4       	brne	.+4      	; 0x7b8 <__vector_5+0x52a>
+ 522:	80 91 64 01 	lds	r24, 0x0164
+ 526:	98 2f       	mov	r25, r24
+ 528:	9f 5f       	subi	r25, 0xFF	; 255
+ 52a:	90 93 64 01 	sts	0x0164, r25
+ 52e:	83 30       	cpi	r24, 0x03	; 3
+ 530:	11 f4       	brne	.+4      	; 0x536 <__vector_5+0x2a8>
 	{
 		place = 0;
- 7b4:	10 92 64 01 	sts	0x0164, r1
+ 532:	10 92 64 01 	sts	0x0164, r1
 	}
 	
 
 	
 }	
- 7b8:	ff 91       	pop	r31
- 7ba:	ef 91       	pop	r30
- 7bc:	df 91       	pop	r29
- 7be:	cf 91       	pop	r28
- 7c0:	bf 91       	pop	r27
- 7c2:	af 91       	pop	r26
- 7c4:	9f 91       	pop	r25
- 7c6:	8f 91       	pop	r24
- 7c8:	7f 91       	pop	r23
- 7ca:	6f 91       	pop	r22
- 7cc:	5f 91       	pop	r21
- 7ce:	4f 91       	pop	r20
- 7d0:	3f 91       	pop	r19
- 7d2:	2f 91       	pop	r18
- 7d4:	1f 91       	pop	r17
- 7d6:	0f 91       	pop	r16
- 7d8:	ff 90       	pop	r15
- 7da:	ef 90       	pop	r14
- 7dc:	df 90       	pop	r13
- 7de:	cf 90       	pop	r12
- 7e0:	bf 90       	pop	r11
- 7e2:	af 90       	pop	r10
- 7e4:	9f 90       	pop	r9
- 7e6:	8f 90       	pop	r8
- 7e8:	7f 90       	pop	r7
- 7ea:	6f 90       	pop	r6
- 7ec:	5f 90       	pop	r5
- 7ee:	4f 90       	pop	r4
- 7f0:	3f 90       	pop	r3
- 7f2:	2f 90       	pop	r2
- 7f4:	0f 90       	pop	r0
- 7f6:	0f be       	out	0x3f, r0	; 63
- 7f8:	0f 90       	pop	r0
- 7fa:	1f 90       	pop	r1
- 7fc:	18 95       	reti
+ 536:	ff 91       	pop	r31
+ 538:	ef 91       	pop	r30
+ 53a:	df 91       	pop	r29
+ 53c:	cf 91       	pop	r28
+ 53e:	bf 91       	pop	r27
+ 540:	af 91       	pop	r26
+ 542:	9f 91       	pop	r25
+ 544:	8f 91       	pop	r24
+ 546:	7f 91       	pop	r23
+ 548:	6f 91       	pop	r22
+ 54a:	5f 91       	pop	r21
+ 54c:	4f 91       	pop	r20
+ 54e:	3f 91       	pop	r19
+ 550:	2f 91       	pop	r18
+ 552:	1f 91       	pop	r17
+ 554:	0f 91       	pop	r16
+ 556:	ff 90       	pop	r15
+ 558:	ef 90       	pop	r14
+ 55a:	df 90       	pop	r13
+ 55c:	cf 90       	pop	r12
+ 55e:	bf 90       	pop	r11
+ 560:	af 90       	pop	r10
+ 562:	9f 90       	pop	r9
+ 564:	8f 90       	pop	r8
+ 566:	7f 90       	pop	r7
+ 568:	6f 90       	pop	r6
+ 56a:	5f 90       	pop	r5
+ 56c:	4f 90       	pop	r4
+ 56e:	3f 90       	pop	r3
+ 570:	2f 90       	pop	r2
+ 572:	0f 90       	pop	r0
+ 574:	0f be       	out	0x3f, r0	; 63
+ 576:	0f 90       	pop	r0
+ 578:	1f 90       	pop	r1
+ 57a:	18 95       	reti
 
-000007fe <main>:
+0000057c <main>:
 
 
 int main(void)
 {
 	//turn off JTAG so all outputs of PORTC can be used
 	MCUCR = (1<<JTD);
- 7fe:	80 e8       	ldi	r24, 0x80	; 128
- 800:	85 bf       	out	0x35, r24	; 53
+ 57c:	80 e8       	ldi	r24, 0x80	; 128
+ 57e:	85 bf       	out	0x35, r24	; 53
 	MCUCR = (1<<JTD);
- 802:	85 bf       	out	0x35, r24	; 53
+ 580:	85 bf       	out	0x35, r24	; 53
 		
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
- 804:	27 9a       	sbi	0x04, 7	; 4
+ 582:	27 9a       	sbi	0x04, 7	; 4
 	
 	DDRF |= (1<<GATE); //set gate as output
- 806:	81 9a       	sbi	0x10, 1	; 16
+ 584:	81 9a       	sbi	0x10, 1	; 16
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
-	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
-	//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
-	//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
-	DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
- 808:	84 b1       	in	r24, 0x04	; 4
- 80a:	87 62       	ori	r24, 0x27	; 39
- 80c:	84 b9       	out	0x04, r24	; 4
-	
-	//SET SPI_EN and LED_LATCH and VCO_SW_LATCH and EG2_POL pins as outputs
-	DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH) | (1<<EG2_POL));
- 80e:	ec ed       	ldi	r30, 0xDC	; 220
- 810:	f0 e0       	ldi	r31, 0x00	; 0
- 812:	80 81       	ld	r24, Z
- 814:	8c 65       	ori	r24, 0x5C	; 92
- 816:	80 83       	st	Z, r24
-	
-	//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
-	SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
- 818:	85 b1       	in	r24, 0x05	; 5
- 81a:	89 7d       	andi	r24, 0xD9	; 217
- 81c:	85 b9       	out	0x05, r24	; 5
-	
-	//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
-	SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
- 81e:	ed ed       	ldi	r30, 0xDD	; 221
- 820:	f0 e0       	ldi	r31, 0x00	; 0
- 822:	80 81       	ld	r24, Z
- 824:	83 7f       	andi	r24, 0xF3	; 243
- 826:	80 83       	st	Z, r24
-	
-	//SET UP SPI
-	SPCR = (1<<SPE) | (1<<MSTR); //Start SPI as MASTER
- 828:	80 e5       	ldi	r24, 0x50	; 80
- 82a:	8c bd       	out	0x2c, r24	; 44
-	
-	//Pull LED_LATCH LOW
-	SPI_LATCH_PORT &= ~LED_LATCH;
- 82c:	80 81       	ld	r24, Z
- 82e:	87 7f       	andi	r24, 0xF7	; 247
- 830:	80 83       	st	Z, r24
-	
-	
-	//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
-	
-	SPI_LATCH_PORT &= ~LED_LATCH;
- 832:	80 81       	ld	r24, Z
- 834:	87 7f       	andi	r24, 0xF7	; 247
- 836:	80 83       	st	Z, r24
-	SPI_LATCH_PORT |= LED_LATCH;
- 838:	80 81       	ld	r24, Z
- 83a:	88 60       	ori	r24, 0x08	; 8
- 83c:	80 83       	st	Z, r24
-	
-	//set EG2 POL
-	EG2_POL_PORT &= ~(1 << EG2_POL); //0 for normal, 1 for inverted
- 83e:	80 81       	ld	r24, Z
- 840:	8f 7e       	andi	r24, 0xEF	; 239
- 842:	80 83       	st	Z, r24
+	setup_spi(); 
+ 586:	0e 94 ed 02 	call	0x5da	; 0x5da <setup_spi>
 	
 	DDRH |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins as outputs
- 844:	a9 ed       	ldi	r26, 0xD9	; 217
- 846:	b0 e0       	ldi	r27, 0x00	; 0
- 848:	8c 91       	ld	r24, X
- 84a:	80 6c       	ori	r24, 0xC0	; 192
- 84c:	8c 93       	st	X, r24
+ 58a:	a9 ed       	ldi	r26, 0xD9	; 217
+ 58c:	b0 e0       	ldi	r27, 0x00	; 0
+ 58e:	8c 91       	ld	r24, X
+ 590:	80 6c       	ori	r24, 0xC0	; 192
+ 592:	8c 93       	st	X, r24
 	POT_MUX |= (1<<POTMUX_EN0) | (1<<POTMUX_EN1); //set POTMUX_EN pins HIGH (active LOW)
- 84e:	ea ed       	ldi	r30, 0xDA	; 218
- 850:	f0 e0       	ldi	r31, 0x00	; 0
- 852:	80 81       	ld	r24, Z
- 854:	80 6c       	ori	r24, 0xC0	; 192
- 856:	80 83       	st	Z, r24
+ 594:	ea ed       	ldi	r30, 0xDA	; 218
+ 596:	f0 e0       	ldi	r31, 0x00	; 0
+ 598:	80 81       	ld	r24, Z
+ 59a:	80 6c       	ori	r24, 0xC0	; 192
+ 59c:	80 83       	st	Z, r24
 	//POT_MUX |= (1<<POTMUX_EN1);
 	
 	//set up LED display
 	DDRA |= 0b11111111; //set all lines or DATA_BUS to outputs
- 858:	81 b1       	in	r24, 0x01	; 1
- 85a:	8f ef       	ldi	r24, 0xFF	; 255
- 85c:	81 b9       	out	0x01, r24	; 1
+ 59e:	81 b1       	in	r24, 0x01	; 1
+ 5a0:	8f ef       	ldi	r24, 0xFF	; 255
+ 5a2:	81 b9       	out	0x01, r24	; 1
 	DATA_BUS |= 0b11111111; //set all DATA_BUS lines to HIGH (cathodes OFF)
- 85e:	92 b1       	in	r25, 0x02	; 2
- 860:	82 b9       	out	0x02, r24	; 2
+ 5a4:	92 b1       	in	r25, 0x02	; 2
+ 5a6:	82 b9       	out	0x02, r24	; 2
 	DDRH |= (1<<DISP_CATHODE_LATCH) | (1<<DISP_ANODE_LATCH); //set display latches to outputs
- 862:	8c 91       	ld	r24, X
- 864:	80 63       	ori	r24, 0x30	; 48
- 866:	8c 93       	st	X, r24
+ 5a8:	8c 91       	ld	r24, X
+ 5aa:	80 63       	ori	r24, 0x30	; 48
+ 5ac:	8c 93       	st	X, r24
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
- 868:	80 81       	ld	r24, Z
- 86a:	8f 7c       	andi	r24, 0xCF	; 207
- 86c:	80 83       	st	Z, r24
+ 5ae:	80 81       	ld	r24, Z
+ 5b0:	8f 7c       	andi	r24, 0xCF	; 207
+ 5b2:	80 83       	st	Z, r24
 	
 	//set up switch port
 	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
- 86e:	82 98       	cbi	0x10, 2	; 16
+ 5b4:	82 98       	cbi	0x10, 2	; 16
 	
 	//setup ADC
     setup_adc();		
- 870:	0e 94 02 01 	call	0x204	; 0x204 <setup_adc>
+ 5b6:	0e 94 02 01 	call	0x204	; 0x204 <setup_adc>
 	//setup DAC
 	setup_dac();
- 874:	0e 94 51 00 	call	0xa2	; 0xa2 <setup_dac>
+ 5ba:	0e 94 51 00 	call	0xa2	; 0xa2 <setup_dac>
 	//setup MIDI USART
 	setup_midi_usart();
- 878:	0e 94 f9 00 	call	0x1f2	; 0x1f2 <setup_midi_usart>
+ 5be:	0e 94 f9 00 	call	0x1f2	; 0x1f2 <setup_midi_usart>
 	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
- 87c:	e0 eb       	ldi	r30, 0xB0	; 176
- 87e:	f0 e0       	ldi	r31, 0x00	; 0
- 880:	80 81       	ld	r24, Z
- 882:	86 60       	ori	r24, 0x06	; 6
- 884:	80 83       	st	Z, r24
+ 5c2:	e0 eb       	ldi	r30, 0xB0	; 176
+ 5c4:	f0 e0       	ldi	r31, 0x00	; 0
+ 5c6:	80 81       	ld	r24, Z
+ 5c8:	86 60       	ori	r24, 0x06	; 6
+ 5ca:	80 83       	st	Z, r24
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
- 886:	e0 e7       	ldi	r30, 0x70	; 112
- 888:	f0 e0       	ldi	r31, 0x00	; 0
- 88a:	80 81       	ld	r24, Z
- 88c:	81 60       	ori	r24, 0x01	; 1
- 88e:	80 83       	st	Z, r24
+ 5cc:	e0 e7       	ldi	r30, 0x70	; 112
+ 5ce:	f0 e0       	ldi	r31, 0x00	; 0
+ 5d0:	80 81       	ld	r24, Z
+ 5d2:	81 60       	ori	r24, 0x01	; 1
+ 5d4:	80 83       	st	Z, r24
 	sei(); //enable global interrupts
- 890:	78 94       	sei
- 892:	ff cf       	rjmp	.-2      	; 0x892 <main+0x94>
+ 5d6:	78 94       	sei
+ 5d8:	ff cf       	rjmp	.-2      	; 0x5d8 <main+0x5c>
 
-00000894 <__udivmodhi4>:
- 894:	aa 1b       	sub	r26, r26
- 896:	bb 1b       	sub	r27, r27
- 898:	51 e1       	ldi	r21, 0x11	; 17
- 89a:	07 c0       	rjmp	.+14     	; 0x8aa <__udivmodhi4_ep>
+000005da <setup_spi>:
+void setup_spi(void) {
+	
+		//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH pins as outputs
+		//also set Slave Select (PB0) as output just to ensure it doesn't interfere with SPI communication (currently floating)
+		//ACTUALLY, Slave Select ***MUST*** be set as output. Leaving it floating without setting its data direction bit breaks SPI!
+		DDRB |= (SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH |(1<<PB0));
+ 5da:	84 b1       	in	r24, 0x04	; 4
+ 5dc:	87 62       	ori	r24, 0x27	; 39
+ 5de:	84 b9       	out	0x04, r24	; 4
+		
+		//SET SPI_EN and LED_LATCH and VCO_SW_LATCH and EG2_POL pins as outputs
+		DDRJ |= (SPI_EN | LED_LATCH | (1<<VCO_SW_LATCH) | (1<<EG2_POL));
+ 5e0:	ec ed       	ldi	r30, 0xDC	; 220
+ 5e2:	f0 e0       	ldi	r31, 0x00	; 0
+ 5e4:	80 81       	ld	r24, Z
+ 5e6:	8c 65       	ori	r24, 0x5C	; 92
+ 5e8:	80 83       	st	Z, r24
+		
+		//SET SPI_DATA_OUT and SPI_CLK and SPI_SW_LATCH outputs LOW
+		SPI_PORT &= ~(SPI_DATA_OUT | SPI_CLK | SPI_SW_LATCH);
+ 5ea:	85 b1       	in	r24, 0x05	; 5
+ 5ec:	89 7d       	andi	r24, 0xD9	; 217
+ 5ee:	85 b9       	out	0x05, r24	; 5
+		
+		//SET SPI_EN LOW (active) and LED_LATCH LOW (active)
+		SPI_LATCH_PORT &= ~(SPI_EN | LED_LATCH);
+ 5f0:	ed ed       	ldi	r30, 0xDD	; 221
+ 5f2:	f0 e0       	ldi	r31, 0x00	; 0
+ 5f4:	80 81       	ld	r24, Z
+ 5f6:	83 7f       	andi	r24, 0xF3	; 243
+ 5f8:	80 83       	st	Z, r24
+		
+		//SET UP SPI
+		SPCR = (1<<SPE) | (1<<MSTR); //Start SPI as MASTER
+ 5fa:	80 e5       	ldi	r24, 0x50	; 80
+ 5fc:	8c bd       	out	0x2c, r24	; 44
+		
+		//Pull LED_LATCH LOW
+		SPI_LATCH_PORT &= ~LED_LATCH;
+ 5fe:	80 81       	ld	r24, Z
+ 600:	87 7f       	andi	r24, 0xF7	; 247
+ 602:	80 83       	st	Z, r24
+		
+		
+		//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+		
+		SPI_LATCH_PORT &= ~LED_LATCH;
+ 604:	80 81       	ld	r24, Z
+ 606:	87 7f       	andi	r24, 0xF7	; 247
+ 608:	80 83       	st	Z, r24
+		SPI_LATCH_PORT |= LED_LATCH;
+ 60a:	80 81       	ld	r24, Z
+ 60c:	88 60       	ori	r24, 0x08	; 8
+ 60e:	80 83       	st	Z, r24
+		
+		//set EG2 POL
+		EG2_POL_PORT &= ~(1 << EG2_POL); //0 for normal, 1 for inverted
+ 610:	80 81       	ld	r24, Z
+ 612:	8f 7e       	andi	r24, 0xEF	; 239
+ 614:	80 83       	st	Z, r24
+	
+}
+ 616:	08 95       	ret
 
-0000089c <__udivmodhi4_loop>:
- 89c:	aa 1f       	adc	r26, r26
- 89e:	bb 1f       	adc	r27, r27
- 8a0:	a6 17       	cp	r26, r22
- 8a2:	b7 07       	cpc	r27, r23
- 8a4:	10 f0       	brcs	.+4      	; 0x8aa <__udivmodhi4_ep>
- 8a6:	a6 1b       	sub	r26, r22
- 8a8:	b7 0b       	sbc	r27, r23
+00000618 <update_spi>:
 
-000008aa <__udivmodhi4_ep>:
- 8aa:	88 1f       	adc	r24, r24
- 8ac:	99 1f       	adc	r25, r25
- 8ae:	5a 95       	dec	r21
- 8b0:	a9 f7       	brne	.-22     	; 0x89c <__udivmodhi4_loop>
- 8b2:	80 95       	com	r24
- 8b4:	90 95       	com	r25
- 8b6:	bc 01       	movw	r22, r24
- 8b8:	cd 01       	movw	r24, r26
- 8ba:	08 95       	ret
+void update_spi(void) {
+ 618:	0f 93       	push	r16
+ 61a:	1f 93       	push	r17
+ 61c:	cf 93       	push	r28
+ 61e:	df 93       	push	r29
+	
+			SPI_PORT |= SPI_SW_LATCH;
+ 620:	2d 9a       	sbi	0x05, 5	; 5
+			
+			//SHIFT 5th BYTE
+			SPDR =
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+ 622:	c0 91 6a 01 	lds	r28, 0x016A
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+ 626:	40 91 6a 01 	lds	r20, 0x016A
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+ 62a:	00 91 6a 01 	lds	r16, 0x016A
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 62e:	80 91 6a 01 	lds	r24, 0x016A
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+ 632:	a0 91 6a 01 	lds	r26, 0x016A
+			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+ 636:	60 91 6a 01 	lds	r22, 0x016A
+			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+ 63a:	20 91 6a 01 	lds	r18, 0x016A
+			ISW8_SW_ON << ISW8_LED;
+ 63e:	90 91 6f 01 	lds	r25, 0x016F
+ 642:	97 95       	ror	r25
+ 644:	99 27       	eor	r25, r25
+ 646:	97 95       	ror	r25
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 648:	81 70       	andi	r24, 0x01	; 1
+ 64a:	98 2b       	or	r25, r24
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+ 64c:	cc 1f       	adc	r28, r28
+ 64e:	cc 27       	eor	r28, r28
+ 650:	cc 1f       	adc	r28, r28
+ 652:	cc 0f       	add	r28, r28
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 654:	c9 2b       	or	r28, r25
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+ 656:	46 95       	lsr	r20
+ 658:	46 95       	lsr	r20
+ 65a:	50 e0       	ldi	r21, 0x00	; 0
+ 65c:	41 70       	andi	r20, 0x01	; 1
+ 65e:	50 70       	andi	r21, 0x00	; 0
+ 660:	ca 01       	movw	r24, r20
+ 662:	88 0f       	add	r24, r24
+ 664:	99 1f       	adc	r25, r25
+ 666:	88 0f       	add	r24, r24
+ 668:	99 1f       	adc	r25, r25
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 66a:	8c 2b       	or	r24, r28
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+ 66c:	06 95       	lsr	r16
+ 66e:	10 e0       	ldi	r17, 0x00	; 0
+ 670:	01 70       	andi	r16, 0x01	; 1
+ 672:	10 70       	andi	r17, 0x00	; 0
+ 674:	e8 01       	movw	r28, r16
+ 676:	cc 0f       	add	r28, r28
+ 678:	dd 1f       	adc	r29, r29
+ 67a:	cc 0f       	add	r28, r28
+ 67c:	dd 1f       	adc	r29, r29
+ 67e:	cc 0f       	add	r28, r28
+ 680:	dd 1f       	adc	r29, r29
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 682:	c8 2b       	or	r28, r24
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+ 684:	a2 95       	swap	r26
+ 686:	af 70       	andi	r26, 0x0F	; 15
+ 688:	b0 e0       	ldi	r27, 0x00	; 0
+ 68a:	a1 70       	andi	r26, 0x01	; 1
+ 68c:	b0 70       	andi	r27, 0x00	; 0
+ 68e:	fd 01       	movw	r30, r26
+ 690:	e2 95       	swap	r30
+ 692:	f2 95       	swap	r31
+ 694:	f0 7f       	andi	r31, 0xF0	; 240
+ 696:	fe 27       	eor	r31, r30
+ 698:	e0 7f       	andi	r30, 0xF0	; 240
+ 69a:	fe 27       	eor	r31, r30
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 69c:	ec 2b       	or	r30, r28
+			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+ 69e:	62 95       	swap	r22
+ 6a0:	66 95       	lsr	r22
+ 6a2:	67 70       	andi	r22, 0x07	; 7
+ 6a4:	70 e0       	ldi	r23, 0x00	; 0
+ 6a6:	61 70       	andi	r22, 0x01	; 1
+ 6a8:	70 70       	andi	r23, 0x00	; 0
+ 6aa:	ab 01       	movw	r20, r22
+ 6ac:	44 0f       	add	r20, r20
+ 6ae:	55 1f       	adc	r21, r21
+ 6b0:	42 95       	swap	r20
+ 6b2:	52 95       	swap	r21
+ 6b4:	50 7f       	andi	r21, 0xF0	; 240
+ 6b6:	54 27       	eor	r21, r20
+ 6b8:	40 7f       	andi	r20, 0xF0	; 240
+ 6ba:	54 27       	eor	r21, r20
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 6bc:	4e 2b       	or	r20, r30
+			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+ 6be:	22 95       	swap	r18
+ 6c0:	26 95       	lsr	r18
+ 6c2:	26 95       	lsr	r18
+ 6c4:	23 70       	andi	r18, 0x03	; 3
+ 6c6:	30 e0       	ldi	r19, 0x00	; 0
+ 6c8:	21 70       	andi	r18, 0x01	; 1
+ 6ca:	30 70       	andi	r19, 0x00	; 0
+ 6cc:	c9 01       	movw	r24, r18
+ 6ce:	00 24       	eor	r0, r0
+ 6d0:	96 95       	lsr	r25
+ 6d2:	87 95       	ror	r24
+ 6d4:	07 94       	ror	r0
+ 6d6:	96 95       	lsr	r25
+ 6d8:	87 95       	ror	r24
+ 6da:	07 94       	ror	r0
+ 6dc:	98 2f       	mov	r25, r24
+ 6de:	80 2d       	mov	r24, r0
+void update_spi(void) {
+	
+			SPI_PORT |= SPI_SW_LATCH;
+			
+			//SHIFT 5th BYTE
+			SPDR =
+ 6e0:	84 2b       	or	r24, r20
+ 6e2:	8e bd       	out	0x2e, r24	; 46
+			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+			ISW8_SW_ON << ISW8_LED;
+			
+			while (!(SPSR & (1<<SPIF)));
+ 6e4:	0d b4       	in	r0, 0x2d	; 45
+ 6e6:	07 fe       	sbrs	r0, 7
+ 6e8:	fd cf       	rjmp	.-6      	; 0x6e4 <update_spi+0xcc>
+			
+			//Now read SPDR for switch data shifted in from 74XX165 U14
+			spi_sw_current_state = SPDR;
+ 6ea:	8e b5       	in	r24, 0x2e	; 46
+ 6ec:	80 93 6c 01 	sts	0x016C, r24
+			
+			spi_sw_current_state ^= spi_sw_previous_state;
+ 6f0:	80 91 6c 01 	lds	r24, 0x016C
+ 6f4:	90 91 6b 01 	lds	r25, 0x016B
+ 6f8:	89 27       	eor	r24, r25
+ 6fa:	80 93 6c 01 	sts	0x016C, r24
+			spi_sw_previous_state ^= spi_sw_current_state;
+ 6fe:	80 91 6b 01 	lds	r24, 0x016B
+ 702:	90 91 6c 01 	lds	r25, 0x016C
+ 706:	89 27       	eor	r24, r25
+ 708:	80 93 6b 01 	sts	0x016B, r24
+			spi_sw_current_state &= spi_sw_previous_state;
+ 70c:	80 91 6c 01 	lds	r24, 0x016C
+ 710:	90 91 6b 01 	lds	r25, 0x016B
+ 714:	89 23       	and	r24, r25
+ 716:	80 93 6c 01 	sts	0x016C, r24
+			//if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);
+			//if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
+			//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
+			//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
+			
+			sw_latch_five ^= spi_sw_current_state;
+ 71a:	80 91 6a 01 	lds	r24, 0x016A
+ 71e:	90 91 6c 01 	lds	r25, 0x016C
+ 722:	89 27       	eor	r24, r25
+ 724:	80 93 6a 01 	sts	0x016A, r24
+			
+			//SHIFT 4th BYTE
+			SPDR = 0; //no LEDs connected in current test set up
+ 728:	1e bc       	out	0x2e, r1	; 46
+			while (!(SPSR & (1<<SPIF)));
+ 72a:	0d b4       	in	r0, 0x2d	; 45
+ 72c:	07 fe       	sbrs	r0, 7
+ 72e:	fd cf       	rjmp	.-6      	; 0x72a <update_spi+0x112>
+			//Now read SPDR for switch data shifted in from 74XX165 (U9)
+			//check if ISW12_SW bit is set
+			if (SPDR >> 5 & 1)
+ 730:	8e b5       	in	r24, 0x2e	; 46
+ 732:	82 95       	swap	r24
+ 734:	86 95       	lsr	r24
+ 736:	87 70       	andi	r24, 0x07	; 7
+ 738:	80 ff       	sbrs	r24, 0
+ 73a:	04 c0       	rjmp	.+8      	; 0x744 <update_spi+0x12c>
+			{
+				ISW12_SW_ON = 1;
+ 73c:	81 e0       	ldi	r24, 0x01	; 1
+ 73e:	80 93 72 01 	sts	0x0172, r24
+ 742:	02 c0       	rjmp	.+4      	; 0x748 <update_spi+0x130>
+			}
+			else
+			{
+				ISW12_SW_ON = 0;
+ 744:	10 92 72 01 	sts	0x0172, r1
+			}
+			//check if ISW13_SW bit is set
+			if (SPDR >> 6 & 1)
+ 748:	8e b5       	in	r24, 0x2e	; 46
+ 74a:	82 95       	swap	r24
+ 74c:	86 95       	lsr	r24
+ 74e:	86 95       	lsr	r24
+ 750:	83 70       	andi	r24, 0x03	; 3
+ 752:	80 ff       	sbrs	r24, 0
+ 754:	04 c0       	rjmp	.+8      	; 0x75e <update_spi+0x146>
+			{
+				ISW13_SW_ON = 1;
+ 756:	81 e0       	ldi	r24, 0x01	; 1
+ 758:	80 93 71 01 	sts	0x0171, r24
+ 75c:	02 c0       	rjmp	.+4      	; 0x762 <update_spi+0x14a>
+			}
+			else
+			{
+				ISW13_SW_ON = 0;
+ 75e:	10 92 71 01 	sts	0x0171, r1
+			}
+			
+			//SHIFT 3th BYTE
+			SPDR = 0;
+ 762:	1e bc       	out	0x2e, r1	; 46
+			while (!(SPSR & (1<<SPIF)));
+ 764:	0d b4       	in	r0, 0x2d	; 45
+ 766:	07 fe       	sbrs	r0, 7
+ 768:	fd cf       	rjmp	.-6      	; 0x764 <update_spi+0x14c>
 
-000008bc <_exit>:
- 8bc:	f8 94       	cli
+			//SHIFT 2th BYTE
+			SPDR = 0;
+ 76a:	1e bc       	out	0x2e, r1	; 46
+			while (!(SPSR & (1<<SPIF)));
+ 76c:	0d b4       	in	r0, 0x2d	; 45
+ 76e:	07 fe       	sbrs	r0, 7
+ 770:	fd cf       	rjmp	.-6      	; 0x76c <update_spi+0x154>
+			
+			//SHIFT 1st BYTE
+			//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
+			SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+ 772:	80 91 72 01 	lds	r24, 0x0172
+ 776:	90 91 71 01 	lds	r25, 0x0171
+ 77a:	97 95       	ror	r25
+ 77c:	99 27       	eor	r25, r25
+ 77e:	97 95       	ror	r25
+ 780:	88 0f       	add	r24, r24
+ 782:	88 0f       	add	r24, r24
+ 784:	89 2b       	or	r24, r25
+ 786:	8e bd       	out	0x2e, r24	; 46
+			//Wait for SPI shift to complete
+			while (!(SPSR & (1<<SPIF)));
+ 788:	0d b4       	in	r0, 0x2d	; 45
+ 78a:	07 fe       	sbrs	r0, 7
+ 78c:	fd cf       	rjmp	.-6      	; 0x788 <update_spi+0x170>
+			
+			//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
+			
+			SPI_LATCH_PORT &= ~LED_LATCH;
+ 78e:	ed ed       	ldi	r30, 0xDD	; 221
+ 790:	f0 e0       	ldi	r31, 0x00	; 0
+ 792:	80 81       	ld	r24, Z
+ 794:	87 7f       	andi	r24, 0xF7	; 247
+ 796:	80 83       	st	Z, r24
+			SPI_LATCH_PORT |= LED_LATCH;
+ 798:	80 81       	ld	r24, Z
+ 79a:	88 60       	ori	r24, 0x08	; 8
+ 79c:	80 83       	st	Z, r24
+			
+			//clear SPI_SW_LATCH
+			SPI_PORT &= ~SPI_SW_LATCH;
+ 79e:	2d 98       	cbi	0x05, 5	; 5
+			//this toggle code works, but I haven't figured out how it works
+			//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
+			current_sw_state = SWITCH_PORT;
+ 7a0:	8f b1       	in	r24, 0x0f	; 15
+ 7a2:	80 93 6d 01 	sts	0x016D, r24
+			current_sw_state ^= previous_sw_state;
+ 7a6:	80 91 6d 01 	lds	r24, 0x016D
+ 7aa:	90 91 6e 01 	lds	r25, 0x016E
+ 7ae:	89 27       	eor	r24, r25
+ 7b0:	80 93 6d 01 	sts	0x016D, r24
+			previous_sw_state ^= current_sw_state;
+ 7b4:	80 91 6e 01 	lds	r24, 0x016E
+ 7b8:	90 91 6d 01 	lds	r25, 0x016D
+ 7bc:	89 27       	eor	r24, r25
+ 7be:	80 93 6e 01 	sts	0x016E, r24
+			current_sw_state &= previous_sw_state;
+ 7c2:	80 91 6d 01 	lds	r24, 0x016D
+ 7c6:	90 91 6e 01 	lds	r25, 0x016E
+ 7ca:	89 23       	and	r24, r25
+ 7cc:	80 93 6d 01 	sts	0x016D, r24
+			
+			if (current_sw_state & (1<<ISW8_SW))
+ 7d0:	80 91 6d 01 	lds	r24, 0x016D
+ 7d4:	82 ff       	sbrs	r24, 2
+ 7d6:	06 c0       	rjmp	.+12     	; 0x7e4 <update_spi+0x1cc>
+			{
+				ISW8_SW_ON ^= 1 << 0; //toggle switch state
+ 7d8:	90 91 6f 01 	lds	r25, 0x016F
+ 7dc:	81 e0       	ldi	r24, 0x01	; 1
+ 7de:	89 27       	eor	r24, r25
+ 7e0:	80 93 6f 01 	sts	0x016F, r24
+			}
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+ 7e4:	ed ed       	ldi	r30, 0xDD	; 221
+ 7e6:	f0 e0       	ldi	r31, 0x00	; 0
+ 7e8:	80 81       	ld	r24, Z
+ 7ea:	8f 7b       	andi	r24, 0xBF	; 191
+ 7ec:	80 83       	st	Z, r24
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+ 7ee:	40 91 6a 01 	lds	r20, 0x016A
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 7f2:	30 91 6a 01 	lds	r19, 0x016A
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+ 7f6:	c0 91 6a 01 	lds	r28, 0x016A
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+ 7fa:	00 91 6a 01 	lds	r16, 0x016A
+			((sw_latch_five >> ISW5_SW) & 1) << 6 |
+ 7fe:	60 91 6a 01 	lds	r22, 0x016A
+			((sw_latch_five >> ISW6_SW) & 1) << 7 |
+ 802:	a0 91 6a 01 	lds	r26, 0x016A
+			((sw_latch_five >> ISW7_SW) & 1) << 5 |
+ 806:	20 91 6a 01 	lds	r18, 0x016A
+			ISW8_SW_ON << 4;
+ 80a:	80 91 6f 01 	lds	r24, 0x016F
+ 80e:	82 95       	swap	r24
+ 810:	80 7f       	andi	r24, 0xF0	; 240
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 812:	36 95       	lsr	r19
+ 814:	36 95       	lsr	r19
+ 816:	31 70       	andi	r19, 0x01	; 1
+ 818:	38 2b       	or	r19, r24
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+ 81a:	10 e0       	ldi	r17, 0x00	; 0
+ 81c:	01 70       	andi	r16, 0x01	; 1
+ 81e:	10 70       	andi	r17, 0x00	; 0
+ 820:	c8 01       	movw	r24, r16
+ 822:	88 0f       	add	r24, r24
+ 824:	99 1f       	adc	r25, r25
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 826:	83 2b       	or	r24, r19
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+			((sw_latch_five >> ISW5_SW) & 1) << 6 |
+			((sw_latch_five >> ISW6_SW) & 1) << 7 |
+ 828:	a2 95       	swap	r26
+ 82a:	a6 95       	lsr	r26
+ 82c:	a7 70       	andi	r26, 0x07	; 7
+ 82e:	a7 95       	ror	r26
+ 830:	aa 27       	eor	r26, r26
+ 832:	a7 95       	ror	r26
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 834:	8a 2b       	or	r24, r26
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+ 836:	44 1f       	adc	r20, r20
+ 838:	44 27       	eor	r20, r20
+ 83a:	44 1f       	adc	r20, r20
+ 83c:	44 0f       	add	r20, r20
+ 83e:	44 0f       	add	r20, r20
+ 840:	44 0f       	add	r20, r20
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 842:	48 2b       	or	r20, r24
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+ 844:	c6 95       	lsr	r28
+ 846:	d0 e0       	ldi	r29, 0x00	; 0
+ 848:	c1 70       	andi	r28, 0x01	; 1
+ 84a:	d0 70       	andi	r29, 0x00	; 0
+ 84c:	de 01       	movw	r26, r28
+ 84e:	aa 0f       	add	r26, r26
+ 850:	bb 1f       	adc	r27, r27
+ 852:	aa 0f       	add	r26, r26
+ 854:	bb 1f       	adc	r27, r27
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 856:	a4 2b       	or	r26, r20
+			((sw_latch_five >> ISW4_SW) & 1) << 3 |
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+			((sw_latch_five >> ISW5_SW) & 1) << 6 |
+ 858:	62 95       	swap	r22
+ 85a:	6f 70       	andi	r22, 0x0F	; 15
+ 85c:	70 e0       	ldi	r23, 0x00	; 0
+ 85e:	61 70       	andi	r22, 0x01	; 1
+ 860:	70 70       	andi	r23, 0x00	; 0
+ 862:	ab 01       	movw	r20, r22
+ 864:	00 24       	eor	r0, r0
+ 866:	56 95       	lsr	r21
+ 868:	47 95       	ror	r20
+ 86a:	07 94       	ror	r0
+ 86c:	56 95       	lsr	r21
+ 86e:	47 95       	ror	r20
+ 870:	07 94       	ror	r0
+ 872:	54 2f       	mov	r21, r20
+ 874:	40 2d       	mov	r20, r0
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 876:	4a 2b       	or	r20, r26
+			((sw_latch_five >> ISW1_SW) & 1) << 0 |
+			((sw_latch_five >> ISW2_SW) & 1) << 2 |
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+			((sw_latch_five >> ISW5_SW) & 1) << 6 |
+			((sw_latch_five >> ISW6_SW) & 1) << 7 |
+			((sw_latch_five >> ISW7_SW) & 1) << 5 |
+ 878:	22 95       	swap	r18
+ 87a:	26 95       	lsr	r18
+ 87c:	26 95       	lsr	r18
+ 87e:	23 70       	andi	r18, 0x03	; 3
+ 880:	30 e0       	ldi	r19, 0x00	; 0
+ 882:	21 70       	andi	r18, 0x01	; 1
+ 884:	30 70       	andi	r19, 0x00	; 0
+ 886:	c9 01       	movw	r24, r18
+ 888:	88 0f       	add	r24, r24
+ 88a:	99 1f       	adc	r25, r25
+ 88c:	82 95       	swap	r24
+ 88e:	92 95       	swap	r25
+ 890:	90 7f       	andi	r25, 0xF0	; 240
+ 892:	98 27       	eor	r25, r24
+ 894:	80 7f       	andi	r24, 0xF0	; 240
+ 896:	98 27       	eor	r25, r24
+			
+			//update analog switch latch:
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+			//enable output on VCO analog switch latch:
+			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
+			DATA_BUS =
+ 898:	84 2b       	or	r24, r20
+ 89a:	82 b9       	out	0x02, r24	; 2
+			((sw_latch_five >> ISW3_SW) & 1) << 1 |
+			((sw_latch_five >> ISW5_SW) & 1) << 6 |
+			((sw_latch_five >> ISW6_SW) & 1) << 7 |
+			((sw_latch_five >> ISW7_SW) & 1) << 5 |
+			ISW8_SW_ON << 4;
+			VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
+ 89c:	80 81       	ld	r24, Z
+ 89e:	80 64       	ori	r24, 0x40	; 64
+ 8a0:	80 83       	st	Z, r24
+ 8a2:	00 00       	nop
+			_delay_us(1);
+			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+ 8a4:	80 81       	ld	r24, Z
+ 8a6:	8f 7b       	andi	r24, 0xBF	; 191
+ 8a8:	80 83       	st	Z, r24
+			DATA_BUS = 0;
+ 8aa:	12 b8       	out	0x02, r1	; 2
+	
+ 8ac:	df 91       	pop	r29
+ 8ae:	cf 91       	pop	r28
+ 8b0:	1f 91       	pop	r17
+ 8b2:	0f 91       	pop	r16
+ 8b4:	08 95       	ret
 
-000008be <__stop_program>:
- 8be:	ff cf       	rjmp	.-2      	; 0x8be <__stop_program>
+000008b6 <__udivmodhi4>:
+ 8b6:	aa 1b       	sub	r26, r26
+ 8b8:	bb 1b       	sub	r27, r27
+ 8ba:	51 e1       	ldi	r21, 0x11	; 17
+ 8bc:	07 c0       	rjmp	.+14     	; 0x8cc <__udivmodhi4_ep>
+
+000008be <__udivmodhi4_loop>:
+ 8be:	aa 1f       	adc	r26, r26
+ 8c0:	bb 1f       	adc	r27, r27
+ 8c2:	a6 17       	cp	r26, r22
+ 8c4:	b7 07       	cpc	r27, r23
+ 8c6:	10 f0       	brcs	.+4      	; 0x8cc <__udivmodhi4_ep>
+ 8c8:	a6 1b       	sub	r26, r22
+ 8ca:	b7 0b       	sbc	r27, r23
+
+000008cc <__udivmodhi4_ep>:
+ 8cc:	88 1f       	adc	r24, r24
+ 8ce:	99 1f       	adc	r25, r25
+ 8d0:	5a 95       	dec	r21
+ 8d2:	a9 f7       	brne	.-22     	; 0x8be <__udivmodhi4_loop>
+ 8d4:	80 95       	com	r24
+ 8d6:	90 95       	com	r25
+ 8d8:	bc 01       	movw	r22, r24
+ 8da:	cd 01       	movw	r24, r26
+ 8dc:	08 95       	ret
+
+000008de <_exit>:
+ 8de:	f8 94       	cli
+
+000008e0 <__stop_program>:
+ 8e0:	ff cf       	rjmp	.-2      	; 0x8e0 <__stop_program>

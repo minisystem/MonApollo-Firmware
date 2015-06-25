@@ -20,6 +20,10 @@
 //define LFO waveform switch latch (not yet implemented in hardware)
 #define LFO_SW_LATCH		PJ5
 
+//EG2 polarity pin on PORTJ
+#define EG2_POL			PJ4
+
+void setup_spi(void);
 void update_spi(void);
 
 #endif
