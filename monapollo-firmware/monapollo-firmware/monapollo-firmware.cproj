@@ -67,6 +67,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="adc.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="dac.c">
       <SubType>compile</SubType>
     </Compile>
@@ -74,6 +77,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="monapollo-firmware.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="scan_pots_and_update_control_voltages.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="spi.c">
