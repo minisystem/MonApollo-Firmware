@@ -1,3 +1,6 @@
+//This is a big messy routine to read the pots and update the DAC. 
+//Really just for testing purposes. Needs to be broken down into pot reading and recording and dac S&H setting
+
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -28,7 +31,7 @@ volatile uint8_t dac_pot_decoder_0 [16][2] = { //[DAC MUX CHANNEL][DAC MUX ADDRE
 	{FINE,			DAC_MUX_EN1},
 	{TUNE,			DAC_MUX_EN0},
 	{LFO_RATE,		DAC_MUX_EN0},
-	{0,				0}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now -set VOLUME S&H CV as I'm not using it yet
+	{0,				0}, //ARP_RATE - pot is read by ADC but nothing is written to DAC os use dummy data for now
 	{GLIDE,			DAC_MUX_EN1},
 	{AMP_LFO,		DAC_MUX_EN2},
 	{VOLUME,		DAC_MUX_EN2},
@@ -64,7 +67,7 @@ void scan_pots_and_update_control_voltages(void) {
 		POT_MUX &= ~(1<<POTMUX_EN0);
 		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
 		ADCSRA |= (1<<ADSC); //start ADC conversion
-		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
 		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 		

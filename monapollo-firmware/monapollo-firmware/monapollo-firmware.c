@@ -21,7 +21,7 @@
 
 #define GATE PF1 //define gate output
 
-volatile uint16_t value_to_display = 747; //global to hold display value
+volatile uint16_t value_to_display = 79; //global to hold display value
 
 //counter for switch scanning
 volatile uint8_t switch_timer = 0;

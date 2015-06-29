@@ -701,7 +701,7 @@ void scan_pots_and_update_control_voltages(void) {
 		ADCSRA |= (1<<ADSC); //start ADC conversion
  3b2:	ca e7       	ldi	r28, 0x7A	; 122
  3b4:	d0 e0       	ldi	r29, 0x00	; 0
-		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
 		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
 		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
 		
@@ -757,7 +757,7 @@ void scan_pots_and_update_control_voltages(void) {
  3f0:	88 81       	ld	r24, Y
  3f2:	80 64       	ori	r24, 0x40	; 64
  3f4:	88 83       	st	Y, r24
-		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
  3f6:	88 81       	ld	r24, Y
  3f8:	86 fd       	sbrc	r24, 6
  3fa:	fd cf       	rjmp	.-6      	; 0x3f6 <scan_pots_and_update_control_voltages+0x7c>
