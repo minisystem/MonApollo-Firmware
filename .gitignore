@@ -1,4 +1,10 @@
 #.gitignore monapollo-firmware
 
 #ignore xnor midi library
-xnormidi-develop/
+monapollo-firmware/monapollo-firmware/xnormidi-develop/doc/
+monapollo-firmware/monapollo-firmware/xnormidi-develop/test/
+monapollo-firmware/monapollo-firmware/xnormidi-develop/implementations/
+
+#ignore xnor midi debug folder
+
+monapollo-firmware/monapollo-firmware/Debug/xnormidi-develop/

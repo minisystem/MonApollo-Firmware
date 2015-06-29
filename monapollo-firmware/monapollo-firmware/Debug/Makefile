@@ -30,7 +30,9 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:=
 
 # Every subdirectory with source files must be described here
-SUBDIRS := 
+SUBDIRS :=  \
+../xnormidi-develop/ \
+../xnormidi-develop/bytequeue/
 
 
 # Add inputs and outputs from these tool invocations to the build variables 
@@ -40,7 +42,12 @@ C_SRCS +=  \
 ../display.c \
 ../monapollo-firmware.c \
 ../scan_pots_and_update_control_voltages.c \
-../spi.c
+../spi.c \
+../xnormidi-develop/bytequeue/bytequeue.c \
+../xnormidi-develop/bytequeue/interrupt_setting.c \
+../xnormidi-develop/midi.c \
+../xnormidi-develop/midi_device.c \
+../xnormidi-develop/sysex_tools.c
 
 
 PREPROCESSING_SRCS += 
@@ -55,7 +62,12 @@ dac.o \
 display.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
-spi.o
+spi.o \
+xnormidi-develop/bytequeue/bytequeue.o \
+xnormidi-develop/bytequeue/interrupt_setting.o \
+xnormidi-develop/midi.o \
+xnormidi-develop/midi_device.o \
+xnormidi-develop/sysex_tools.o
 
 
 OBJS_AS_ARGS +=  \
@@ -64,7 +76,12 @@ dac.o \
 display.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
-spi.o
+spi.o \
+xnormidi-develop/bytequeue/bytequeue.o \
+xnormidi-develop/bytequeue/interrupt_setting.o \
+xnormidi-develop/midi.o \
+xnormidi-develop/midi_device.o \
+xnormidi-develop/sysex_tools.o
 
 
 C_DEPS +=  \
@@ -73,7 +90,12 @@ dac.d \
 display.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
-spi.d
+spi.d \
+xnormidi-develop/bytequeue/bytequeue.d \
+xnormidi-develop/bytequeue/interrupt_setting.d \
+xnormidi-develop/midi.d \
+xnormidi-develop/midi_device.d \
+xnormidi-develop/sysex_tools.d
 
 
 C_DEPS_AS_ARGS +=  \
@@ -82,7 +104,12 @@ dac.d \
 display.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
-spi.d
+spi.d \
+xnormidi-develop/bytequeue/bytequeue.d \
+xnormidi-develop/bytequeue/interrupt_setting.d \
+xnormidi-develop/midi.d \
+xnormidi-develop/midi_device.d \
+xnormidi-develop/sysex_tools.d
 
 
 OUTPUT_FILE_PATH +=monapollo-firmware.elf
@@ -107,7 +134,29 @@ OUTPUT_FILE_DEP:= ./makedep.mk
 
 
 
+
+
+
+
+
+
+
+
+
+
 ./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -O1 -fpack-struct -fshort-enums -g2 -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
+	@echo Finished building: $<
+
+xnormidi-develop/bytequeue/%.o: ../xnormidi-develop/bytequeue/%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -O1 -fpack-struct -fshort-enums -g2 -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
+	@echo Finished building: $<
+
+xnormidi-develop/%.o: ../xnormidi-develop/%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
 	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -O1 -fpack-struct -fshort-enums -g2 -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
