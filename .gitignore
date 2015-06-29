@@ -1,0 +1,4 @@
+#.gitignore monapollo-firmware
+
+#ignore xnor midi library
+xnormidi-develop/

@@ -5,9 +5,7 @@ DAC setup is working. Value is determined by reading 10 bit pot value
 DAC MULTIPLEXING:
 All pots read and appropriate DAC S&H is set
 
-SPI LED driving and switch reading is done but only in a rudimentary fashion for testing
-Leave it alone as much as possible and try to get LED 7-segment display working with
-interrupt-based updates whilst keeping SPI working
+SPI LED driving and switch reading is done
 
 Basic testing of 7-segment display is done. Cathode and anode latches and databus can
 be used to light individual segments.
@@ -20,11 +18,16 @@ cycling through 4 places, anode 1 to 4
 
 VCO waveform switching
 
+Rudimentary MIDI via USART note on/off events are now used to turn GATE on/off
+
+Most code is separated by function now. ISR routines still handled in main.
+
  ____________
  TO DO:
 
 *Handle decimal points on LED display
-*break up code into header files
+*implement XNOR MIDI
+*optimize DAC setting and ADC reading to make better use of _delay_us() time
  
  _________ 
  COMMENTS:
