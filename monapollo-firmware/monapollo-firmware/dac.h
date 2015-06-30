@@ -1,7 +1,7 @@
 #ifndef DAC_H
 #define DAC_H
 
-#define F_CPU 20000000UL
+
 //define DAC bits
 #define DAC_WR			PG0
 #define DAC_RS			PG1

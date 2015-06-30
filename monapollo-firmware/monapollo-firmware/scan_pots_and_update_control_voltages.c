@@ -9,8 +9,6 @@
 #include "port_map.h"
 #include "pot_to_dac_map.h"
 
-
-
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
 volatile uint16_t tune_offset = 0; //fine tune offset to display
