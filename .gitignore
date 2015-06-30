@@ -8,3 +8,6 @@ monapollo-firmware/monapollo-firmware/xnormidi-develop/implementations/
 #ignore xnor midi debug folder
 
 monapollo-firmware/monapollo-firmware/Debug/xnormidi-develop/
+
+#ignore irritating Atmel Studio .atsuo file
+/monapollo-firmware/monapollo-firmware.atsuo

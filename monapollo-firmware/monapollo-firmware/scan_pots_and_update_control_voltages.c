@@ -1,6 +1,6 @@
 //This is a big messy routine to read the pots and update the DAC. 
 //Really just for testing purposes. Needs to be broken down into pot reading and recording and dac S&H setting
-
+#define F_CPU 20000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 
