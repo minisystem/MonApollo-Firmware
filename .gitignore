@@ -2,3 +2,6 @@
 
 #ignore xnor midi library
 xnormidi-develop/
+
+#ignore Atmel Studio backup file or whatever it is
+/monapollo-firmware/monapollo-firmware/monapollo-firmware.atsuo
