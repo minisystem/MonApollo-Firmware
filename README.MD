@@ -18,15 +18,15 @@ cycling through 4 places, anode 1 to 4
 
 VCO waveform switching
 
-Rudimentary MIDI via USART note on/off events are now used to turn GATE on/off
+xnormidi is now used to turn gate on and off
 
 Most code is separated by function now. ISR routines still handled in main.
 
  ____________
  TO DO:
 
+*Implement auto-tune routine to create tuning look up table for incoming midi note data
 *Handle decimal points on LED display
-*implement XNOR MIDI
 *optimize DAC setting and ADC reading to make better use of _delay_us() time
  
  _________ 
