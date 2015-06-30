@@ -4,6 +4,8 @@
 //define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
 #define ISW12_LED			0b00000100
 #define ISW11_LED			0b10000000
+#define ISW9_LED			0 //EG2 INV
+
 #define ISW8_LED			7 //B MOD
 #define ISW4_LED			1 //SYNC U16
 #define ISW1_LED			2 //VCO1 SAW U16

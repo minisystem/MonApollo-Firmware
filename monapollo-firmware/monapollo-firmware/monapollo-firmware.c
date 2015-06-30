@@ -22,6 +22,8 @@
 #include "xnormidi-develop/midi_device.h"
 //#include "xnormidi-develop/bytequeue/bytequeue.h"
 
+#define TUNE_SELECT PG2 //define tune source select bit
+
 #define GATE PF1 //define gate output
 
 MidiDevice midi_device;
@@ -127,6 +129,9 @@ int main(void)
 	
 	DDRF |= (1<<GATE); //set gate as output
 	//PORTF |= (1<<GATE); //turn gate on for testing
+	
+	DDRG |= (1<<TUNE_SELECT); //set tune select bit as output on PORTG
+	PORTG &= ~(1<<TUNE_SELECT); //set tune select bit to 0 to select VCF/VCA output for oscillator tuning
 	
 	setup_spi(); 
 	

@@ -8,6 +8,8 @@
 
 //switch flags
 //ultimately combine these into a single byte and do bit manipulations to determine switch states
+volatile uint8_t ISW9_SW_ON = 0; //flag for ISW9 switch
+volatile uint8_t ISW11_SW_ON = 0; //flag for ISW11 switch
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
@@ -95,7 +97,7 @@ void update_spi(void) {
 			//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
 			//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
 			
-			sw_latch_five ^= spi_sw_current_state;
+			sw_latch_five ^= spi_sw_current_state; //Omar's solution. Replaces above 7 lines of if/then statements. Duh!
 			
 			//SHIFT 4th BYTE
 			SPDR = 0; //no LEDs connected in current test set up
@@ -151,6 +153,16 @@ void update_spi(void) {
 			if (current_sw_state & (1<<ISW8_SW))
 			{
 				ISW8_SW_ON ^= 1 << 0; //toggle switch state
+			}
+			
+			if (current_sw_state & (1<<ISW11_SW)) {
+				
+				ISW11_SW_ON ^= 1 << 0; //toggle switch state
+			}
+			
+			if (current_sw_state & (1<<ISW9_SW)) {
+				
+				ISW9_SW_ON ^= 1 << 0; //toggle switch state
 			}
 			
 			//update analog switch latch:
