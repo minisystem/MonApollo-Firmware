@@ -87,40 +87,19 @@ void update_spi(void) {
 			spi_sw_previous_state ^= spi_sw_current_state;
 			spi_sw_current_state &= spi_sw_previous_state;
 			
-			//toggle switch state
-
-			//if (spi_sw_current_state & (1<<ISW1_SW)) sw_latch_five ^= (1 << ISW1_SW);
-			//if (spi_sw_current_state & (1<<ISW2_SW)) sw_latch_five ^= (1 << ISW2_SW);
-			//if (spi_sw_current_state & (1<<ISW3_SW)) sw_latch_five ^= (1 << ISW3_SW);
-			//if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);
-			//if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
-			//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
-			//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
-			
+			//toggle switch state		
 			sw_latch_five ^= spi_sw_current_state; //Omar's solution. Replaces above 7 lines of if/then statements. Duh!
 			
 			//SHIFT 4th BYTE
 			SPDR = 0; //no LEDs connected in current test set up
 			while (!(SPSR & (1<<SPIF)));
 			//Now read SPDR for switch data shifted in from 74XX165 (U9)
-			//check if ISW12_SW bit is set
-			if (SPDR >> 5 & 1)
-			{
-				ISW12_SW_ON = 1;
-			}
-			else
-			{
-				ISW12_SW_ON = 0;
-			}
+			sw_latch_four = SPDR;
+			//toggling not implemented here yet.
+			ISW12_SW_ON = (sw_latch_four >> ISW12_SW) & 1;
 			//check if ISW13_SW bit is set
-			if (SPDR >> 6 & 1)
-			{
-				ISW13_SW_ON = 1;
-			}
-			else
-			{
-				ISW13_SW_ON = 0;
-			}
+			ISW13_SW_ON = (sw_latch_four >> ISW13_SW) & 1;
+
 			
 			//SHIFT 3th BYTE
 			SPDR = 0;
@@ -131,8 +110,8 @@ void update_spi(void) {
 			while (!(SPSR & (1<<SPIF)));
 			
 			//SHIFT 1st BYTE
-			//SPDR = (ISW12_SW_ON << 2) | ISW11_LED; //TURN ON ISW12 (if ISW12_SW is ON) and ISW11 LEDs, both on 74XX595 U8, first shift register in chain
-			SPDR = (ISW12_SW_ON <<2) | (ISW13_SW_ON << 7); //turn on ISW12 if ISW12_SW is ON, turn ISW11 (MSB of first shift register chain) if ISW13_SW is ON
+			
+			SPDR = (ISW12_SW_ON << ISW12_LED) | (ISW11_SW_ON << ISW11_LED) | (ISW9_SW_ON << ISW9_LED); 
 			//Wait for SPI shift to complete
 			while (!(SPSR & (1<<SPIF)));
 			
@@ -143,6 +122,8 @@ void update_spi(void) {
 			
 			//clear SPI_SW_LATCH
 			SPI_PORT &= ~SPI_SW_LATCH;
+			
+			//now read switches directly connected to MCU
 			//this toggle code works, but I haven't figured out how it works
 			//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
 			current_sw_state = SWITCH_PORT;

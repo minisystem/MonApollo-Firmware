@@ -1,12 +1,12 @@
 #ifndef SWITCH_MAP_H
 #define SWITCH_MAP_H
 
-//define SPI switch bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
-#define ISW12_SW			0b00100000
-#define ISW13_SW			0b01000000
-			
+//define SPI switch bits - number corresponds to bit position in read SPI byte
+//SPI switch register 0 (4th SPI byte)
+#define ISW12_SW			5
+#define ISW13_SW			6
 
-//these switch bits are defined asin bit order coming in on SPI bus (same as data line connected to 74HC165)
+//SPI switch register 1 (5th SPI byte)			
 #define ISW1_SW				2 //VCO1 SAW U14
 #define ISW2_SW				1 //VCO1 TRI U14
 #define ISW3_SW				0 //VCO1 PULSE U14
