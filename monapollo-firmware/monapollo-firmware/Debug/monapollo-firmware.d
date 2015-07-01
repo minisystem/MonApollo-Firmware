@@ -16,8 +16,9 @@ monapollo-firmware.d monapollo-firmware.o: .././monapollo-firmware.c \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/util/delay_basic.h \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/math.h \
  .././spi.h .././dac.h .././adc.h .././display.h .././display_map.h \
- .././port_map.h .././led_map.h .././switch_map.h .././pot_to_dac_map.h \
- .././xnormidi-develop/midi.h .././xnormidi-develop/midi_device.h \
+ .././hardware.h .././led_map.h .././switch_map.h .././pot_to_dac_map.h \
+ .././midi.h .././xnormidi-develop/midi.h \
+ .././xnormidi-develop/midi_device.h \
  .././xnormidi-develop/midi_function_types.h \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/include/stdbool.h \
  .././xnormidi-develop/bytequeue/bytequeue.h \
@@ -65,13 +66,15 @@ c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.
 
 .././display_map.h:
 
-.././port_map.h:
+.././hardware.h:
 
 .././led_map.h:
 
 .././switch_map.h:
 
 .././pot_to_dac_map.h:
+
+.././midi.h:
 
 .././xnormidi-develop/midi.h:
 

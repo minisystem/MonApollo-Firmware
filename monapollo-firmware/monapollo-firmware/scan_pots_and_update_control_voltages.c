@@ -6,7 +6,7 @@
 
 #include "dac.h"
 #include "adc.h"
-#include "port_map.h"
+#include "hardware.h"
 #include "pot_to_dac_map.h"
 
 volatile uint16_t adc_previous = 0;

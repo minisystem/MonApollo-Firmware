@@ -2,7 +2,7 @@
 #include <util/delay.h>
 
 #include "adc.h"
-#include "port_map.h"
+#include "hardware.h"
 
 void setup_adc(void)
 {

@@ -3,7 +3,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#include "port_map.h"
+#include "hardware.h"
 #include "dac.h"
 
 void setup_dac(void) //set up DAC

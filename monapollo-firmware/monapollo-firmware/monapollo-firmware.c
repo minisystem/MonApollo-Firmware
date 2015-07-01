@@ -13,14 +13,15 @@
 #include "dac.h"
 #include "adc.h"
 #include "display.h"
-#include "port_map.h"
+#include "hardware.h"
 #include "led_map.h"
 #include "switch_map.h"
 #include "pot_to_dac_map.h"
+#include "midi.h"
 
 #include "xnormidi-develop/midi.h"
 #include "xnormidi-develop/midi_device.h"
-//#include "xnormidi-develop/bytequeue/bytequeue.h"
+//#include "xnormidi-develop/bytequeue/bytequeue.h" //this is required for MIDI sending
 
 #define TUNE_SELECT PG2 //define tune source select bit
 
@@ -77,17 +78,7 @@ ISR (USART_RX_vect) { // USART receive interrupt
 	 
 	uint8_t inByte = UDR0;
 	midi_device_input(&midi_device, 1, &inByte);	
-	
-	 //value_to_display = UDR0;
-	 //uint8_t status_byte = value_to_display >> 4;
-	 //
-	 //if ((status_byte >> 3) == 1) //if it's a note on or off event, handle it:
-	 //{ 
-		 //if ((status_byte >> 0) & 1) {PORTF |= (1<<GATE);} else {PORTF &= ~(1<<GATE);}
-		////PORTF ^= (1<<GATE);	 
-     //}	else if (value_to_display == 0) {PORTF &= ~(1<<GATE);}
-	  
-	
+	  	
 }
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
@@ -170,7 +161,7 @@ int main(void)
 
 	while(1)
 	{	
-		midi_device_process(&midi_device);
+		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 		//PORTB |= (1<<ARP_SYNC_LED);
 	}
 }

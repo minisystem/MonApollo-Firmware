@@ -4,7 +4,7 @@
 #include "spi.h"
 #include "switch_map.h"
 #include "led_map.h"
-#include "port_map.h"
+#include "hardware.h"
 
 //switch flags
 //ultimately combine these into a single byte and do bit manipulations to determine switch states

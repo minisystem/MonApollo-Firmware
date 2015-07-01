@@ -1,7 +1,7 @@
 #include <avr/io.h>
 
 #include "display.h"
-#include "port_map.h"
+#include "hardware.h"
 #include "display_map.h"
 
 void display_dec(uint16_t number, uint8_t digit)

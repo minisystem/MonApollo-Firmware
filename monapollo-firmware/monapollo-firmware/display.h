@@ -2,7 +2,7 @@
 #define DISPLAY_DEFS_H
 
 #include "display_map.h"
-#include "port_map.h"
+#include "hardware.h"
 
 //LED 7-segment display latches
 #define DISP_ANODE_LATCH	PH5

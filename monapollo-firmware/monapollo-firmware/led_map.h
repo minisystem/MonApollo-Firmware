@@ -1,9 +1,9 @@
 #ifndef LED_MAP_H
 #define LED_MAP_H
 
-//define LED bits - NEED TO CHANGE THESE TO BIT POSITIONS 0-7
-#define ISW12_LED			2
-#define ISW11_LED			7
+//define LED bits - number corresponds to bit position in serial-parallel shift register (74HC595)
+#define ISW12_LED			2 //ARP MODE
+#define ISW11_LED			7 //WRITE
 #define ISW9_LED			0 //EG2 INV
 
 #define ISW8_LED			7 //B MOD

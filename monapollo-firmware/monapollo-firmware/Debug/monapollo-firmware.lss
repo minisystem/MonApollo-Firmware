@@ -19,15 +19,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 00000bb8  00000000  00000000  00004d4b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000136d  00000000  00000000  00005903  2**0
+  8 .debug_line   00001369  00000000  00000000  00005903  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000008cc  00000000  00000000  00006c70  2**2
+  9 .debug_frame  000008cc  00000000  00000000  00006c6c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000db9  00000000  00000000  0000753c  2**0
+ 10 .debug_str    00000db9  00000000  00000000  00007538  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001d06  00000000  00000000  000082f5  2**0
+ 11 .debug_loc    00001d06  00000000  00000000  000082f1  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000078  00000000  00000000  00009ffb  2**0
+ 12 .debug_ranges 00000078  00000000  00000000  00009ff7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -132,7 +132,7 @@ void setup_adc(void)
       c6:	08 95       	ret
 
 000000c8 <setup_dac>:
-#include "port_map.h"
+#include "hardware.h"
 #include "dac.h"
 
 void setup_dac(void) //set up DAC
@@ -241,7 +241,7 @@ void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value)
 
 0000013c <display_dec>:
 #include "display.h"
-#include "port_map.h"
+#include "hardware.h"
 #include "display_map.h"
 
 void display_dec(uint16_t number, uint8_t digit)
@@ -495,11 +495,7 @@ ISR (USART_RX_vect) { // USART receive interrupt
      284:	4f 5f       	subi	r20, 0xFF	; 255
      286:	5f 4f       	sbci	r21, 0xFF	; 255
      288:	0e 94 4e 07 	call	0xe9c	; 0xe9c <midi_device_input>
-		 //if ((status_byte >> 0) & 1) {PORTF |= (1<<GATE);} else {PORTF &= ~(1<<GATE);}
-		////PORTF ^= (1<<GATE);	 
-     //}	else if (value_to_display == 0) {PORTF &= ~(1<<GATE);}
-	  
-	
+	  	
 }
      28c:	0f 90       	pop	r0
      28e:	df 91       	pop	r29
@@ -719,7 +715,7 @@ int main(void)
 
 	while(1)
 	{	
-		midi_device_process(&midi_device);
+		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
      3c0:	ce 01       	movw	r24, r28
      3c2:	0e 94 78 09 	call	0x12f0	; 0x12f0 <midi_device_process>
      3c6:	fc cf       	rjmp	.-8      	; 0x3c0 <main+0x7e>
@@ -1407,11 +1403,8 @@ void update_spi(void) {
      764:	90 91 5b 01 	lds	r25, 0x015B
      768:	89 23       	and	r24, r25
      76a:	80 93 5c 01 	sts	0x015C, r24
-			//if (spi_sw_current_state & (1<<ISW4_SW)) sw_latch_five ^= (1 << ISW4_SW);
-			//if (spi_sw_current_state & (1<<ISW5_SW)) sw_latch_five ^= (1 << ISW5_SW);
-			//if (spi_sw_current_state & (1<<ISW6_SW)) sw_latch_five ^= (1 << ISW6_SW);
-			//if (spi_sw_current_state & (1<<ISW7_SW)) sw_latch_five ^= (1 << ISW7_SW);
 			
+			//toggle switch state		
 			sw_latch_five ^= spi_sw_current_state; //Omar's solution. Replaces above 7 lines of if/then statements. Duh!
      76e:	80 91 5a 01 	lds	r24, 0x015A
      772:	90 91 5c 01 	lds	r25, 0x015C
@@ -1429,7 +1422,7 @@ void update_spi(void) {
 			sw_latch_four = SPDR;
      784:	8e b5       	in	r24, 0x2e	; 46
      786:	80 93 59 01 	sts	0x0159, r24
-			
+			//toggling not implemented here yet.
 			ISW12_SW_ON = (sw_latch_four >> ISW12_SW) & 1;
      78a:	80 91 59 01 	lds	r24, 0x0159
      78e:	82 95       	swap	r24
