@@ -8,6 +8,8 @@ dac.c
 
 display.c
 
+midi.c
+
 monapollo-firmware.c
 
 scan_pots_and_update_control_voltages.c

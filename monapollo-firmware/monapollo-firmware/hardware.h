@@ -13,6 +13,12 @@
 #define DAC_CTRL			PORTG
 #define DAC_MUX				PORTH
 #define POT_MUX				PORTH
+
 #define SWITCH_PORT			PINF //direct reading by MCU of some switches occurs on this port
+
+//define hardware pins
+#define TUNE_SELECT PG2 //define tune source select bit
+
+#define GATE PF1 //define gate output
 
 #endif

@@ -40,6 +40,7 @@ C_SRCS +=  \
 ../adc.c \
 ../dac.c \
 ../display.c \
+../midi.c \
 ../monapollo-firmware.c \
 ../scan_pots_and_update_control_voltages.c \
 ../spi.c \
@@ -60,6 +61,7 @@ OBJS +=  \
 adc.o \
 dac.o \
 display.o \
+midi.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
@@ -74,6 +76,7 @@ OBJS_AS_ARGS +=  \
 adc.o \
 dac.o \
 display.o \
+midi.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
@@ -88,6 +91,7 @@ C_DEPS +=  \
 adc.d \
 dac.d \
 display.d \
+midi.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
@@ -102,6 +106,7 @@ C_DEPS_AS_ARGS +=  \
 adc.d \
 dac.d \
 display.d \
+midi.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
@@ -121,6 +126,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 

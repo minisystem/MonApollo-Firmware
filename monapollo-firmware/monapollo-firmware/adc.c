@@ -1,3 +1,4 @@
+#define F_CPU 20000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -14,4 +15,21 @@ void setup_adc(void)
 	DIDR0 |= 0x01; //disable digital input buffer for ADC0
 	
 	ADCSRA |= (1<<ADEN); //enable ADC
+}
+
+uint16_t read_pot(uint8_t mux_select, uint8_t channel) {
+	
+	DATA_BUS = channel;
+	POT_MUX &= ~(1<<mux_select);
+	_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+	ADCSRA |= (1<<ADSC); //start ADC conversion
+	while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
+	POT_MUX |= (1<<mux_select); //disable pot multiplexer U2
+	//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
+			
+			
+	uint16_t adc_read = ADCL;
+	adc_read = adc_read | (ADCH <<8);
+			
+	return adc_read;
 }

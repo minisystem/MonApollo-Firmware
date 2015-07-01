@@ -61,17 +61,8 @@ void scan_pots_and_update_control_voltages(void) {
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
 	for (int i = 0; i <=15; i++)
 	{
-		DATA_BUS = i;
-		POT_MUX &= ~(1<<POTMUX_EN0);
-		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
-		ADCSRA |= (1<<ADSC); //start ADC conversion
-		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
-		POT_MUX |= (1<<POTMUX_EN0); //disable pot multiplexer U2
-		//note that ADSC reads HIGH as long as conversion is in progress, goes LOW when conversion is complete
-		
-		//adc_previous = adc_value;
-		adc_value = ADCL;
-		adc_value = adc_value | (ADCH <<8);
+
+		adc_value = read_pot(POTMUX_EN0, i);
 		
 		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
 		{
@@ -95,20 +86,22 @@ void scan_pots_and_update_control_voltages(void) {
 		
 	}
 	
-	//now read second set of pots form U4 and set approriate DAC S&H channel
+	//now read second set of pots form U4 and set appropriate DAC S&H channel
 	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
 	{
 		
-		DATA_BUS = i+1; //U4 input 0 is not used (grounded)
-		POT_MUX &= ~(1<<POTMUX_EN1);
-		_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
-		ADCSRA |= (1<<ADSC); //start ADC conversion
-		while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
-		POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2
-		//adc_previous = adc_value;
-		adc_value = ADCL;
-		adc_value = adc_value | (ADCH <<8);
-
+		//DATA_BUS = i+1; //U4 input 0 is not used (grounded)
+		//POT_MUX &= ~(1<<POTMUX_EN1);
+		//_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+		//ADCSRA |= (1<<ADSC); //start ADC conversion
+		//while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock) - need to figure out what to do with this time - would interrupt be more efficient?
+		//POT_MUX |= (1<<POTMUX_EN1); //disable pot multiplexer U2
+		////adc_previous = adc_value;
+		//adc_value = ADCL;
+		//adc_value = adc_value | (ADCH <<8);
+		
+		adc_value = read_pot(POTMUX_EN1, i+1);
+		
 		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
 
 	}
