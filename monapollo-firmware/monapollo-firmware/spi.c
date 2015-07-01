@@ -163,5 +163,9 @@ void update_spi(void) {
 			_delay_us(1);
 			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 			DATA_BUS = 0;
+			
+			//set EG2 INV bit. This changes the nth bit to x from: http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
+			//need to make sure this doesn't interfere with anything else on this port
+			EG2_POL_PORT ^= (-ISW9_SW_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
 	
 }

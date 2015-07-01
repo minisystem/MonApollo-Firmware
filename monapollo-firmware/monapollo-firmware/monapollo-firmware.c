@@ -18,14 +18,11 @@
 #include "switch_map.h"
 #include "pot_to_dac_map.h"
 #include "midi.h"
+#include "tune.h"
 
 #include "xnormidi-develop/midi.h"
 #include "xnormidi-develop/midi_device.h"
 //#include "xnormidi-develop/bytequeue/bytequeue.h" //this is required for MIDI sending
-
-#define TUNE_SELECT PG2 //define tune source select bit
-
-#define GATE PF1 //define gate output
 
 MidiDevice midi_device;
 
