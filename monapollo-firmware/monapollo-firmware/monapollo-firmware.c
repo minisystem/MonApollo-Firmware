@@ -103,6 +103,14 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 }	
 
+ISR (TIMER0_COMP_vect) {
+	
+	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
+	TCNT0 = 0; //reset timer
+	//value_to_display = TCNT0;
+	
+}
+
 
 
 
@@ -119,7 +127,8 @@ int main(void)
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	DDRG |= (1<<TUNE_SELECT); //set tune select bit as output on PORTG
-	PORTG &= ~(1<<TUNE_SELECT); //set tune select bit to 0 to select VCF/VCA output for oscillator tuning
+	//PORTG &= ~(1<<TUNE_SELECT); //set tune select bit to 0 to select VCF/VCA output for oscillator tuning
+	PORTG |= (1<<TUNE_SELECT);
 	
 	setup_spi(); 
 	
@@ -153,12 +162,19 @@ int main(void)
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
-	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms	
+	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms
+	
+	//set up timer/counter0 to be clocked by T0 input
+	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00); //clocked by external T0 pin, rising edge
+	OCR0A = 1; //output compare register - set to number of periods to be counted.
+	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		
 	sei(); //enable global interrupts
 
 	while(1)
 	{	
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 		//PORTB |= (1<<ARP_SYNC_LED);
+		//value_to_display = TCNT0;
 	}
 }

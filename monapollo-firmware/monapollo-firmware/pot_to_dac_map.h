@@ -35,5 +35,8 @@
 #define RELEASE_2		3 //U4 pot demultiplexer bit 14
 #define RELEASE_1		5 //U4 pot demultiplexer bit 15
 
+//define other control voltage DAC mus addresses
+#define VCO1_PITCH		2 
+#define VCO2_PITCH		1
 
 #endif

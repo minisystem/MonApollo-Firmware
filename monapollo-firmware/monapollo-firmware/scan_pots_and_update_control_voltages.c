@@ -105,7 +105,10 @@ void scan_pots_and_update_control_voltages(void) {
 		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
 
 	}
-
+	
+	set_dac(DAC_MUX_EN1, VCO1_PITCH, 0); //OSCA PITCH CV
+	set_dac(DAC_MUX_EN1, VCO2_PITCH, 0); //OSCB PITCH CV
+	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	
 	
