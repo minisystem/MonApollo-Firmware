@@ -6,6 +6,10 @@
 #include "hardware.h"
 #include "dac.h"
 
+
+	
+
+	
 void setup_dac(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs

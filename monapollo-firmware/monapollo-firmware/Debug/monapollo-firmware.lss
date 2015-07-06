@@ -3,31 +3,31 @@ monapollo-firmware.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000004e  00800100  000016ee  00001782  2**0
+  0 .data         0000008e  00800100  000016ee  00001782  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   1 .text         000016ee  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000104  0080014e  0080014e  000017d0  2**0
+  2 .bss          00000108  0080018e  0080018e  00001810  2**0
                   ALLOC
-  3 .stab         00000750  00000000  00000000  000017d0  2**2
+  3 .stab         00000750  00000000  00000000  00001810  2**2
                   CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      000000e7  00000000  00000000  00001f20  2**0
+  4 .stabstr      000000e7  00000000  00000000  00001f60  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_aranges 00000200  00000000  00000000  00002008  2**3
+  5 .debug_aranges 00000200  00000000  00000000  00002048  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00002bae  00000000  00000000  00002208  2**0
+  6 .debug_info   00002efd  00000000  00000000  00002248  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000c14  00000000  00000000  00004db6  2**0
+  7 .debug_abbrev 00000c3b  00000000  00000000  00005145  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00001385  00000000  00000000  000059ca  2**0
+  8 .debug_line   0000138f  00000000  00000000  00005d80  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000008dc  00000000  00000000  00006d50  2**2
+  9 .debug_frame  000008dc  00000000  00000000  00007110  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000dee  00000000  00000000  0000762c  2**0
+ 10 .debug_str    00000f6a  00000000  00000000  000079ec  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001ce2  00000000  00000000  0000841a  2**0
+ 11 .debug_loc    00001ce2  00000000  00000000  00008956  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000060  00000000  00000000  0000a0fc  2**0
+ 12 .debug_ranges 00000060  00000000  00000000  0000a638  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -76,13 +76,13 @@ Disassembly of section .text:
       7a:	02 c0       	rjmp	.+4      	; 0x80 <__do_copy_data+0x10>
       7c:	05 90       	lpm	r0, Z+
       7e:	0d 92       	st	X+, r0
-      80:	ae 34       	cpi	r26, 0x4E	; 78
+      80:	ae 38       	cpi	r26, 0x8E	; 142
       82:	b1 07       	cpc	r27, r17
       84:	d9 f7       	brne	.-10     	; 0x7c <__do_copy_data+0xc>
 
 00000086 <__do_clear_bss>:
       86:	12 e0       	ldi	r17, 0x02	; 2
-      88:	ae e4       	ldi	r26, 0x4E	; 78
+      88:	ae e8       	ldi	r26, 0x8E	; 142
       8a:	b1 e0       	ldi	r27, 0x01	; 1
       8c:	01 c0       	rjmp	.+2      	; 0x90 <.do_clear_bss_start>
 
@@ -90,7 +90,7 @@ Disassembly of section .text:
       8e:	1d 92       	st	X+, r1
 
 00000090 <.do_clear_bss_start>:
-      90:	a2 35       	cpi	r26, 0x52	; 82
+      90:	a6 39       	cpi	r26, 0x96	; 150
       92:	b1 07       	cpc	r27, r17
       94:	e1 f7       	brne	.-8      	; 0x8e <.do_clear_bss_loop>
       96:	0e 94 dd 01 	call	0x3ba	; 0x3ba <main>
@@ -199,9 +199,9 @@ uint16_t read_pot(uint8_t mux_select, uint8_t channel) {
      11e:	08 95       	ret
 
 00000120 <setup_dac>:
-#include "hardware.h"
-#include "dac.h"
+	
 
+	
 void setup_dac(void) //set up DAC
 {
 	DDRG |= (1<<DAC_WR) | (1<<DAC_RS); //set DAC control bits as outputs
@@ -549,7 +549,7 @@ ISR (USART_RX_vect) { // USART receive interrupt
      2ce:	80 91 c6 00 	lds	r24, 0x00C6
      2d2:	89 83       	std	Y+1, r24	; 0x01
 	midi_device_input(&midi_device, 1, &inByte);	
-     2d4:	85 e6       	ldi	r24, 0x65	; 101
+     2d4:	89 ea       	ldi	r24, 0xA9	; 169
      2d6:	91 e0       	ldi	r25, 0x01	; 1
      2d8:	61 e0       	ldi	r22, 0x01	; 1
      2da:	ae 01       	movw	r20, r28
@@ -603,7 +603,7 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	display_dec(value_to_display, digit[place]);
      32e:	80 91 0e 01 	lds	r24, 0x010E
      332:	90 91 0f 01 	lds	r25, 0x010F
-     336:	20 91 4e 01 	lds	r18, 0x014E
+     336:	20 91 8e 01 	lds	r18, 0x018E
      33a:	ea e0       	ldi	r30, 0x0A	; 10
      33c:	f1 e0       	ldi	r31, 0x01	; 1
      33e:	e2 0f       	add	r30, r18
@@ -617,15 +617,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 	//do SPI read/write every 5 interrupts (16.5 ms)
 	if (switch_timer++ == 5)
-     34c:	80 91 4f 01 	lds	r24, 0x014F
+     34c:	80 91 8f 01 	lds	r24, 0x018F
      350:	98 2f       	mov	r25, r24
      352:	9f 5f       	subi	r25, 0xFF	; 255
-     354:	90 93 4f 01 	sts	0x014F, r25
+     354:	90 93 8f 01 	sts	0x018F, r25
      358:	85 30       	cpi	r24, 0x05	; 5
      35a:	21 f4       	brne	.+8      	; 0x364 <__vector_5+0x58>
 	{
 		switch_timer = 0;
-     35c:	10 92 4f 01 	sts	0x014F, r1
+     35c:	10 92 8f 01 	sts	0x018F, r1
 		update_spi();	
      360:	0e 94 20 03 	call	0x640	; 0x640 <update_spi>
 			  	
@@ -633,15 +633,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 	//increment digit display place
 	if (place++ == 3) //post increment
-     364:	80 91 4e 01 	lds	r24, 0x014E
+     364:	80 91 8e 01 	lds	r24, 0x018E
      368:	98 2f       	mov	r25, r24
      36a:	9f 5f       	subi	r25, 0xFF	; 255
-     36c:	90 93 4e 01 	sts	0x014E, r25
+     36c:	90 93 8e 01 	sts	0x018E, r25
      370:	83 30       	cpi	r24, 0x03	; 3
      372:	11 f4       	brne	.+4      	; 0x378 <__vector_5+0x6c>
 	{
 		place = 0;
-     374:	10 92 4e 01 	sts	0x014E, r1
+     374:	10 92 8e 01 	sts	0x018E, r1
 	}
 	
 
@@ -765,7 +765,7 @@ int main(void)
 	//setup MIDI
 	//initialize MIDI device
 	midi_device_init(&midi_device);
-     400:	c5 e6       	ldi	r28, 0x65	; 101
+     400:	c9 ea       	ldi	r28, 0xA9	; 169
      402:	d1 e0       	ldi	r29, 0x01	; 1
      404:	ce 01       	movw	r24, r28
      406:	0e 94 10 07 	call	0xe20	; 0xe20 <midi_device_init>
@@ -825,10 +825,10 @@ int main(void)
      452:	fc cf       	rjmp	.-8      	; 0x44c <main+0x92>
 
 00000454 <scan_pots_and_update_control_voltages>:
-	{SUSTAIN_1,		DAC_MUX_EN3},
-	{RELEASE_2,		DAC_MUX_EN3},
-	{RELEASE_1,		DAC_MUX_EN3}							
-};
+struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
+struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
+struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};						 							 			
+	
 
 void scan_pots_and_update_control_voltages(void) {
      454:	8f 92       	push	r8
@@ -855,7 +855,7 @@ void scan_pots_and_update_control_voltages(void) {
 		} else {
 			set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
      476:	0f 2e       	mov	r0, r31
-     478:	fe e2       	ldi	r31, 0x2E	; 46
+     478:	fe e6       	ldi	r31, 0x6E	; 110
      47a:	cf 2e       	mov	r12, r31
      47c:	f1 e0       	ldi	r31, 0x01	; 1
      47e:	df 2e       	mov	r13, r31
@@ -885,7 +885,7 @@ void scan_pots_and_update_control_voltages(void) {
      496:	bf 2e       	mov	r11, r31
      498:	f0 2d       	mov	r31, r0
      49a:	05 c0       	rjmp	.+10     	; 0x4a6 <scan_pots_and_update_control_voltages+0x52>
-};
+	
 
 void scan_pots_and_update_control_voltages(void) {
 
@@ -903,8 +903,8 @@ void scan_pots_and_update_control_voltages(void) {
      4a8:	86 e0       	ldi	r24, 0x06	; 6
      4aa:	60 2f       	mov	r22, r16
      4ac:	0e 94 64 00 	call	0xc8	; 0xc8 <read_pot>
-     4b0:	90 93 53 01 	sts	0x0153, r25
-     4b4:	80 93 52 01 	sts	0x0152, r24
+     4b0:	90 93 97 01 	sts	0x0197, r25
+     4b4:	80 93 96 01 	sts	0x0196, r24
 		
 		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
      4b8:	c8 01       	movw	r24, r16
@@ -930,8 +930,8 @@ void scan_pots_and_update_control_voltages(void) {
 			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
      4ce:	94 01       	movw	r18, r8
 			if (adc_value >= 512) {
-     4d0:	80 91 52 01 	lds	r24, 0x0152
-     4d4:	90 91 53 01 	lds	r25, 0x0153
+     4d0:	80 91 96 01 	lds	r24, 0x0196
+     4d4:	90 91 97 01 	lds	r25, 0x0197
      4d8:	42 e0       	ldi	r20, 0x02	; 2
      4da:	80 30       	cpi	r24, 0x00	; 0
      4dc:	94 07       	cpc	r25, r20
@@ -944,20 +944,20 @@ void scan_pots_and_update_control_voltages(void) {
      4e8:	fd 1d       	adc	r31, r13
      4ea:	81 81       	ldd	r24, Z+1	; 0x01
      4ec:	60 81       	ld	r22, Z
-     4ee:	40 91 52 01 	lds	r20, 0x0152
-     4f2:	50 91 53 01 	lds	r21, 0x0153
+     4ee:	40 91 96 01 	lds	r20, 0x0196
+     4f2:	50 91 97 01 	lds	r21, 0x0197
      4f6:	40 50       	subi	r20, 0x00	; 0
      4f8:	52 40       	sbci	r21, 0x02	; 2
      4fa:	42 0f       	add	r20, r18
      4fc:	53 1f       	adc	r21, r19
      4fe:	0e 94 a9 00 	call	0x152	; 0x152 <set_dac>
 				tune_offset = adc_value - 512;
-     502:	80 91 52 01 	lds	r24, 0x0152
-     506:	90 91 53 01 	lds	r25, 0x0153
+     502:	80 91 96 01 	lds	r24, 0x0196
+     506:	90 91 97 01 	lds	r25, 0x0197
      50a:	80 50       	subi	r24, 0x00	; 0
      50c:	92 40       	sbci	r25, 0x02	; 2
-     50e:	90 93 51 01 	sts	0x0151, r25
-     512:	80 93 50 01 	sts	0x0150, r24
+     50e:	90 93 95 01 	sts	0x0195, r25
+     512:	80 93 94 01 	sts	0x0194, r24
      516:	31 c0       	rjmp	.+98     	; 0x57a <scan_pots_and_update_control_voltages+0x126>
 			} else {
 				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value)));
@@ -968,18 +968,18 @@ void scan_pots_and_update_control_voltages(void) {
      520:	fd 1d       	adc	r31, r13
      522:	81 81       	ldd	r24, Z+1	; 0x01
      524:	60 81       	ld	r22, Z
-     526:	40 91 52 01 	lds	r20, 0x0152
-     52a:	50 91 53 01 	lds	r21, 0x0153
+     526:	40 91 96 01 	lds	r20, 0x0196
+     52a:	50 91 97 01 	lds	r21, 0x0197
      52e:	40 50       	subi	r20, 0x00	; 0
      530:	52 40       	sbci	r21, 0x02	; 2
      532:	42 0f       	add	r20, r18
      534:	53 1f       	adc	r21, r19
      536:	0e 94 a9 00 	call	0x152	; 0x152 <set_dac>
 				tune_offset = adc_value;
-     53a:	80 91 52 01 	lds	r24, 0x0152
-     53e:	90 91 53 01 	lds	r25, 0x0153
-     542:	90 93 51 01 	sts	0x0151, r25
-     546:	80 93 50 01 	sts	0x0150, r24
+     53a:	80 91 96 01 	lds	r24, 0x0196
+     53e:	90 91 97 01 	lds	r25, 0x0197
+     542:	90 93 95 01 	sts	0x0195, r25
+     546:	80 93 94 01 	sts	0x0194, r24
      54a:	17 c0       	rjmp	.+46     	; 0x57a <scan_pots_and_update_control_voltages+0x126>
 			}
 
@@ -1000,8 +1000,8 @@ void scan_pots_and_update_control_voltages(void) {
      55c:	fd 1d       	adc	r31, r13
      55e:	81 81       	ldd	r24, Z+1	; 0x01
      560:	60 81       	ld	r22, Z
-     562:	40 91 52 01 	lds	r20, 0x0152
-     566:	50 91 53 01 	lds	r21, 0x0153
+     562:	40 91 96 01 	lds	r20, 0x0196
+     566:	50 91 97 01 	lds	r21, 0x0197
      56a:	42 95       	swap	r20
      56c:	52 95       	swap	r21
      56e:	50 7f       	andi	r21, 0xF0	; 240
@@ -1009,7 +1009,7 @@ void scan_pots_and_update_control_voltages(void) {
      572:	40 7f       	andi	r20, 0xF0	; 240
      574:	54 27       	eor	r21, r20
      576:	0e 94 a9 00 	call	0x152	; 0x152 <set_dac>
-};
+	
 
 void scan_pots_and_update_control_voltages(void) {
 
@@ -1028,12 +1028,12 @@ void scan_pots_and_update_control_voltages(void) {
 		adc_value = read_pot(POTMUX_EN1, i+1);
 		
 		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
-     588:	00 e1       	ldi	r16, 0x10	; 16
+     588:	0e e2       	ldi	r16, 0x2E	; 46
      58a:	11 e0       	ldi	r17, 0x01	; 1
-	{SUSTAIN_1,		DAC_MUX_EN3},
-	{RELEASE_2,		DAC_MUX_EN3},
-	{RELEASE_1,		DAC_MUX_EN3}							
-};
+struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
+struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
+struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};						 							 			
+	
 
 void scan_pots_and_update_control_voltages(void) {
      58c:	6c 2f       	mov	r22, r28
@@ -1046,8 +1046,8 @@ void scan_pots_and_update_control_voltages(void) {
 		adc_value = read_pot(POTMUX_EN1, i+1);
      590:	87 e0       	ldi	r24, 0x07	; 7
      592:	0e 94 64 00 	call	0xc8	; 0xc8 <read_pot>
-     596:	90 93 53 01 	sts	0x0153, r25
-     59a:	80 93 52 01 	sts	0x0152, r24
+     596:	90 93 97 01 	sts	0x0197, r25
+     59a:	80 93 96 01 	sts	0x0196, r24
 		
 		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
      59e:	fe 01       	movw	r30, r28
@@ -1057,8 +1057,8 @@ void scan_pots_and_update_control_voltages(void) {
      5a6:	f1 1f       	adc	r31, r17
      5a8:	81 81       	ldd	r24, Z+1	; 0x01
      5aa:	60 81       	ld	r22, Z
-     5ac:	40 91 52 01 	lds	r20, 0x0152
-     5b0:	50 91 53 01 	lds	r21, 0x0153
+     5ac:	40 91 96 01 	lds	r20, 0x0196
+     5b0:	50 91 97 01 	lds	r21, 0x0197
      5b4:	42 95       	swap	r20
      5b6:	52 95       	swap	r21
      5b8:	50 7f       	andi	r21, 0xF0	; 240
@@ -1193,30 +1193,30 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			SPDR =
 			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-     64a:	c0 91 5a 01 	lds	r28, 0x015A
+     64a:	c0 91 9e 01 	lds	r28, 0x019E
 			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-     64e:	40 91 5a 01 	lds	r20, 0x015A
+     64e:	40 91 9e 01 	lds	r20, 0x019E
 			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-     652:	00 91 5a 01 	lds	r16, 0x015A
+     652:	00 91 9e 01 	lds	r16, 0x019E
 void update_spi(void) {
 	
 			SPI_PORT |= SPI_SW_LATCH;
 			
 			//SHIFT 5th BYTE
 			SPDR =
-     656:	80 91 5a 01 	lds	r24, 0x015A
+     656:	80 91 9e 01 	lds	r24, 0x019E
 			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
 			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
 			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
 			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
 			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-     65a:	a0 91 5a 01 	lds	r26, 0x015A
+     65a:	a0 91 9e 01 	lds	r26, 0x019E
 			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
-     65e:	60 91 5a 01 	lds	r22, 0x015A
+     65e:	60 91 9e 01 	lds	r22, 0x019E
 			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
-     662:	20 91 5a 01 	lds	r18, 0x015A
+     662:	20 91 9e 01 	lds	r18, 0x019E
 			ISW8_SW_ON << ISW8_LED;
-     666:	90 91 5f 01 	lds	r25, 0x015F
+     666:	90 91 a3 01 	lds	r25, 0x01A3
      66a:	97 95       	ror	r25
      66c:	99 27       	eor	r25, r25
      66e:	97 95       	ror	r25
@@ -1376,30 +1376,30 @@ void update_spi(void) {
 			//Now read SPDR for switch data shifted in from 74XX165 U14
 			spi_sw_current_state = SPDR;
      712:	8e b5       	in	r24, 0x2e	; 46
-     714:	80 93 5c 01 	sts	0x015C, r24
+     714:	80 93 a0 01 	sts	0x01A0, r24
 			
 			spi_sw_current_state ^= spi_sw_previous_state;
-     718:	80 91 5c 01 	lds	r24, 0x015C
-     71c:	90 91 5b 01 	lds	r25, 0x015B
+     718:	80 91 a0 01 	lds	r24, 0x01A0
+     71c:	90 91 9f 01 	lds	r25, 0x019F
      720:	89 27       	eor	r24, r25
-     722:	80 93 5c 01 	sts	0x015C, r24
+     722:	80 93 a0 01 	sts	0x01A0, r24
 			spi_sw_previous_state ^= spi_sw_current_state;
-     726:	80 91 5b 01 	lds	r24, 0x015B
-     72a:	90 91 5c 01 	lds	r25, 0x015C
+     726:	80 91 9f 01 	lds	r24, 0x019F
+     72a:	90 91 a0 01 	lds	r25, 0x01A0
      72e:	89 27       	eor	r24, r25
-     730:	80 93 5b 01 	sts	0x015B, r24
+     730:	80 93 9f 01 	sts	0x019F, r24
 			spi_sw_current_state &= spi_sw_previous_state;
-     734:	80 91 5c 01 	lds	r24, 0x015C
-     738:	90 91 5b 01 	lds	r25, 0x015B
+     734:	80 91 a0 01 	lds	r24, 0x01A0
+     738:	90 91 9f 01 	lds	r25, 0x019F
      73c:	89 23       	and	r24, r25
-     73e:	80 93 5c 01 	sts	0x015C, r24
+     73e:	80 93 a0 01 	sts	0x01A0, r24
 			
 			//toggle switch state		
 			sw_latch_five ^= spi_sw_current_state; //Omar's solution. Replaces above 7 lines of if/then statements. Duh!
-     742:	80 91 5a 01 	lds	r24, 0x015A
-     746:	90 91 5c 01 	lds	r25, 0x015C
+     742:	80 91 9e 01 	lds	r24, 0x019E
+     746:	90 91 a0 01 	lds	r25, 0x01A0
      74a:	89 27       	eor	r24, r25
-     74c:	80 93 5a 01 	sts	0x015A, r24
+     74c:	80 93 9e 01 	sts	0x019E, r24
 			
 			//SHIFT 4th BYTE
 			SPDR = 0; //no LEDs connected in current test set up
@@ -1411,24 +1411,24 @@ void update_spi(void) {
 			//Now read SPDR for switch data shifted in from 74XX165 (U9)
 			sw_latch_four = SPDR;
      758:	8e b5       	in	r24, 0x2e	; 46
-     75a:	80 93 59 01 	sts	0x0159, r24
+     75a:	80 93 9d 01 	sts	0x019D, r24
 			//toggling not implemented here yet.
 			ISW12_SW_ON = (sw_latch_four >> ISW12_SW) & 1;
-     75e:	80 91 59 01 	lds	r24, 0x0159
+     75e:	80 91 9d 01 	lds	r24, 0x019D
      762:	82 95       	swap	r24
      764:	86 95       	lsr	r24
      766:	87 70       	andi	r24, 0x07	; 7
      768:	81 70       	andi	r24, 0x01	; 1
-     76a:	80 93 62 01 	sts	0x0162, r24
+     76a:	80 93 a6 01 	sts	0x01A6, r24
 			//check if ISW13_SW bit is set
 			ISW13_SW_ON = (sw_latch_four >> ISW13_SW) & 1;
-     76e:	80 91 59 01 	lds	r24, 0x0159
+     76e:	80 91 9d 01 	lds	r24, 0x019D
      772:	82 95       	swap	r24
      774:	86 95       	lsr	r24
      776:	86 95       	lsr	r24
      778:	83 70       	andi	r24, 0x03	; 3
      77a:	81 70       	andi	r24, 0x01	; 1
-     77c:	80 93 61 01 	sts	0x0161, r24
+     77c:	80 93 a5 01 	sts	0x01A5, r24
 
 			
 			//SHIFT 3th BYTE
@@ -1450,9 +1450,9 @@ void update_spi(void) {
 			//SHIFT 1st BYTE
 			
 			SPDR = (ISW12_SW_ON << ISW12_LED) | (ISW11_SW_ON << ISW11_LED) | (ISW9_SW_ON << ISW9_LED); 
-     790:	20 91 62 01 	lds	r18, 0x0162
-     794:	80 91 63 01 	lds	r24, 0x0163
-     798:	90 91 64 01 	lds	r25, 0x0164
+     790:	20 91 a6 01 	lds	r18, 0x01A6
+     794:	80 91 a7 01 	lds	r24, 0x01A7
+     798:	90 91 a8 01 	lds	r25, 0x01A8
      79c:	22 0f       	add	r18, r18
      79e:	22 0f       	add	r18, r18
      7a0:	87 95       	ror	r24
@@ -1489,57 +1489,57 @@ void update_spi(void) {
 			//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
 			current_sw_state = SWITCH_PORT;
      7c4:	8f b1       	in	r24, 0x0f	; 15
-     7c6:	80 93 5d 01 	sts	0x015D, r24
+     7c6:	80 93 a1 01 	sts	0x01A1, r24
 			current_sw_state ^= previous_sw_state;
-     7ca:	80 91 5d 01 	lds	r24, 0x015D
-     7ce:	90 91 5e 01 	lds	r25, 0x015E
+     7ca:	80 91 a1 01 	lds	r24, 0x01A1
+     7ce:	90 91 a2 01 	lds	r25, 0x01A2
      7d2:	89 27       	eor	r24, r25
-     7d4:	80 93 5d 01 	sts	0x015D, r24
+     7d4:	80 93 a1 01 	sts	0x01A1, r24
 			previous_sw_state ^= current_sw_state;
-     7d8:	80 91 5e 01 	lds	r24, 0x015E
-     7dc:	90 91 5d 01 	lds	r25, 0x015D
+     7d8:	80 91 a2 01 	lds	r24, 0x01A2
+     7dc:	90 91 a1 01 	lds	r25, 0x01A1
      7e0:	89 27       	eor	r24, r25
-     7e2:	80 93 5e 01 	sts	0x015E, r24
+     7e2:	80 93 a2 01 	sts	0x01A2, r24
 			current_sw_state &= previous_sw_state;
-     7e6:	80 91 5d 01 	lds	r24, 0x015D
-     7ea:	90 91 5e 01 	lds	r25, 0x015E
+     7e6:	80 91 a1 01 	lds	r24, 0x01A1
+     7ea:	90 91 a2 01 	lds	r25, 0x01A2
      7ee:	89 23       	and	r24, r25
-     7f0:	80 93 5d 01 	sts	0x015D, r24
+     7f0:	80 93 a1 01 	sts	0x01A1, r24
 			
 			if (current_sw_state & (1<<ISW8_SW))
-     7f4:	80 91 5d 01 	lds	r24, 0x015D
+     7f4:	80 91 a1 01 	lds	r24, 0x01A1
      7f8:	82 ff       	sbrs	r24, 2
      7fa:	06 c0       	rjmp	.+12     	; 0x808 <update_spi+0x1c8>
 			{
 				ISW8_SW_ON ^= 1 << 0; //toggle switch state
-     7fc:	90 91 5f 01 	lds	r25, 0x015F
+     7fc:	90 91 a3 01 	lds	r25, 0x01A3
      800:	81 e0       	ldi	r24, 0x01	; 1
      802:	89 27       	eor	r24, r25
-     804:	80 93 5f 01 	sts	0x015F, r24
+     804:	80 93 a3 01 	sts	0x01A3, r24
 			}
 			
 			if (current_sw_state & (1<<ISW11_SW)) {
-     808:	80 91 5d 01 	lds	r24, 0x015D
+     808:	80 91 a1 01 	lds	r24, 0x01A1
      80c:	84 ff       	sbrs	r24, 4
      80e:	06 c0       	rjmp	.+12     	; 0x81c <update_spi+0x1dc>
 				
 				ISW11_SW_ON ^= 1 << 0; //toggle switch state
-     810:	90 91 63 01 	lds	r25, 0x0163
+     810:	90 91 a7 01 	lds	r25, 0x01A7
      814:	81 e0       	ldi	r24, 0x01	; 1
      816:	89 27       	eor	r24, r25
-     818:	80 93 63 01 	sts	0x0163, r24
+     818:	80 93 a7 01 	sts	0x01A7, r24
 			}
 			
 			if (current_sw_state & (1<<ISW9_SW)) {
-     81c:	80 91 5d 01 	lds	r24, 0x015D
+     81c:	80 91 a1 01 	lds	r24, 0x01A1
      820:	83 ff       	sbrs	r24, 3
      822:	06 c0       	rjmp	.+12     	; 0x830 <update_spi+0x1f0>
 				
 				ISW9_SW_ON ^= 1 << 0; //toggle switch state
-     824:	90 91 64 01 	lds	r25, 0x0164
+     824:	90 91 a8 01 	lds	r25, 0x01A8
      828:	81 e0       	ldi	r24, 0x01	; 1
      82a:	89 27       	eor	r24, r25
-     82c:	80 93 64 01 	sts	0x0164, r24
+     82c:	80 93 a8 01 	sts	0x01A8, r24
 			}
 			
 			//update analog switch latch:
@@ -1553,28 +1553,28 @@ void update_spi(void) {
 			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
 			DATA_BUS =
 			((sw_latch_five >> ISW4_SW) & 1) << 3 |
-     83a:	40 91 5a 01 	lds	r20, 0x015A
+     83a:	40 91 9e 01 	lds	r20, 0x019E
 			
 			//update analog switch latch:
 			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 			//enable output on VCO analog switch latch:
 			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
 			DATA_BUS =
-     83e:	30 91 5a 01 	lds	r19, 0x015A
+     83e:	30 91 9e 01 	lds	r19, 0x019E
 			((sw_latch_five >> ISW4_SW) & 1) << 3 |
 			((sw_latch_five >> ISW1_SW) & 1) << 0 |
 			((sw_latch_five >> ISW2_SW) & 1) << 2 |
-     842:	c0 91 5a 01 	lds	r28, 0x015A
+     842:	c0 91 9e 01 	lds	r28, 0x019E
 			((sw_latch_five >> ISW3_SW) & 1) << 1 |
-     846:	00 91 5a 01 	lds	r16, 0x015A
+     846:	00 91 9e 01 	lds	r16, 0x019E
 			((sw_latch_five >> ISW5_SW) & 1) << 6 |
-     84a:	60 91 5a 01 	lds	r22, 0x015A
+     84a:	60 91 9e 01 	lds	r22, 0x019E
 			((sw_latch_five >> ISW6_SW) & 1) << 7 |
-     84e:	a0 91 5a 01 	lds	r26, 0x015A
+     84e:	a0 91 9e 01 	lds	r26, 0x019E
 			((sw_latch_five >> ISW7_SW) & 1) << 5 |
-     852:	20 91 5a 01 	lds	r18, 0x015A
+     852:	20 91 9e 01 	lds	r18, 0x019E
 			ISW8_SW_ON << 4;
-     856:	80 91 5f 01 	lds	r24, 0x015F
+     856:	80 91 a3 01 	lds	r24, 0x01A3
      85a:	82 95       	swap	r24
      85c:	80 7f       	andi	r24, 0xF0	; 240
 			
@@ -1735,7 +1735,7 @@ void update_spi(void) {
 			//need to make sure this doesn't interfere with anything else on this port
 			EG2_POL_PORT ^= (-ISW9_SW_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
      8f8:	90 81       	ld	r25, Z
-     8fa:	80 91 64 01 	lds	r24, 0x0164
+     8fa:	80 91 a8 01 	lds	r24, 0x01A8
      8fe:	20 81       	ld	r18, Z
      900:	81 95       	neg	r24
      902:	82 27       	eor	r24, r18

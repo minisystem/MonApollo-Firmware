@@ -10,8 +10,17 @@
 #define DAC_MUX_EN2		PH2
 #define DAC_MUX_EN3		PH3
 
+struct control_voltage {
+	
+	uint8_t channel;
+	uint8_t mux_addr;
+	
+};
+
 void setup_dac(void);
 
 void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value);
+
+void set_control_voltage (struct control_voltage * cv);
 
 #endif
