@@ -7,7 +7,23 @@
 #include "dac.h"
 
 
+void set_control_voltage (struct control_voltage * cv, uint16_t value) {
+
+	DAC_BUS_LOW = value & 0b00000011111111; //mask top 6 MSBs to set low byte
 	
+	DAC_BUS_HIGH = value >> 8; //shift away bottom LSBs to set high byte
+	
+	DAC_CTRL &= ~(1<<DAC_WR); //write DATA
+	DAC_CTRL |= (1<<DAC_WR);	
+
+	DATA_BUS = cv->channel; //set channel for DG408 multiplexer output
+
+	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
+	DAC_MUX |= (1<<cv->mux_addr); //enable multiplexer
+	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more time efficiently
+	DAC_MUX &= ~(1<<cv->mux_addr); //disable multiplexer
+	
+}	
 
 	
 void setup_dac(void) //set up DAC

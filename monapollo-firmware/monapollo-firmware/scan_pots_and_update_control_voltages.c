@@ -16,6 +16,9 @@ volatile uint16_t adc_value = 0;
 volatile uint16_t tune_offset = 0; //fine tune offset to display
 
 
+struct control_voltage vco1_pitch_cv = {VCO1_PITCH, DAC_MUX_EN1};
+struct control_voltage vco2_pitch_cv = {VCO2_PITCH, DAC_MUX_EN1};	
+
 //First group of pots inputs 0-15 on U2 demulitplexer
 volatile uint8_t dac_pot_decoder_0 [16][2] = { //[DAC MUX CHANNEL][DAC MUX ADDRESS]
 
@@ -57,24 +60,24 @@ struct control_voltage vco2_pw_cv		={VCO2_PW,		DAC_MUX_EN1};
 
 struct control_voltage arp_rate_null	={0,0}; //null control voltage for arp rate pointer (only pot that does not does not have its value used to set a control voltage by the DAC)
 
-struct control_voltage *pot_decoder_0[3] = {
+struct control_voltage *pot_decoder_0[16] = {
 	
-{&vco2_mix_cv},
-{&vco1_mix_cv},
-{&pitch_eg2_cv},
-{&pitch_vco2_cv},
-{&pitch_lfo_cv},		
-{&pwm_lfo_cv},		
-{&pwm_eg2_cv},
-{&vco1_pw_cv},
-{&fine_cv},
-{&tune_cv},
-{&lfo_rate_cv},
-{&arp_rate_null},
-{&glide_cv},
-{&amp_lfo_cv},
-{&volume_cv},
-{&vco2_pw_cv}
+	&vco2_mix_cv,
+	&vco1_mix_cv,
+	&pitch_eg2_cv,
+	&pitch_vco2_cv,
+	&pitch_lfo_cv,
+	&pwm_lfo_cv,
+	&pwm_eg2_cv,
+	&vco1_pw_cv,
+	&fine_cv,
+	&tune_cv,
+	&lfo_rate_cv,
+	&arp_rate_null,
+	&glide_cv,
+	&amp_lfo_cv,
+	&volume_cv,
+	&vco2_pw_cv
 		
 };
 
@@ -114,7 +117,24 @@ struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
 struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
 struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};						 							 			
 	
-
+struct control_voltage *pot_decoder_1[15] = {
+	
+	&fil_eg2_cv,
+	&res_cv,
+	&cutoff_cv,
+	&key_track_cv,
+	&fil_vco2_cv,
+	&fil_lfo_cv,
+	&noise_mix_cv,
+	&attack_2_cv,
+	&attack_1_cv,
+	&decay_2_cv,
+	&decay_1_cv,
+	&sustain_2_cv,
+	&sustain_1_cv,
+	&release_2_cv,
+	&release_1_cv
+	}; 
 void scan_pots_and_update_control_voltages(void) {
 
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
@@ -128,10 +148,12 @@ void scan_pots_and_update_control_voltages(void) {
 			uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
 			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
 			if (adc_value >= 512) {
-				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
+				//set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value + (adc_value - 512)));
+				set_control_voltage(pot_decoder_0[i],(tune_value + (adc_value - 512)));
 				tune_offset = adc_value - 512;
 			} else {
-				set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value)));
+				//set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0],(tune_value - (512- adc_value)));
+				set_control_voltage(pot_decoder_0[i],(tune_value - (512- adc_value)));
 				tune_offset = adc_value;
 			}
 
@@ -140,7 +162,8 @@ void scan_pots_and_update_control_voltages(void) {
 			//store ARP pot value, but don't set DAC
 			
 		} else {
-			set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+			//set_dac(dac_pot_decoder_0[i][1],dac_pot_decoder_0[i][0], adc_value << 4);
+			set_control_voltage(pot_decoder_0[i], adc_value << 4);
 		}
 		
 	}
@@ -161,12 +184,16 @@ void scan_pots_and_update_control_voltages(void) {
 		
 		adc_value = read_pot(POTMUX_EN1, i+1);
 		
-		set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
+		//set_dac(dac_pot_decoder_1[i][1],dac_pot_decoder_1[i][0], adc_value << 4);
+		set_control_voltage(pot_decoder_1[i], adc_value <<4);
 
 	}
 	
-	set_dac(DAC_MUX_EN1, VCO1_PITCH, 0); //OSCA PITCH CV
-	set_dac(DAC_MUX_EN1, VCO2_PITCH, 0); //OSCB PITCH CV
+	//set_dac(DAC_MUX_EN1, VCO1_PITCH, 0); //OSCA PITCH CV
+	//set_dac(DAC_MUX_EN1, VCO2_PITCH, 0); //OSCB PITCH CV
+
+	set_control_voltage(&vco1_pitch_cv, 0);
+	set_control_voltage(&vco2_pitch_cv, 0);
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	

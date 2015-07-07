@@ -13,7 +13,8 @@
 #define VCO1_PW			6 //U2 pot demultiplexer bit 7
 #define FINE			5 //U2 pot demultiplexer bit 8
 #define TUNE			4 //U2 pot demultiplexer bit 9
-#define LFO_RATE		1 //U2 pot demultiplexer bit 10 //bit 11 is ARP_RATE, which is not used to set a DAC
+#define LFO_RATE		1 //U2 pot demultiplexer bit 10
+//bit 11 is ARP_RATE, which is not used to set a DAC
 #define GLIDE			3 //U2 pot demultiplexer bit 12
 #define AMP_LFO			5 //U2 pot demultiplexer bit 13
 #define VOLUME			4 //U2 pot demultiplexer bit 14

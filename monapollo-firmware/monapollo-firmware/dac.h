@@ -21,6 +21,6 @@ void setup_dac(void);
 
 void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value);
 
-void set_control_voltage (struct control_voltage * cv);
+void set_control_voltage (struct control_voltage * cv, uint16_t value);
 
 #endif
