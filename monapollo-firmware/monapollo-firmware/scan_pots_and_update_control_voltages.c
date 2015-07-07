@@ -7,7 +7,7 @@
 #include "dac.h"
 #include "adc.h"
 #include "hardware.h"
-#include "pot_to_dac_map.h"
+//#include "pot_to_dac_map.h"
 
 //I don't think any of these need to be volatile any more
 
@@ -16,26 +16,9 @@ volatile uint16_t adc_value = 0;
 volatile uint16_t tune_offset = 0; //fine tune offset to display
 
 
-struct control_voltage vco1_pitch_cv = {VCO1_PITCH, DAC_MUX_EN1};
-struct control_voltage vco2_pitch_cv = {VCO2_PITCH, DAC_MUX_EN1};	
 
-struct control_voltage vco2_mix_cv		={VCO2_MIX,		DAC_MUX_EN1};
-struct control_voltage vco1_mix_cv		={VCO1_MIX,		DAC_MUX_EN1};
-struct control_voltage pitch_eg2_cv		={PITCH_EG2,	DAC_MUX_EN1};	
-struct control_voltage pitch_vco2_cv	={PITCH_VCO2,	DAC_MUX_EN0};	
-struct control_voltage pitch_lfo_cv		={PITCH_LFO,	DAC_MUX_EN0};
-struct control_voltage pwm_lfo_cv		={PWM_LFO,		DAC_MUX_EN0};
-struct control_voltage pwm_eg2_cv		={PWM_EG2,		DAC_MUX_EN0};	
-struct control_voltage vco1_pw_cv		={VCO1_PW,		DAC_MUX_EN0};
-struct control_voltage fine_cv			={FINE,			DAC_MUX_EN1};
-struct control_voltage tune_cv			={TUNE,			DAC_MUX_EN0};
-struct control_voltage lfo_rate_cv		={LFO_RATE,		DAC_MUX_EN0};
-struct control_voltage glide_cv			={GLIDE,		DAC_MUX_EN1};		
-struct control_voltage amp_lfo_cv		={AMP_LFO,		DAC_MUX_EN2};
-struct control_voltage volume_cv		={VOLUME,		DAC_MUX_EN2};
-struct control_voltage vco2_pw_cv		={VCO2_PW,		DAC_MUX_EN1};
 
-struct control_voltage arp_rate_null	={0,0}; //null control voltage for arp rate pointer (only pot that does not does not have its value used to set a control voltage by the DAC)
+
 
 //First group of pots inputs 0-15 on U2 demulitplexer
 //This is an array of pointers to control_voltage structs
@@ -61,21 +44,7 @@ struct control_voltage *pot_decoder_0[16] = {
 };
 
 
-struct control_voltage fil_eg2_cv		={FIL_EG2,		DAC_MUX_EN2};
-struct control_voltage res_cv			={RES,			DAC_MUX_EN2};
-struct control_voltage cutoff_cv		={CUTOFF,		DAC_MUX_EN2};
-struct control_voltage key_track_cv		={KEY_TRACK,	DAC_MUX_EN2};
-struct control_voltage fil_vco2_cv		={FIL_VCO2,		DAC_MUX_EN2};
-struct control_voltage fil_lfo_cv		={FIL_LFO,		DAC_MUX_EN2};
-struct control_voltage noise_mix_cv		={NOISE_MIX,	DAC_MUX_EN0};
-struct control_voltage attack_2_cv		={ATTACK_2,		DAC_MUX_EN3};
-struct control_voltage attack_1_cv		={ATTACK_1,		DAC_MUX_EN3};
-struct control_voltage decay_2_cv		={DECAY_2,		DAC_MUX_EN3};
-struct control_voltage decay_1_cv		={DECAY_1,		DAC_MUX_EN3};
-struct control_voltage sustain_2_cv		={SUSTAIN_2,	DAC_MUX_EN3};
-struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
-struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
-struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};						 							 			
+						 							 			
 
 //Second group of pot inputs 1-15 (input 0 is grounded) on U4 demultiplexer
 //This is an array of pointers to control_voltage structs	

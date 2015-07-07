@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   5 .debug_aranges 00000200  00000000  00000000  00002068  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00003093  00000000  00000000  00002268  2**0
+  6 .debug_info   00003244  00000000  00000000  00002268  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000ca2  00000000  00000000  000052fb  2**0
+  7 .debug_abbrev 00000c9e  00000000  00000000  000054ac  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000013a7  00000000  00000000  00005f9d  2**0
+  8 .debug_line   000013a7  00000000  00000000  0000614a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000008e4  00000000  00000000  00007344  2**2
+  9 .debug_frame  000008e4  00000000  00000000  000074f4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000f82  00000000  00000000  00007c28  2**0
+ 10 .debug_str    00000f82  00000000  00000000  00007dd8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001cd8  00000000  00000000  00008baa  2**0
+ 11 .debug_loc    00001cd8  00000000  00000000  00008d5a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000078  00000000  00000000  0000a882  2**0
+ 12 .debug_ranges 00000078  00000000  00000000  0000aa32  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -199,10 +199,10 @@ uint16_t read_pot(uint8_t mux_select, uint8_t channel) {
      11e:	08 95       	ret
 
 00000120 <set_control_voltage>:
-
-#include "hardware.h"
-#include "dac.h"
-
+struct control_voltage sustain_2_cv		={SUSTAIN_2,	DAC_MUX_EN3};
+struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
+struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
+struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};		
 
 void set_control_voltage (struct control_voltage * cv, uint16_t value) {
      120:	dc 01       	movw	r26, r24
@@ -387,7 +387,7 @@ void display_dec(uint16_t number, uint8_t digit)
 	uint8_t dec[] = {
      200:	de 01       	movw	r26, r28
      202:	11 96       	adiw	r26, 0x01	; 1
-     204:	e0 e0       	ldi	r30, 0x00	; 0
+     204:	ee e3       	ldi	r30, 0x3E	; 62
      206:	f1 e0       	ldi	r31, 0x01	; 1
      208:	3a e0       	ldi	r19, 0x0A	; 10
      20a:	01 90       	ld	r0, Z+
@@ -537,8 +537,8 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 	
 	value_to_display = note;
      2ce:	50 e0       	ldi	r21, 0x00	; 0
-     2d0:	50 93 0f 01 	sts	0x010F, r21
-     2d4:	40 93 0e 01 	sts	0x010E, r20
+     2d0:	50 93 4d 01 	sts	0x014D, r21
+     2d4:	40 93 4c 01 	sts	0x014C, r20
 	
 	if (velocity == 0) {
      2d8:	22 23       	and	r18, r18
@@ -668,10 +668,10 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
      384:	ff 93       	push	r31
 	
 	display_dec(value_to_display, digit[place]);
-     386:	80 91 0e 01 	lds	r24, 0x010E
-     38a:	90 91 0f 01 	lds	r25, 0x010F
-     38e:	20 91 8c 01 	lds	r18, 0x018C
-     392:	ea e0       	ldi	r30, 0x0A	; 10
+     386:	80 91 4c 01 	lds	r24, 0x014C
+     38a:	90 91 4d 01 	lds	r25, 0x014D
+     38e:	20 91 90 01 	lds	r18, 0x0190
+     392:	e8 e4       	ldi	r30, 0x48	; 72
      394:	f1 e0       	ldi	r31, 0x01	; 1
      396:	e2 0f       	add	r30, r18
      398:	f1 1d       	adc	r31, r1
@@ -684,15 +684,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 	//do SPI read/write every 5 interrupts (16.5 ms)
 	if (switch_timer++ == 5)
-     3a4:	80 91 8d 01 	lds	r24, 0x018D
+     3a4:	80 91 91 01 	lds	r24, 0x0191
      3a8:	98 2f       	mov	r25, r24
      3aa:	9f 5f       	subi	r25, 0xFF	; 255
-     3ac:	90 93 8d 01 	sts	0x018D, r25
+     3ac:	90 93 91 01 	sts	0x0191, r25
      3b0:	85 30       	cpi	r24, 0x05	; 5
      3b2:	21 f4       	brne	.+8      	; 0x3bc <__vector_5+0x58>
 	{
 		switch_timer = 0;
-     3b4:	10 92 8d 01 	sts	0x018D, r1
+     3b4:	10 92 91 01 	sts	0x0191, r1
 		update_spi();	
      3b8:	0e 94 31 03 	call	0x662	; 0x662 <update_spi>
 			  	
@@ -700,15 +700,15 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 		
 	//increment digit display place
 	if (place++ == 3) //post increment
-     3bc:	80 91 8c 01 	lds	r24, 0x018C
+     3bc:	80 91 90 01 	lds	r24, 0x0190
      3c0:	98 2f       	mov	r25, r24
      3c2:	9f 5f       	subi	r25, 0xFF	; 255
-     3c4:	90 93 8c 01 	sts	0x018C, r25
+     3c4:	90 93 90 01 	sts	0x0190, r25
      3c8:	83 30       	cpi	r24, 0x03	; 3
      3ca:	11 f4       	brne	.+4      	; 0x3d0 <__vector_5+0x6c>
 	{
 		place = 0;
-     3cc:	10 92 8c 01 	sts	0x018C, r1
+     3cc:	10 92 90 01 	sts	0x0190, r1
 	}
 	
 
@@ -911,7 +911,7 @@ void scan_pots_and_update_control_voltages(void) {
 
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
 	for (int i = 0; i <=15; i++)
-     4c0:	0c e4       	ldi	r16, 0x4C	; 76
+     4c0:	0c e6       	ldi	r16, 0x6C	; 108
      4c2:	11 e0       	ldi	r17, 0x01	; 1
 	&sustain_2_cv,
 	&sustain_1_cv,
@@ -1071,7 +1071,7 @@ void scan_pots_and_update_control_voltages(void) {
      5b0:	f1 04       	cpc	r15, r1
      5b2:	0c f4       	brge	.+2      	; 0x5b6 <scan_pots_and_update_control_voltages+0x10a>
      5b4:	99 cf       	rjmp	.-206    	; 0x4e8 <scan_pots_and_update_control_voltages+0x3c>
-     5b6:	00 e1       	ldi	r16, 0x10	; 16
+     5b6:	0e e4       	ldi	r16, 0x4E	; 78
      5b8:	11 e0       	ldi	r17, 0x01	; 1
      5ba:	c1 e0       	ldi	r28, 0x01	; 1
 	
@@ -1114,13 +1114,13 @@ void scan_pots_and_update_control_voltages(void) {
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, 0);
-     5f2:	8a e8       	ldi	r24, 0x8A	; 138
+     5f2:	8c e3       	ldi	r24, 0x3C	; 60
      5f4:	91 e0       	ldi	r25, 0x01	; 1
      5f6:	60 e0       	ldi	r22, 0x00	; 0
      5f8:	70 e0       	ldi	r23, 0x00	; 0
      5fa:	0e 94 90 00 	call	0x120	; 0x120 <set_control_voltage>
 	set_control_voltage(&vco2_pitch_cv, 0);
-     5fe:	88 e8       	ldi	r24, 0x88	; 136
+     5fe:	8a e3       	ldi	r24, 0x3A	; 58
      600:	91 e0       	ldi	r25, 0x01	; 1
      602:	60 e0       	ldi	r22, 0x00	; 0
      604:	70 e0       	ldi	r23, 0x00	; 0
