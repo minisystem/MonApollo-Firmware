@@ -38,6 +38,7 @@ struct control_voltage vco2_pw_cv		={VCO2_PW,		DAC_MUX_EN1};
 struct control_voltage arp_rate_null	={0,0}; //null control voltage for arp rate pointer (only pot that does not does not have its value used to set a control voltage by the DAC)
 
 //First group of pots inputs 0-15 on U2 demulitplexer
+//This is an array of pointers to control_voltage structs
 struct control_voltage *pot_decoder_0[16] = {
 	
 	&vco2_mix_cv,
@@ -76,7 +77,8 @@ struct control_voltage sustain_1_cv		={SUSTAIN_1,	DAC_MUX_EN3};
 struct control_voltage release_2_cv		={RELEASE_2,	DAC_MUX_EN3};
 struct control_voltage release_1_cv		={RELEASE_1,	DAC_MUX_EN3};						 							 			
 
-//Second group of pot inputs 1-15 (input 0 is grounded) on U4 demultiplexer	
+//Second group of pot inputs 1-15 (input 0 is grounded) on U4 demultiplexer
+//This is an array of pointers to control_voltage structs	
 struct control_voltage *pot_decoder_1[15] = {
 	
 	&fil_eg2_cv,
@@ -133,7 +135,9 @@ void scan_pots_and_update_control_voltages(void) {
 		set_control_voltage(pot_decoder_1[i], adc_value <<4);
 
 	}
-
+	
+	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
+	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, 0);
 	set_control_voltage(&vco2_pitch_cv, 0);
 	
