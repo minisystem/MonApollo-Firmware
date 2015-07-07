@@ -19,7 +19,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 00000ca2  00000000  00000000  000052fb  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000013a5  00000000  00000000  00005f9d  2**0
+  8 .debug_line   000013a7  00000000  00000000  00005f9d  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  000008e4  00000000  00000000  00007344  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -1108,11 +1108,11 @@ void scan_pots_and_update_control_voltages(void) {
 	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
      5ee:	c0 31       	cpi	r28, 0x10	; 16
      5f0:	29 f7       	brne	.-54     	; 0x5bc <scan_pots_and_update_control_voltages+0x110>
-		adc_value = read_pot(POTMUX_EN1, i+1);
-		set_control_voltage(pot_decoder_1[i], adc_value <<4);
 
 	}
-
+	
+	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
+	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, 0);
      5f2:	8a e8       	ldi	r24, 0x8A	; 138
      5f4:	91 e0       	ldi	r25, 0x01	; 1
