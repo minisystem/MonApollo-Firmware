@@ -88,6 +88,9 @@
     <Compile Include="spi.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="tune.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="xnormidi-develop\bytequeue\bytequeue.c">
       <SubType>compile</SubType>
     </Compile>

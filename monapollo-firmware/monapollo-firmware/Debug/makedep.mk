@@ -16,6 +16,8 @@ scan_pots_and_update_control_voltages.c
 
 spi.c
 
+tune.c
+
 xnormidi-develop\bytequeue\bytequeue.c
 
 xnormidi-develop\bytequeue\interrupt_setting.c

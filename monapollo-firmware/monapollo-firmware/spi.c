@@ -88,7 +88,7 @@ void update_spi(void) {
 			spi_sw_current_state &= spi_sw_previous_state;
 			
 			//toggle switch state		
-			sw_latch_five ^= spi_sw_current_state; //Omar's solution. Replaces above 7 lines of if/then statements. Duh!
+			sw_latch_five ^= spi_sw_current_state; //Omar's solution.
 			
 			//SHIFT 4th BYTE
 			SPDR = 0; //no LEDs connected in current test set up
@@ -151,16 +151,16 @@ void update_spi(void) {
 			//enable output on VCO analog switch latch:
 			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
 			DATA_BUS =
-			((sw_latch_five >> ISW4_SW) & 1) << 3 |
-			((sw_latch_five >> ISW1_SW) & 1) << 0 |
-			((sw_latch_five >> ISW2_SW) & 1) << 2 |
-			((sw_latch_five >> ISW3_SW) & 1) << 1 |
-			((sw_latch_five >> ISW5_SW) & 1) << 6 |
-			((sw_latch_five >> ISW6_SW) & 1) << 7 |
-			((sw_latch_five >> ISW7_SW) & 1) << 5 |
-			ISW8_SW_ON << 4;
+			((sw_latch_five >> ISW4_SW) & 1) << SYNC |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW |
+			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI |
+			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE |
+			ISW8_SW_ON << BMOD;
 			VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
-			_delay_us(1);
+			_delay_us(1); //why is this delay here????
 			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 			DATA_BUS = 0;
 			

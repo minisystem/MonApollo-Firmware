@@ -15,6 +15,8 @@
 #define ISW6_SW				5 //VCO2 TRI U14
 #define ISW7_SW				6 //VCO2 PULSE U14
 
+
+
 //define direct MCU input switch bits
 #define ISW8_SW				PF2
 #define ISW9_SW				PF3
