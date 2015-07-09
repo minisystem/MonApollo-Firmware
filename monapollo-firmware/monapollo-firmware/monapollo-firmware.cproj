@@ -76,6 +76,9 @@
     <Compile Include="display.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="interrupts.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="midi.c">
       <SubType>compile</SubType>
     </Compile>

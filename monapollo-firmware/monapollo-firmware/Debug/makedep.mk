@@ -8,6 +8,8 @@ dac.c
 
 display.c
 
+interrupts.c
+
 midi.c
 
 monapollo-firmware.c

@@ -19,8 +19,14 @@
 #define VCO1		0
 #define VCO2		1
 
-uint16_t set_vco_init_cv(uint8_t vco); //returns 14 bit OSC_INIT_CV
 
+
+extern volatile uint8_t period_counter;
+extern volatile uint8_t no_overflow;
+extern volatile uint8_t count_finished;
+extern volatile uint16_t osc_count;
+
+uint16_t set_vco_init_cv(uint8_t vco); //returns 14 bit OSC_INIT_CV
 
 
 

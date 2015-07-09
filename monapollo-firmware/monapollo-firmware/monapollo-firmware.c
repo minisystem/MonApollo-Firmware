@@ -33,6 +33,9 @@ volatile uint8_t switch_timer = 0;
 
 volatile uint8_t place = 0; //digit place for LED display
 
+volatile uint16_t vco1_init_cv = 0;
+volatile uint16_t vco2_init_cv = 0;
+
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
 	value_to_display = note;
@@ -103,13 +106,13 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
 }	
 
-ISR (TIMER0_COMP_vect) {
-	
-	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
-	TCNT0 = 0; //reset timer
-	//value_to_display = TCNT0;
-	
-}
+//ISR (TIMER0_COMP_vect) {
+	//
+	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
+	//TCNT0 = 0; //reset timer
+	////value_to_display = TCNT0;
+	//
+//}
 
 
 
@@ -159,15 +162,19 @@ int main(void)
 	//setup MIDI USART
 	setup_midi_usart();
 	
+	update_spi(); //initial update of SPI - will eventual be useful for picking up special power up switch holds
+	
+	////set initial pitch offset CVs
+	//vco1_init_cv = set_vco_init_cv(VCO1);
+	//vco2_init_cv = set_vco_init_cv(VCO2);
+	value_to_display = vco1_init_cv;	
+	
 	//set up main timer interrupt
 	//this generates the main scanning interrupt
 	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
 	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms
 	
-	//set up timer/counter0 to be clocked by T0 input
-	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00); //clocked by external T0 pin, rising edge
-	OCR0A = 1; //output compare register - set to number of periods to be counted.
-	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+
 		
 	sei(); //enable global interrupts
 

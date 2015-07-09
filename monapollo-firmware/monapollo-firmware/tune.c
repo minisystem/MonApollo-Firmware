@@ -3,10 +3,14 @@
 #include "dac.h"
 #include "hardware.h"
 
+volatile uint8_t period_counter = 0;
+volatile uint8_t no_overflow = TRUE;
+volatile uint8_t count_finished = FALSE;
+volatile uint16_t osc_count = 0;
 
 uint16_t set_vco_init_cv(uint8_t vco) {
 	
-	uint16_t init_cv;
+	uint16_t init_cv = 0;
 	
 	//disable main scanning interrupt
 	
@@ -43,7 +47,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	
 	
 	uint8_t switch_byte = 0;
-
+	struct control_voltage *vco_pitch;
 	
 	if (vco == VCO1) { //turn on VCO1 pulse
 		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
@@ -52,7 +56,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		set_control_voltage(&vco2_mix_cv, MIN); //turn off VCO2 in mixer
 		//turn on VCO1 pulse, all others off
 		switch_byte |= (1<<VCO1_PULSE);
-		
+		vco_pitch = &vco1_pitch_cv;
 		
 	} else { //turn on VCO2 pulse
 		
@@ -61,7 +65,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		set_control_voltage(&vco1_mix_cv, MIN); //turn off VCO1 in mixer
 		//turn on VCO2 pulse, all others off
 		switch_byte |= (1<<VCO2_PULSE);
-			
+		vco_pitch = &vco2_pitch_cv;	
 		
 	}
 	
@@ -70,11 +74,36 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 	//_delay_us(1); //why is this delay here????
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	DATA_BUS = 0;	
+	DATA_BUS = 0;
+
+	//set up timer/counter0 to be clocked by T0 input
+	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00); //clocked by external T0 pin, rising edge
+	OCR0A = 1; //output compare register - set to number of periods to be counted.
 	
-	//set up 8 bit and 16 bit timers for tuning
+	PORTF |= (1<<GATE); //turn gate on
 	
+	for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
 	
+		init_cv |= dac_bit;
+		
+		set_control_voltage(&vco1_pitch_cv, init_cv);
+		
+		count_finished = FALSE;
+		period_counter = 0;
+		TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		
+		while (count_finished == FALSE) {
+			
+			set_control_voltage(&vco1_pitch_cv, init_cv);
+			
+		}
+		
+		if ((osc_count <= 38226)  && (no_overflow == TRUE)) init_cv &= ~(1 << dac_bit);
+		no_overflow = TRUE;
+		
+	}		
+		
+	PORTF &= ~(1<<GATE); //turn gate off
 	
 	return init_cv;
 	
