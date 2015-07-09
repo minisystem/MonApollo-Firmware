@@ -47,7 +47,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	
 	
 	uint8_t switch_byte = 0;
-	struct control_voltage *vco_pitch;
+	struct control_voltage *vco_init_cv;
 	
 	if (vco == VCO1) { //turn on VCO1 pulse
 		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
@@ -56,7 +56,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		set_control_voltage(&vco2_mix_cv, MIN); //turn off VCO2 in mixer
 		//turn on VCO1 pulse, all others off
 		switch_byte |= (1<<VCO1_PULSE);
-		vco_pitch = &vco1_pitch_cv;
+		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 		
 	} else { //turn on VCO2 pulse
 		
@@ -65,7 +65,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		set_control_voltage(&vco1_mix_cv, MIN); //turn off VCO1 in mixer
 		//turn on VCO2 pulse, all others off
 		switch_byte |= (1<<VCO2_PULSE);
-		vco_pitch = &vco2_pitch_cv;	
+		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 		
 	}
 	
@@ -82,28 +82,37 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	
 	PORTF |= (1<<GATE); //turn gate on
 	
-	for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
 	
-		init_cv |= dac_bit;
-		
-		set_control_voltage(&vco1_pitch_cv, init_cv);
-		
-		count_finished = FALSE;
-		period_counter = 0;
-		TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-		
-		while (count_finished == FALSE) {
-			
-			set_control_voltage(&vco1_pitch_cv, init_cv);
-			
-		}
-		
-		if ((osc_count <= 38226)  && (no_overflow == TRUE)) init_cv &= ~(1 << dac_bit);
-		no_overflow = TRUE;
-		
-	}		
+	
+	//for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
+	//
+		//init_cv |= dac_bit;
+		//
+		//set_control_voltage(&tune_cv, init_cv);
+		//
+		//count_finished = FALSE;
+		//period_counter = 0;
+		//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		//
+		//while (count_finished == FALSE) {
+			//
+			//set_control_voltage(&tune_cv, init_cv);
+			//
+		//}
+		//
+		//if ((osc_count <= 38226)  && (no_overflow == TRUE)) init_cv &= ~(1 << dac_bit);
+		//no_overflow = TRUE;
+		//
+	//}		
+	
+	//set_control_voltage(&tune_cv, 9500);	
+	TIMSK0 |= (1<<OCIE0A);	
+	
+	while (period_counter == 0) {}
 		
 	PORTF &= ~(1<<GATE); //turn gate off
+	
+	TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
 	
 	return init_cv;
 	

@@ -26,6 +26,7 @@
 
 MidiDevice midi_device;
 
+
 volatile uint16_t value_to_display = 79; //global to hold display value
 
 //counter for switch scanning
@@ -83,24 +84,24 @@ ISR (USART_RX_vect) { // USART receive interrupt
 
 ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	
-	display_dec(value_to_display, digit[place]);
-	
-	scan_pots_and_update_control_voltages();		
-
-		
-	//do SPI read/write every 5 interrupts (16.5 ms)
-	if (switch_timer++ == 5)
-	{
-		switch_timer = 0;
-		update_spi();	
-			  	
-	}
-		
-	//increment digit display place
-	if (place++ == 3) //post increment
-	{
-		place = 0;
-	}
+	//display_dec(value_to_display, digit[place]);
+	//
+	//scan_pots_and_update_control_voltages();		
+//
+		//
+	////do SPI read/write every 5 interrupts (16.5 ms)
+	//if (switch_timer++ == 5)
+	//{
+		//switch_timer = 0;
+		//update_spi();	
+			  	//
+	//}
+		//
+	////increment digit display place
+	//if (place++ == 3) //post increment
+	//{
+		//place = 0;
+	//}
 	
 
 	
@@ -110,10 +111,11 @@ ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
 	//
 	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
 	//TCNT0 = 0; //reset timer
-	////value_to_display = TCNT0;
+	//period_counter = 1;
+	//value_to_display = 4242;
 	//
 //}
-
+//
 
 
 
@@ -164,15 +166,27 @@ int main(void)
 	
 	update_spi(); //initial update of SPI - will eventual be useful for picking up special power up switch holds
 	
+	
+	//set up timer/counter0 to be clocked by T0 input
+	
+	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+	OCR0A = 0; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
+	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+	
+	//set up 16 bit timer
+	
+	TCCR1B |= (1<<CS11) | (1<<CS10); //clock /64 to run at 312.5 KHz
+	TIMSK1 |= (1<<TOIE1); //enable timer1 overflow interrupt		
+	
 	////set initial pitch offset CVs
 	//vco1_init_cv = set_vco_init_cv(VCO1);
 	//vco2_init_cv = set_vco_init_cv(VCO2);
-	value_to_display = vco1_init_cv;	
+	//value_to_display = vco1_init_cv;	
 	
-	//set up main timer interrupt
-	//this generates the main scanning interrupt
-	TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
-	TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms
+	////set up main timer interrupt
+	////this generates the main scanning interrupt
+	//TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
+	//TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms
 	
 
 		
@@ -183,5 +197,24 @@ int main(void)
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 		//PORTB |= (1<<ARP_SYNC_LED);
 		//value_to_display = TCNT0;
+		
+			display_dec(value_to_display, digit[place]);
+			
+			scan_pots_and_update_control_voltages();
+
+			
+			//do SPI read/write every 5 interrupts (16.5 ms)
+			if (switch_timer++ == 5)
+			{
+				switch_timer = 0;
+				update_spi();
+				
+			}
+			
+			//increment digit display place
+			if (place++ == 3) //post increment
+			{
+				place = 0;
+			}
 	}
 }
