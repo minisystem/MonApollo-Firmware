@@ -190,7 +190,7 @@ int main(void)
 	
 	////set initial pitch offset CVs
 	vco1_init_cv = set_vco_init_cv(VCO1);
-	//vco2_init_cv = set_vco_init_cv(VCO2);
+	vco2_init_cv = set_vco_init_cv(VCO2);
 	value_to_display = vco1_init_cv;	
 
 	while(1)

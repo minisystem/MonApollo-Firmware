@@ -48,27 +48,32 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	//turn off noise
 	set_control_voltage(&noise_mix_cv, MIN);
 	
-	
+	//these variables hold VCO specific parameters
 	uint8_t switch_byte = 0;
 	struct control_voltage *vco_init_cv;
+	struct control_voltage *vco_mix_cv;
+	struct control_voltage *vco_pw_cv;
+	struct control_voltage *vco_pitch_cv;
+	
+	
 	count_finished = FALSE;
 	if (vco == VCO1) { //turn on VCO1 pulse
 		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
-		set_control_voltage(&vco1_pw_cv, 0x3000); //set pulse width to about 75%
-		set_control_voltage(&vco1_mix_cv, MAX); //turn up VCO1 in mixer
-		set_control_voltage(&vco2_mix_cv, MIN); //turn off VCO2 in mixer
 		//turn on VCO1 pulse, all others off
 		switch_byte |= (1<<VCO1_PULSE);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
+		vco_mix_cv = &vco1_mix_cv;
+		vco_pw_cv = &vco1_pw_cv;
+		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
 		
 	} else { //turn on VCO2 pulse
 		
-		set_control_voltage(&vco2_pw_cv, 0x3000); //set pulse width to about 75%
-		set_control_voltage(&vco2_mix_cv, MAX); //turn up VCO2 in mixer
-		set_control_voltage(&vco1_mix_cv, MIN); //turn off VCO1 in mixer
 		//turn on VCO2 pulse, all others off
 		switch_byte |= (1<<VCO2_PULSE);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
+		vco_mix_cv = &vco2_mix_cv;
+		vco_pw_cv = &vco2_pw_cv;
+		vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
 		
 	}
 	
@@ -79,7 +84,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
 	DATA_BUS = 0;
 
-
+	set_control_voltage(&noise_mix_cv, MIN); //turn noise off
 	
 	PORTF |= (1<<GATE); //turn gate on
 	
@@ -93,47 +98,35 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	
 		init_cv |= (1<<dac_bit);
 		
-		set_control_voltage(&tune_cv, init_cv);
+		set_control_voltage(vco_init_cv, init_cv);
 		
 		count_finished = FALSE;
 		period_counter = 0;
 		//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
 		
-		while (count_finished == FALSE) {
+		while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 			
-				set_control_voltage(&tune_cv, init_cv);
-				set_control_voltage(&vco1_pw_cv, MAX);
-				set_control_voltage(&volume_cv, 0);
+				set_control_voltage(vco_init_cv, init_cv);
+				set_control_voltage(vco_pw_cv, MAX);
+				set_control_voltage(&volume_cv, MIN);
 				set_control_voltage(&cutoff_cv, MAX);
 				set_control_voltage(&sustain_1_cv, MAX);
 				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-				set_control_voltage(&vco1_mix_cv, MAX);
-				set_control_voltage(&vco1_pitch_cv, 0);	
+				set_control_voltage(vco_mix_cv, MAX);
+				set_control_voltage(vco_pitch_cv, 0);	
 			
 		}
-		
+		//remember that as INIT_CV goes up, pitch goes down, so looking for osc_count >= reference_count instead of <= as is the case for normal oscillator tuning
+		//similarily, OR no_overflow == FALSE not AND no_overflow == FALSE to clear bits that make initial pitch too low
 		if ((osc_count >= 9552)  || (no_overflow == FALSE)) init_cv &= ~(1 << dac_bit);
 		no_overflow = TRUE;
 		
 	}		
 	
-	//set_control_voltage(&tune_cv, 9500);	
-	
-	
-	//while (count_finished == FALSE) {
-	//
-		//set_control_voltage(&tune_cv, init_cv);
-		//set_control_voltage(&vco1_pw_cv, MAX);
-		//set_control_voltage(&volume_cv, 0);
-		//set_control_voltage(&cutoff_cv, MAX);
-		//set_control_voltage(&sustain_1_cv, MAX);
-		//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-		//set_control_voltage(&vco1_mix_cv, MAX);
-		//set_control_voltage(&vco1_pitch_cv, 0);
-	//
-	//}
-	//
-	
+	//none of these help with clicking when returning from this function and starting to read pots	
+	set_control_voltage(&release_1_cv, MIN); //this will hopefully reduce popping after returning from initializing pitch CV
+	set_control_voltage(&release_2_cv, MIN);
+	set_control_voltage(&cutoff_cv, MIN);
 		
 	PORTF &= ~(1<<GATE); //turn gate off
 	
