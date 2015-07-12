@@ -7,6 +7,7 @@
 #include "dac.h"
 #include "adc.h"
 #include "hardware.h"
+#include "tune.h"
 //#include "pot_to_dac_map.h"
 
 //I don't think any of these need to be volatile any more
@@ -76,8 +77,8 @@ void scan_pots_and_update_control_voltages(void) {
 		
 		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
 		{
-			uint16_t tune_value = 6303;//9759; //init CV offset of about -5.8V
-			if (i == 9) tune_value += 1638; //add an octave (1V) to VCO2 pitch
+			uint16_t tune_value = vco1_init_cv;//6303;//9759; //init CV offset of about -5.8V
+			if (i == 9) tune_value -= 1638; //add an octave (1V) to VCO2 pitch
 			if (adc_value >= 512) {
 				set_control_voltage(pot_decoder_0[i],(tune_value + (adc_value - 512)));
 				tune_offset = adc_value - 512;

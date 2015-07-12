@@ -34,8 +34,7 @@ volatile uint8_t switch_timer = 0;
 
 volatile uint8_t place = 0; //digit place for LED display
 
-volatile uint16_t vco1_init_cv = 0;
-volatile uint16_t vco2_init_cv = 0;
+
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
@@ -169,19 +168,16 @@ int main(void)
 	
 	//set up timer/counter0 to be clocked by T0 input
 	
-	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
-	OCR0A = 0; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
-	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-	
+	//TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+	//OCR0A = 0; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
+	//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+	//
 	//set up 16 bit timer
 	
-	TCCR1B |= (1<<CS11) | (1<<CS10); //clock /64 to run at 312.5 KHz
-	TIMSK1 |= (1<<TOIE1); //enable timer1 overflow interrupt		
+	//TCCR1B |= (1<<CS11) | (1<<CS10); //clock /64 to run at 312.5 KHz
+	//TIMSK1 |= (1<<TOIE1); //enable timer1 overflow interrupt		
 	
-	////set initial pitch offset CVs
-	//vco1_init_cv = set_vco_init_cv(VCO1);
-	//vco2_init_cv = set_vco_init_cv(VCO2);
-	//value_to_display = vco1_init_cv;	
+
 	
 	////set up main timer interrupt
 	////this generates the main scanning interrupt
@@ -191,6 +187,11 @@ int main(void)
 
 		
 	sei(); //enable global interrupts
+	
+	////set initial pitch offset CVs
+	vco1_init_cv = set_vco_init_cv(VCO1);
+	//vco2_init_cv = set_vco_init_cv(VCO2);
+	value_to_display = vco1_init_cv;	
 
 	while(1)
 	{	
@@ -198,23 +199,23 @@ int main(void)
 		//PORTB |= (1<<ARP_SYNC_LED);
 		//value_to_display = TCNT0;
 		
-			display_dec(value_to_display, digit[place]);
+		display_dec(value_to_display, digit[place]);
 			
-			scan_pots_and_update_control_voltages();
+		scan_pots_and_update_control_voltages();
 
 			
-			//do SPI read/write every 5 interrupts (16.5 ms)
-			if (switch_timer++ == 5)
-			{
-				switch_timer = 0;
-				update_spi();
+		//do SPI read/write every 5 interrupts (16.5 ms)
+		if (switch_timer++ == 5)
+		{
+			switch_timer = 0;
+			update_spi();
 				
-			}
+		}
 			
-			//increment digit display place
-			if (place++ == 3) //post increment
-			{
-				place = 0;
-			}
+		//increment digit display place
+		if (place++ == 3) //post increment
+		{
+			place = 0;
+		}
 	}
 }
