@@ -39,7 +39,7 @@ volatile uint8_t place = 0; //digit place for LED display
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
 	value_to_display = note;
-	
+	midi_note_number = note;
 	if (velocity == 0) {
 		
 		PORTF &= ~(1<<GATE);
@@ -191,7 +191,18 @@ int main(void)
 	////set initial pitch offset CVs
 	vco1_init_cv = set_vco_init_cv(VCO1);
 	vco2_init_cv = set_vco_init_cv(VCO2);
-	value_to_display = vco1_init_cv;	
+	value_to_display = vco1_init_cv;
+	
+	tune_octave(1);
+	tune_octave(2);
+	tune_octave(3);
+	tune_octave(4);
+	tune_octave(5);
+	tune_octave(6);
+	tune_octave(7);
+	tune_octave(8);
+	//tune_octave(9);	
+	
 
 	while(1)
 	{	
