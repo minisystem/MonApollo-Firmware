@@ -190,7 +190,7 @@ int main(void)
 	
 	////set initial pitch offset CVs
 	vco1_init_cv = set_vco_init_cv(VCO1);
-	//vco2_init_cv = set_vco_init_cv(VCO2);
+	vco2_init_cv = set_vco_init_cv(VCO2);
 	value_to_display = vco1_init_cv;
 	
 	tune_octave(1);
@@ -200,16 +200,16 @@ int main(void)
 	tune_octave(5);
 	tune_octave(6);
 	tune_octave(7);
-	tune_octave(8);
+	//tune_octave(8);
 	//tune_octave(9);
 	//fill in remaining MIDI notes from 107 to 127
-	uint16_t delta_semitone = vco1_pitch_table[107] - vco1_pitch_table[106];
-	value_to_display = delta_semitone;
-	for (int i = 1; i <= 20; i++) {
-		
-		vco1_pitch_table[i+107]= vco1_pitch_table[107] + (delta_semitone*i);
-	
-	}		
+	//uint16_t delta_semitone = vco1_pitch_table[107] - vco1_pitch_table[106];
+	//value_to_display = delta_semitone;
+	//for (int i = 1; i <= 20; i++) {
+		//
+		//vco1_pitch_table[i+107]= vco1_pitch_table[107] + (delta_semitone*i);
+	//
+	//}		
 
 	while(1)
 	{	
