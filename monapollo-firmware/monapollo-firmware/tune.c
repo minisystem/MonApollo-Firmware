@@ -14,14 +14,15 @@ volatile uint16_t osc_count = 0;
 volatile uint16_t vco1_init_cv = 0;
 volatile uint16_t vco2_init_cv = 0;
 
-uint16_t vco1_pitch_table[128]= {0};
+uint16_t vco1_pitch_table[128] = {0};
+uint16_t vco2_pitch_table[128] = {0};
 	
 uint16_t set_vco_init_cv(uint8_t vco) {
 	
-	//display_dec(vco, 0);
-	//display_dec(vco, 1);
-	//display_dec(vco, 2);
-	//display_dec(vco, 3);
+	display_dec(vco, ONES);
+	//display_dec(vco, TENS);
+	//display_dec(vco, HUNDS);
+	//display_dec(vco, THOUS);
 	
 	
 	
@@ -77,7 +78,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		vco_mix_cv = &vco1_mix_cv;
 		vco_pw_cv = &vco1_pw_cv;
 		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
-		reference_count = 38222; //MIDI note C0
+		reference_count = 38222;//38222; //MIDI note C0
 		
 	} else { //turn on VCO2 pulse
 		
@@ -87,7 +88,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		vco_mix_cv = &vco2_mix_cv;
 		vco_pw_cv = &vco2_pw_cv;
 		vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
-		reference_count = 19111;
+		reference_count = 38222;
 	}
 	
 	//latch switch data
@@ -152,10 +153,10 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 
 void tune_octave(uint8_t octave) {
 	
-	//display_dec(octave, 0);
-	//display_dec(octave, 1);
-	//display_dec(octave, 2);
-	//display_dec(octave, 3);
+	display_dec(octave, ONES);
+	//display_dec(octave, TENS);
+	//display_dec(octave, HUNDS);
+	//display_dec(octave, THOUS);
 	
 	uint16_t pitch_reference[12] = { //holds the 2.5MHz counts for each note within an octave independent of octave # being tuned
 	    
@@ -174,7 +175,7 @@ void tune_octave(uint8_t octave) {
 	    
     };
 	
-	uint8_t period_table[9] = {1, 2, 4, 1, 2, 4, 8, 16, 32}; //the number of  periods that need to be counted for octaves 0-9
+	uint8_t period_table[10] = {1, 2, 4, 1, 2, 4, 8, 16, 32, 32}; //the number of  periods that need to be counted for octaves 0-9
 	//ocatves 0-2 use /64 0.312500 MHz timer/counter1 clock rate
 	//ocataves 3-8 use /8 2.5 MHz timer/counter1 clock rate
 	
@@ -254,9 +255,24 @@ void tune_octave(uint8_t octave) {
 			set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
 			count_finished = FALSE;
 			period_counter = 0;
+			
+			//if (octave >= 6) { //don't need to update control voltages in busy wait loop
+				//
+				//set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
+				//set_control_voltage(&tune_cv, vco1_init_cv);
+				//set_control_voltage(&vco1_pw_cv, MAX);
+				//set_control_voltage(&volume_cv, MIN);
+				//set_control_voltage(&cutoff_cv, MAX);
+				//set_control_voltage(&sustain_1_cv, MAX);
+				//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+				//set_control_voltage(&vco1_mix_cv, MAX);				
+				//
+				//while (count_finished == FALSE) {}
+				//
+			//} else { //need to update control voltages in busy wait loop
 
-			while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
-		
+				while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
+			
 				set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
 				set_control_voltage(&tune_cv, vco1_init_cv);
 				set_control_voltage(&vco1_pw_cv, MAX);
@@ -265,9 +281,12 @@ void tune_octave(uint8_t octave) {
 				set_control_voltage(&sustain_1_cv, MAX);
 				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
 				set_control_voltage(&vco1_mix_cv, MAX);
+			
+			
+				}					
 				
-		
-			}
+			//}
+
 			//if the period timer is less than the reference count and an overflow did not occur then the pitch is too high so clear last bit set
 			if ((osc_count <= reference_count)  && (no_overflow == TRUE)) osc_pitch_cv &= ~(1 << dac_bit);
 			no_overflow = TRUE;			

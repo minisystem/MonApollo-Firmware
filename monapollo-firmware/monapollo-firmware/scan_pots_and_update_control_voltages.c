@@ -109,6 +109,7 @@ void scan_pots_and_update_control_voltages(void) {
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[midi_note_number]);
+	
 	set_control_voltage(&vco2_pitch_cv, 0);
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC

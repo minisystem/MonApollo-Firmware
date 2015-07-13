@@ -30,7 +30,8 @@ extern volatile uint16_t osc_count;
 extern volatile uint16_t vco1_init_cv;
 extern volatile uint16_t vco2_init_cv;
 
-extern uint16_t vco1_pitch_table[128];
+extern uint16_t vco1_pitch_table[128]; 
+extern uint16_t vco2_pitch_table[128];
 
 uint16_t set_vco_init_cv(uint8_t vco); //returns 14 bit OSC_INIT_CV
 
