@@ -5,6 +5,7 @@
 #include "switch_map.h"
 #include "led_map.h"
 #include "hardware.h"
+#include "tune.h"
 
 //switch flags
 //ultimately combine these into a single byte and do bit manipulations to determine switch states
@@ -167,5 +168,21 @@ void update_spi(void) {
 			//set EG2 INV bit. This changes the nth bit to x from: http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
 			//need to make sure this doesn't interfere with anything else on this port
 			EG2_POL_PORT ^= (-ISW9_SW_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
+			
+			if (ISW11_SW_ON) {
+				
+				ISW11_SW_ON ^= 1<<0; //toggle switch state
+				current_sw_state ^= (1<<ISW11_SW); //toggle read switch state
+				tune_octave(1);
+				tune_octave(2);
+				tune_octave(3);
+				tune_octave(4);
+				tune_octave(5);
+				tune_octave(6);
+				tune_octave(7);
+				tune_octave(8);
+				//tune_octave(9);
+				
+			}
 	
 }

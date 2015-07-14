@@ -193,13 +193,13 @@ int main(void)
 	vco2_init_cv = set_vco_init_cv(VCO2);
 	value_to_display = vco1_init_cv;
 	
-	tune_octave(1);
-	tune_octave(2);
-	tune_octave(3);
-	tune_octave(4);
-	tune_octave(5);
-	tune_octave(6);
-	tune_octave(7);
+	//tune_octave(1);
+	//tune_octave(2);
+	//tune_octave(3);
+	//tune_octave(4);
+	//tune_octave(5);
+	//tune_octave(6);
+	//tune_octave(7);
 	//tune_octave(8);
 	//tune_octave(9);
 	//fill in remaining MIDI notes from 107 to 127

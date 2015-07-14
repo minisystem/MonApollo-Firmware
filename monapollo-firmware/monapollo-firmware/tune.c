@@ -11,6 +11,7 @@ volatile uint8_t no_overflow = TRUE;
 volatile uint8_t count_finished = FALSE;
 volatile uint16_t osc_count = 0;
 
+
 volatile uint16_t vco1_init_cv = 0;
 volatile uint16_t vco2_init_cv = 0;
 
@@ -175,7 +176,7 @@ void tune_octave(uint8_t octave) {
 	    
     };
 	
-	uint8_t period_table[10] = {1, 2, 4, 1, 2, 4, 8, 16, 32, 32}; //the number of  periods that need to be counted for octaves 0-9
+	uint8_t period_table[10] = {1, 2, 4, 1, 2, 4, 8, 16, 32, 64}; //the number of  periods that need to be counted for octaves 0-9
 	//ocatves 0-2 use /64 0.312500 MHz timer/counter1 clock rate
 	//ocataves 3-8 use /8 2.5 MHz timer/counter1 clock rate
 	
@@ -248,47 +249,38 @@ void tune_octave(uint8_t octave) {
 		{
 		
 		uint16_t reference_count = pitch_reference[note_number];
-		uint16_t osc_pitch_cv = 0;
-		for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
+		uint16_t osc_pitch_cv = 136 + vco1_pitch_table[(octave*12 + note_number) - 1]; //use previous pitch CV as a reference and add 136, which is ~83.333 mV on 14 bit 10V scale. ie. 1/12 of 1V
+		//this method is faster than full 14 bit successive approximation, but isn't 'blind', so if there is some wacky scaling at the pitch extremes it could falter
+		//will need to test more thoroughly
+		for (int dac_bit = 6; dac_bit >= 0; dac_bit--) { //now do successive approximation on 7 LSBs
 			
+			osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set
 			osc_pitch_cv |= (1<<dac_bit);
+
 			set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
 			count_finished = FALSE;
 			period_counter = 0;
 			
-			//if (octave >= 6) { //don't need to update control voltages in busy wait loop
-				//
-				//set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
-				//set_control_voltage(&tune_cv, vco1_init_cv);
-				//set_control_voltage(&vco1_pw_cv, MAX);
-				//set_control_voltage(&volume_cv, MIN);
-				//set_control_voltage(&cutoff_cv, MAX);
-				//set_control_voltage(&sustain_1_cv, MAX);
-				//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-				//set_control_voltage(&vco1_mix_cv, MAX);				
-				//
-				//while (count_finished == FALSE) {}
-				//
-			//} else { //need to update control voltages in busy wait loop
 
-				while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
-			
-				set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
-				set_control_voltage(&tune_cv, vco1_init_cv);
-				set_control_voltage(&vco1_pw_cv, MAX);
-				set_control_voltage(&volume_cv, MIN);
-				set_control_voltage(&cutoff_cv, MAX);
-				set_control_voltage(&sustain_1_cv, MAX);
-				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-				set_control_voltage(&vco1_mix_cv, MAX);
-			
-			
-				}					
+			while (count_finished == FALSE) {
 				
-			//}
-
-			//if the period timer is less than the reference count and an overflow did not occur then the pitch is too high so clear last bit set
-			if ((osc_count <= reference_count)  && (no_overflow == TRUE)) osc_pitch_cv &= ~(1 << dac_bit);
+			//need to have a watchdog timer here to escape while loop if it takes too long
+			
+			set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
+			set_control_voltage(&tune_cv, vco1_init_cv);
+			set_control_voltage(&vco1_pw_cv, MAX);
+			set_control_voltage(&volume_cv, MIN);
+			set_control_voltage(&cutoff_cv, MAX);
+			set_control_voltage(&sustain_1_cv, MAX);
+			set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+			set_control_voltage(&vco1_mix_cv, MAX);
+			
+			
+			}					
+				
+	
+			if ((osc_count <= reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
+				
 			no_overflow = TRUE;			
 			
 			
@@ -354,42 +346,29 @@ void tune_octave(uint8_t octave) {
 	{
 		
 		uint16_t reference_count = pitch_reference[note_number];
-		uint16_t osc_pitch_cv = 0;
-		for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
+		uint16_t osc_pitch_cv = 136 + vco2_pitch_table[(octave*12 + note_number) - 1];
+		for (int dac_bit = 6; dac_bit >= 0; dac_bit--) {
 			
+			osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set
 			osc_pitch_cv |= (1<<dac_bit);
 			set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
 			count_finished = FALSE;
 			period_counter = 0;
 			
-			//if (octave >= 6) { //don't need to update control voltages in busy wait loop
-			//
-			//set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
-			//set_control_voltage(&tune_cv, vco1_init_cv);
-			//set_control_voltage(&vco1_pw_cv, MAX);
-			//set_control_voltage(&volume_cv, MIN);
-			//set_control_voltage(&cutoff_cv, MAX);
-			//set_control_voltage(&sustain_1_cv, MAX);
-			//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-			//set_control_voltage(&vco1_mix_cv, MAX);
-			//
-		//while (count_finished == FALSE) {}
-		//
-	//} else { //need to update control voltages in busy wait loop
 
-	while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
+			while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 	
-	set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
-	set_control_voltage(&fine_cv, vco2_init_cv);
-	set_control_voltage(&vco2_pw_cv, MAX);
-	set_control_voltage(&volume_cv, MIN);
-	set_control_voltage(&cutoff_cv, MAX);
-	set_control_voltage(&sustain_1_cv, MAX);
-	set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-	set_control_voltage(&vco2_mix_cv, MAX);
+			set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
+			set_control_voltage(&fine_cv, vco2_init_cv);
+			set_control_voltage(&vco2_pw_cv, MAX);
+			set_control_voltage(&volume_cv, MIN);
+			set_control_voltage(&cutoff_cv, MAX);
+			set_control_voltage(&sustain_1_cv, MAX);
+			set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+			set_control_voltage(&vco2_mix_cv, MAX);
 	
 	
-}
+	}
 
 			//}
 
