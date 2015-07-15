@@ -173,6 +173,8 @@ void update_spi(void) {
 				
 				ISW11_SW_ON ^= 1<<0; //toggle switch state
 				current_sw_state ^= (1<<ISW11_SW); //toggle read switch state
+				vco1_init_cv = set_vco_init_cv(VCO1);
+				vco2_init_cv = set_vco_init_cv(VCO2);
 				tune_octave(1);
 				tune_octave(2);
 				tune_octave(3);

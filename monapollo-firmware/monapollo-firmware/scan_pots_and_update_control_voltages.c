@@ -110,7 +110,7 @@ void scan_pots_and_update_control_voltages(void) {
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[midi_note_number]);
 	
-	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[midi_note_number]);
+	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[midi_note_number + 12]);
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	

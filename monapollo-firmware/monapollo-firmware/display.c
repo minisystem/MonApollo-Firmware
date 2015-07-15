@@ -4,6 +4,8 @@
 #include "hardware.h"
 #include "display_map.h"
 
+volatile uint8_t place = 0;
+
 void display_dec(uint16_t number, uint8_t digit)
 {
 	uint8_t dec[] = {
@@ -66,4 +68,34 @@ void display_dec(uint16_t number, uint8_t digit)
 	DISPLAY_PORT &= ~(1<<DISP_CATHODE_LATCH);
 	
 	//DATA_BUS = 0; //clear DATA_BUS before return
+}
+
+void update_display(uint16_t number, uint8_t type) {
+
+	uint8_t digit[] = {
+		ONES,
+		TENS,
+		HUNDS,
+		THOUS,
+	};
+	
+	if (type == DEC) {
+
+		
+			
+		display_dec(number, digit[place]);
+		//increment digit display place
+		if (place++ == 3) //post increment
+		{
+			place = 0;
+		}	
+		
+		
+		
+	} else { //type is HEX
+		
+		
+	}
+	
+	
 }

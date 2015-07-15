@@ -32,7 +32,7 @@ volatile uint16_t value_to_display = 79; //global to hold display value
 //counter for switch scanning
 volatile uint8_t switch_timer = 0;
 
-volatile uint8_t place = 0; //digit place for LED display
+//volatile uint8_t place = 0; //digit place for LED display
 
 
 
@@ -65,12 +65,12 @@ void setup_midi_usart(void)
 }
 
 
-volatile uint8_t digit[] = {
-	ONES,
-	TENS,
-	HUNDS,
-	THOUS,
-};
+//volatile uint8_t digit[] = {
+	//ONES,
+	//TENS,
+	//HUNDS,
+	//THOUS,
+//};
 
 
 
@@ -215,7 +215,8 @@ int main(void)
 	{	
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 	
-		display_dec(value_to_display, digit[place]);
+		//display_dec(value_to_display, digit[place]);
+		update_display(value_to_display, DEC);
 			
 		scan_pots_and_update_control_voltages();
 
@@ -228,10 +229,10 @@ int main(void)
 				
 		}
 			
-		//increment digit display place
-		if (place++ == 3) //post increment
-		{
-			place = 0;
-		}
+		////increment digit display place
+		//if (place++ == 3) //post increment
+		//{
+			//place = 0;
+		//}
 	}
 }

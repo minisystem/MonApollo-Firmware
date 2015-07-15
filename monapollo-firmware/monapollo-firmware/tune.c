@@ -27,6 +27,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	
 	
 	
+	
 	uint16_t init_cv = 0;
 	 timer1_clock |= (1<<CS11) | (1<<CS10);
 	//disable UART so MIDI data doesn't interrupt tuning
