@@ -183,7 +183,7 @@ void update_spi(void) {
 				tune_octave(6);
 				tune_octave(7);
 				tune_octave(8);
-				//tune_octave(9);
+				tune_octave(9);
 				
 			}
 	

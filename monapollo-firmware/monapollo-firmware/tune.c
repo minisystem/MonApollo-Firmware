@@ -20,10 +20,7 @@ uint16_t vco2_pitch_table[128] = {0};
 	
 uint16_t set_vco_init_cv(uint8_t vco) {
 	
-	display_dec(vco + 1, ONES);
-	//display_dec(vco, TENS);
-	//display_dec(vco, HUNDS);
-	//display_dec(vco, THOUS);
+
 	
 	
 	
@@ -75,7 +72,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	if (vco == VCO1) { //turn on VCO1 pulse
 		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
 		//turn on VCO1 pulse, all others off
-		switch_byte |= (1<<VCO1_PULSE);
+		switch_byte |= (1<<VCO1_SAW);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 		vco_mix_cv = &vco1_mix_cv;
 		vco_pw_cv = &vco1_pw_cv;
@@ -85,7 +82,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	} else { //turn on VCO2 pulse
 		
 		//turn on VCO2 pulse, all others off
-		switch_byte |= (1<<VCO2_PULSE);
+		switch_byte |= (1<<VCO2_SAW);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 		vco_mix_cv = &vco2_mix_cv;
 		vco_pw_cv = &vco2_pw_cv;
@@ -123,6 +120,9 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		
 		while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 			
+			update_display(vco + 1, DEC);
+
+			
 			set_control_voltage(vco_init_cv, init_cv);
 			set_control_voltage(vco_pw_cv, MAX);
 			set_control_voltage(&volume_cv, MIN);
@@ -135,7 +135,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		}
 		//remember that as INIT_CV goes up, pitch goes down, so looking for osc_count >= reference_count instead of <= as is the case for normal oscillator tuning
 		//similarily, OR no_overflow == FALSE not AND no_overflow == FALSE to clear bits that make initial pitch too low
-		if ((osc_count >= reference_count)  || (no_overflow == FALSE)) init_cv &= ~(1 << dac_bit);
+		if ((osc_count > reference_count)  || (no_overflow == FALSE)) init_cv &= ~(1 << dac_bit);
 		no_overflow = TRUE;
 		
 	}		
@@ -154,8 +154,11 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 }
 
 void tune_octave(uint8_t octave) {
-	
-	display_dec(octave, ONES);
+	//display_dec(osc_count / 10, ONES);
+	//display_dec(osc_count / 10, TENS);
+	//display_dec(osc_count / 10, HUNDS);
+	//display_dec(osc_count / 10, THOUS);
+	//display_dec(octave, ONES);
 	//display_dec(1, TENS);
 	//display_dec(octave, HUNDS);
 	//display_dec(octave, THOUS);
@@ -232,7 +235,7 @@ void tune_octave(uint8_t octave) {
 	set_control_voltage(&tune_cv, vco1_init_cv);
 	
 	//latch switch data
-	DATA_BUS = (1<<VCO1_PULSE);
+	DATA_BUS = (1<<VCO1_SAW);
 	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 	//_delay_us(1); //why is this delay here????
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
@@ -254,7 +257,6 @@ void tune_octave(uint8_t octave) {
 		//this method is faster than full 14 bit successive approximation, but isn't 'blind', so if there is some wacky scaling at the pitch extremes it could falter
 		//will need to test more thoroughly
 		for (int dac_bit = 6; dac_bit >= 0; dac_bit--) { //now do successive approximation on 7 LSBs
-			
 			osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set
 			osc_pitch_cv |= (1<<dac_bit);
 
@@ -264,25 +266,28 @@ void tune_octave(uint8_t octave) {
 			
 
 			while (count_finished == FALSE) {
-				
+				update_display(10 + octave, DEC);	
 			//need to have a watchdog timer here to escape while loop if it takes too long
 			
-			set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
-			set_control_voltage(&tune_cv, vco1_init_cv);
-			set_control_voltage(&vco1_pw_cv, MAX);
-			set_control_voltage(&volume_cv, MIN);
-			set_control_voltage(&cutoff_cv, MAX);
-			set_control_voltage(&sustain_1_cv, MAX);
-			set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-			set_control_voltage(&vco1_mix_cv, MAX);
+				set_control_voltage(&vco1_pitch_cv, osc_pitch_cv);
+				set_control_voltage(&tune_cv, vco1_init_cv);
+				set_control_voltage(&vco1_pw_cv, MAX);
+				set_control_voltage(&volume_cv, MIN);
+				set_control_voltage(&cutoff_cv, MAX);
+				set_control_voltage(&sustain_1_cv, MAX);
+				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+				set_control_voltage(&vco1_mix_cv, MAX);
 			
 			
-			}					
+			}							
 				
-	
-			if ((osc_count <= reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
+			//Omar changed this from <= to < which makes sense. <= was an error because if it's equal you don't want to clear the bit
+			if ((osc_count < reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
 				
-			no_overflow = TRUE;			
+			if (osc_count == reference_count && no_overflow == TRUE) {
+				break;	//if you hit the reference count then get out of here		
+			}				
+			no_overflow = TRUE;
 			
 			
 		}
@@ -329,7 +334,7 @@ void tune_octave(uint8_t octave) {
 	set_control_voltage(&fine_cv, vco2_init_cv);
 	
 	//latch switch data
-	DATA_BUS = (1<<VCO2_PULSE);
+	DATA_BUS = (1<<VCO2_SAW);
 	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 	//_delay_us(1); //why is this delay here????
 	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
@@ -338,6 +343,7 @@ void tune_octave(uint8_t octave) {
 	PORTF |= (1<<GATE); //turn gate on
 	
 	//TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+	
 	OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
 	//set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to period -1 in output compare ISR
 	//for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called
@@ -358,26 +364,30 @@ void tune_octave(uint8_t octave) {
 			
 
 			while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
+				update_display(20 + octave, DEC);
 	
-			set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
-			set_control_voltage(&fine_cv, vco2_init_cv);
-			set_control_voltage(&vco2_pw_cv, MAX);
-			set_control_voltage(&volume_cv, MIN);
-			set_control_voltage(&cutoff_cv, MAX);
-			set_control_voltage(&sustain_1_cv, MAX);
-			set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-			set_control_voltage(&vco2_mix_cv, MAX);
+				set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
+				set_control_voltage(&fine_cv, vco2_init_cv);
+				set_control_voltage(&vco2_pw_cv, MAX);
+				set_control_voltage(&volume_cv, MIN);
+				set_control_voltage(&cutoff_cv, MAX);
+				set_control_voltage(&sustain_1_cv, MAX);
+				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+				set_control_voltage(&vco2_mix_cv, MAX);
 	
 	
-	}
+			}
 
 			//}
 
 			//if the period timer is less than the reference count and an overflow did not occur then the pitch is too high so clear last bit set
-			if ((osc_count <= reference_count)  && (no_overflow == TRUE)) osc_pitch_cv &= ~(1 << dac_bit);
-			no_overflow = TRUE;			
+			if ((osc_count < reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
 			
-			
+			if (osc_count == reference_count && no_overflow == TRUE) {
+				break;
+			}		
+			no_overflow = TRUE;
+		
 		}
 		
 		//will need to make an excpetion for C0 here as its pitch has already been determined by set_vco_init_cv() and so C0 will be 0V
