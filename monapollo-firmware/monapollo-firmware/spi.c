@@ -169,7 +169,7 @@ void update_spi(void) {
 			//need to make sure this doesn't interfere with anything else on this port
 			EG2_POL_PORT ^= (-ISW9_SW_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
 			
-			if (ISW11_SW_ON) {
+			if (ISW11_SW_ON) { //temporary tune button hack
 				
 				ISW11_SW_ON ^= 1<<0; //toggle switch state
 				current_sw_state ^= (1<<ISW11_SW); //toggle read switch state

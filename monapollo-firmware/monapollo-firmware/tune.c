@@ -140,6 +140,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	set_control_voltage(&release_1_cv, MIN); //this will hopefully reduce popping after returning from initializing pitch CV
 	set_control_voltage(&release_2_cv, MIN);
 	set_control_voltage(&cutoff_cv, MIN);
+	set_control_voltage(&volume_cv, MIN);
 		
 	PORTF &= ~(1<<GATE); //turn gate off
 	
@@ -324,106 +325,6 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 		
 	}
 	
-	//TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
-	
-	////setup control voltages
-	//set_control_voltage(&volume_cv, MIN); //turn volume all the way down
-	////turn off all pitch modulation
-	//set_control_voltage(&pitch_lfo_cv, MIN);
-	//set_control_voltage(&pitch_eg2_cv, MIN);
-	//set_control_voltage(&pitch_vco2_cv, MIN);
-	////turn off glide
-	//set_control_voltage(&glide_cv, MIN);
-	////turn off all pulse width modulation
-	//set_control_voltage(&pwm_eg2_cv, MIN);
-	//set_control_voltage(&pwm_lfo_cv, MIN);
-	////turn off all filter modulation
-	//set_control_voltage(&fil_lfo_cv, MIN);
-	//set_control_voltage(&fil_eg2_cv, MIN);
-	//set_control_voltage(&fil_vco2_cv, MIN);
-	//set_control_voltage(&key_track_cv, MIN);
-	////open filter with no resonance
-	//set_control_voltage(&cutoff_cv, MAX);
-	//set_control_voltage(&res_cv, MIN);
-	////turn off VCA LFO modulation
-	//set_control_voltage(&amp_lfo_cv, MIN);
-	////initialize VCA envelope
-	//set_control_voltage(&attack_1_cv, MIN);
-	//set_control_voltage(&decay_1_cv, MIN);
-	//set_control_voltage(&sustain_1_cv, MAX);
-	//set_control_voltage(&release_1_cv, MIN);
-	////turn off noise
-	//set_control_voltage(&noise_mix_cv, MIN);	
-	//set_control_voltage(&vco1_mix_cv, MIN);
-//
-	////now tune VCO2
-	//set_control_voltage(&fine_cv, vco2_init_cv);
-	//
-	////latch switch data
-	//DATA_BUS = (1<<VCO2_SAW);
-	//VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
-	////_delay_us(1); //why is this delay here????
-	//VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-	//DATA_BUS = 0;
-//
-	//PORTF |= (1<<GATE); //turn gate on
-	//
-	////TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
-	//
-	//OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
-	////set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to period -1 in output compare ISR
-	////for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called
-	//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-	//
-	//for (int note_number = 0; note_number <= 11; note_number++)
-	//{
-		//
-		//uint16_t reference_count = pitch_reference[note_number];
-		//uint16_t osc_pitch_cv = 136 + vco2_pitch_table[(octave*12 + note_number) - 1];
-		//for (int dac_bit = 6; dac_bit >= 0; dac_bit--) {
-			//
-			//osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set
-			//osc_pitch_cv |= (1<<dac_bit);
-			//set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
-			//count_finished = FALSE;
-			//period_counter = 0;
-			//
-//
-			//while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
-				//update_display(20 + octave, DEC);
-	//
-				//set_control_voltage(&vco2_pitch_cv, osc_pitch_cv);
-				//set_control_voltage(&fine_cv, vco2_init_cv);
-				//set_control_voltage(&vco2_pw_cv, MAX);
-				//set_control_voltage(&volume_cv, MIN);
-				//set_control_voltage(&cutoff_cv, MAX);
-				//set_control_voltage(&sustain_1_cv, MAX);
-				//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
-				//set_control_voltage(&vco2_mix_cv, MAX);
-	//
-	//
-			//}
-//
-			////}
-//
-			////if the period timer is less than the reference count and an overflow did not occur then the pitch is too high so clear last bit set
-			//if ((osc_count < reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
-			//
-			//if (osc_count == reference_count && no_overflow == TRUE) {
-				//break;
-			//}		
-			//no_overflow = TRUE;
-		//
-		//}
-		//
-		////will need to make an excpetion for C0 here as its pitch has already been determined by set_vco_init_cv() and so C0 will be 0V
-		////for now maybe just start tuning octaves 1 and up
-		//vco2_pitch_table[octave*12 + note_number] = osc_pitch_cv; //store the note control voltage in the pitch table			
-		//
-		//
-	//}
-
-
 
 	
 	PORTF &= ~(1<<GATE); //turn gate off
