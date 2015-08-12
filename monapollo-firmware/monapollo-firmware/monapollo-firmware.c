@@ -32,6 +32,9 @@ volatile uint16_t value_to_display = 79; //global to hold display value
 //counter for switch scanning
 volatile uint8_t switch_timer = 0;
 
+//MIDI gate buffer for note stealing
+volatile uint8_t gate_buffer = 0;
+
 //volatile uint8_t place = 0; //digit place for LED display
 
 
@@ -41,16 +44,19 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 	value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
-		
-		PORTF &= ~(1<<GATE);
+		gate_buffer--;
+		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
+				
 	} else {
+		gate_buffer++; //increment gate_buffer
+		PORTF &= ~(1<<GATE); //turn gate off to retrigger envelopes - maybe need to do it longer than one clock cycle though
 		PORTF |= (1<<GATE);
 	}
 	
 }
 void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
-	
-	PORTF &= ~(1<<GATE);
+	gate_buffer--;
+	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 }
 
 void setup_midi_usart(void)

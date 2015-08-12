@@ -14,7 +14,7 @@
 
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
-volatile uint16_t tune_offset = 0; //fine tune offset to display
+int tune_offset = 0; //fine tune offset to display
 
 uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup table
 
@@ -74,26 +74,55 @@ void scan_pots_and_update_control_voltages(void) {
 	{
 
 		adc_value = read_pot(POTMUX_EN0, i);
-		
-		if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
+		int fine_offset = 0;
+		switch (i)
 		{
-			uint16_t tune_value = vco2_init_cv;//6303;//9759; //init CV offset of about -5.8V
-			if (i == 9) tune_value = vco1_init_cv;//-= 1638; //add an octave (1V) to VCO2 pitch
-			if (adc_value >= 512) {
-				set_control_voltage(pot_decoder_0[i],(tune_value + (adc_value - 512)));
-				tune_offset = adc_value - 512;
-			} else {
-				set_control_voltage(pot_decoder_0[i],(tune_value - (512- adc_value)));
-				tune_offset = adc_value;
-			}
-
-		} else if (i == 11) //exception to handle ARP_RATE pot
-		{
-			//store ARP pot value, but don't set DAC
+			case 8: //exception for VCO2 fine
+				
+				fine_offset = 512 - adc_value;
+				set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);
+				
+				break;
 			
-		} else {
-			set_control_voltage(pot_decoder_0[i], adc_value << 4);
+			case 9: //exception for TUNE - apply to both VCO1 and VCO2
+				
+				tune_offset = 512 - adc_value;
+				set_control_voltage(&tune_cv, vco1_init_cv + tune_offset);
+				break;
+			
+			case 11: //handle ARP_RATE pot
+			
+				break;
+				
+			case 4: //LFO pitch modulation depth control - reduce by 1/4
+				
+				set_control_voltage(&pitch_lfo_cv, adc_value << 2);	//1/4 scale allows for easier vibrato settings
+				break;
+			
+			default: //set control voltage full-scale
+				set_control_voltage(pot_decoder_0[i], adc_value << 4);
+				break;
+			
 		}
+		//if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
+		//{
+			//uint16_t tune_value = vco2_init_cv;//6303;//9759; //init CV offset of about -5.8V
+			//if (i == 9) tune_value = vco1_init_cv;//-= 1638; //add an octave (1V) to VCO2 pitch
+			//if (adc_value >= 512) {
+				//set_control_voltage(pot_decoder_0[i],(tune_value + (adc_value - 512)));
+				//tune_offset = adc_value - 512;
+			//} else {
+				//set_control_voltage(pot_decoder_0[i],(tune_value - (512- adc_value)));
+				//tune_offset = adc_value;
+			//}
+//
+		//} else if (i == 11) //exception to handle ARP_RATE pot
+		//{
+			////store ARP pot value, but don't set DAC
+			//
+		//} else {
+			//set_control_voltage(pot_decoder_0[i], adc_value << 4);
+		//}
 		
 	}
 	
