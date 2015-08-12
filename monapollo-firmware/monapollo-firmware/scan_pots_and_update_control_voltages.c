@@ -14,11 +14,12 @@
 
 volatile uint16_t adc_previous = 0;
 volatile uint16_t adc_value = 0;
+volatile int adc_difference = 0;
 int tune_offset = 0; //fine tune offset to display
 
 uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup table
 
-
+volatile uint16_t value_to_display = 79; //global to hold display value
 
 
 //First group of pots inputs 0-15 on U2 demulitplexer
@@ -85,8 +86,10 @@ void scan_pots_and_update_control_voltages(void) {
 				break;
 			
 			case 9: //exception for TUNE - apply to both VCO1 and VCO2
-				
-				tune_offset = 512 - adc_value;
+				adc_difference = adc_value - adc_previous;
+				adc_previous = adc_previous + (adc_difference>>2);
+				value_to_display = adc_previous;
+				tune_offset = 512 - adc_previous;
 				set_control_voltage(&tune_cv, vco1_init_cv + tune_offset);
 				break;
 			
