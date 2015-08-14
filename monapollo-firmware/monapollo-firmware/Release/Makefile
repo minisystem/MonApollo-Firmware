@@ -1,0 +1,228 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+SHELL := cmd.exe
+RM := rm -rf
+
+USER_OBJS :=
+
+LIBS := 
+PROJ := 
+
+O_SRCS := 
+C_SRCS := 
+S_SRCS := 
+S_UPPER_SRCS := 
+OBJ_SRCS := 
+ASM_SRCS := 
+PREPROCESSING_SRCS := 
+OBJS := 
+OBJS_AS_ARGS := 
+C_DEPS := 
+C_DEPS_AS_ARGS := 
+EXECUTABLES := 
+OUTPUT_FILE_PATH :=
+OUTPUT_FILE_PATH_AS_ARGS :=
+AVR_APP_PATH :=$$$AVR_APP_PATH$$$
+QUOTE := "
+ADDITIONAL_DEPENDENCIES:=
+OUTPUT_FILE_DEP:=
+
+# Every subdirectory with source files must be described here
+SUBDIRS :=  \
+../xnormidi-develop/ \
+../xnormidi-develop/bytequeue/
+
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS +=  \
+../adc.c \
+../dac.c \
+../display.c \
+../interrupts.c \
+../midi.c \
+../monapollo-firmware.c \
+../scan_pots_and_update_control_voltages.c \
+../spi.c \
+../tune.c \
+../xnormidi-develop/bytequeue/bytequeue.c \
+../xnormidi-develop/bytequeue/interrupt_setting.c \
+../xnormidi-develop/midi.c \
+../xnormidi-develop/midi_device.c \
+../xnormidi-develop/sysex_tools.c
+
+
+PREPROCESSING_SRCS += 
+
+
+ASM_SRCS += 
+
+
+OBJS +=  \
+adc.o \
+dac.o \
+display.o \
+interrupts.o \
+midi.o \
+monapollo-firmware.o \
+scan_pots_and_update_control_voltages.o \
+spi.o \
+tune.o \
+xnormidi-develop/bytequeue/bytequeue.o \
+xnormidi-develop/bytequeue/interrupt_setting.o \
+xnormidi-develop/midi.o \
+xnormidi-develop/midi_device.o \
+xnormidi-develop/sysex_tools.o
+
+
+OBJS_AS_ARGS +=  \
+adc.o \
+dac.o \
+display.o \
+interrupts.o \
+midi.o \
+monapollo-firmware.o \
+scan_pots_and_update_control_voltages.o \
+spi.o \
+tune.o \
+xnormidi-develop/bytequeue/bytequeue.o \
+xnormidi-develop/bytequeue/interrupt_setting.o \
+xnormidi-develop/midi.o \
+xnormidi-develop/midi_device.o \
+xnormidi-develop/sysex_tools.o
+
+
+C_DEPS +=  \
+adc.d \
+dac.d \
+display.d \
+interrupts.d \
+midi.d \
+monapollo-firmware.d \
+scan_pots_and_update_control_voltages.d \
+spi.d \
+tune.d \
+xnormidi-develop/bytequeue/bytequeue.d \
+xnormidi-develop/bytequeue/interrupt_setting.d \
+xnormidi-develop/midi.d \
+xnormidi-develop/midi_device.d \
+xnormidi-develop/sysex_tools.d
+
+
+C_DEPS_AS_ARGS +=  \
+adc.d \
+dac.d \
+display.d \
+interrupts.d \
+midi.d \
+monapollo-firmware.d \
+scan_pots_and_update_control_voltages.d \
+spi.d \
+tune.d \
+xnormidi-develop/bytequeue/bytequeue.d \
+xnormidi-develop/bytequeue/interrupt_setting.d \
+xnormidi-develop/midi.d \
+xnormidi-develop/midi_device.d \
+xnormidi-develop/sysex_tools.d
+
+
+OUTPUT_FILE_PATH +=monapollo-firmware.elf
+
+OUTPUT_FILE_PATH_AS_ARGS +=monapollo-firmware.elf
+
+ADDITIONAL_DEPENDENCIES:=
+
+OUTPUT_FILE_DEP:= ./makedep.mk
+
+# AVR32/GNU C Compiler
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -Os -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
+	@echo Finished building: $<
+
+xnormidi-develop/bytequeue/%.o: ../xnormidi-develop/bytequeue/%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -Os -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
+	@echo Finished building: $<
+
+xnormidi-develop/%.o: ../xnormidi-develop/%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -Os -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=atmega6450a   -o"$@" "$<" 
+	@echo Finished building: $<
+
+
+
+# AVR32/GNU Preprocessing Assembler
+
+
+
+# AVR32/GNU Assembler
+
+
+
+
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+endif
+
+# Add inputs and outputs from these tool invocations to the build variables 
+
+# All Target
+all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
+
+$(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP)
+	@echo Building target: $@
+	@echo Invoking: AVR/GNU Linker : (AVR_8_bit_GNU_Toolchain_3.4.1_830) 4.6.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="monapollo-firmware.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group  -mmcu=atmega6450a  
+	@echo Finished building target: $@
+	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "monapollo-firmware.elf" "monapollo-firmware.hex"
+	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "monapollo-firmware.elf" "monapollo-firmware.eep" || exit 0
+	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-objdump.exe" -h -S "monapollo-firmware.elf" > "monapollo-firmware.lss"
+	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "monapollo-firmware.elf" "monapollo-firmware.srec"
+	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.1.95\AVRToolchain\bin\avr-size.exe" "monapollo-firmware.elf"
+	
+
+
+
+
+
+# Other Targets
+clean:
+	-$(RM) $(OBJS_AS_ARGS)$(C_DEPS_AS_ARGS) $(EXECUTABLES) 
+	rm -rf "monapollo-firmware.elf" "monapollo-firmware.a" "monapollo-firmware.hex" "monapollo-firmware.lss" "monapollo-firmware.eep" "monapollo-firmware.map" "monapollo-firmware.srec"
+	

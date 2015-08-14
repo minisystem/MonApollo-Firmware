@@ -21,6 +21,9 @@ uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup t
 
 volatile uint16_t value_to_display = 79; //global to hold display value
 
+//arrays to hold ADC values for each pot - needed for digital filtering of adc reads, plus will be able to be used for parameter storage and recall
+uint16_t pot_group_0[16] = {0}; 
+uint16_t pot_group_1[15] = {0};	
 
 //First group of pots inputs 0-15 on U2 demulitplexer
 //This is an array of pointers to control_voltage structs
@@ -75,21 +78,26 @@ void scan_pots_and_update_control_voltages(void) {
 	{
 
 		adc_value = read_pot(POTMUX_EN0, i);
+		//implement IIR digital low pass filter - change pot value only by some fraction (>>2) of the difference between the new and old value
+		int adc_change = adc_value - pot_group_0[i];
+		pot_group_0[i] = pot_group_0[i] + (adc_change >> 2);
 		int fine_offset = 0;
+		
 		switch (i)
 		{
 			case 8: //exception for VCO2 fine
 				
-				fine_offset = 512 - adc_value;
+				value_to_display = pot_group_0[i];
+				fine_offset = 512 - pot_group_0[i];
 				set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);
 				
 				break;
 			
 			case 9: //exception for TUNE - apply to both VCO1 and VCO2
-				adc_difference = adc_value - adc_previous;
-				adc_previous = adc_previous + (adc_difference>>2);
-				value_to_display = adc_previous;
-				tune_offset = 512 - adc_previous;
+				//adc_difference = adc_value - adc_previous;
+				//adc_previous = adc_previous + (adc_difference>>2);
+				//value_to_display = adc_previous;
+				tune_offset = 512 - pot_group_0[i];
 				set_control_voltage(&tune_cv, vco1_init_cv + tune_offset);
 				break;
 			
@@ -99,11 +107,11 @@ void scan_pots_and_update_control_voltages(void) {
 				
 			case 4: //LFO pitch modulation depth control - reduce by 1/4
 				
-				set_control_voltage(&pitch_lfo_cv, adc_value << 2);	//1/4 scale allows for easier vibrato settings
+				set_control_voltage(&pitch_lfo_cv, pot_group_0[i] << 3);	//1/4 scale allows for easier vibrato settings
 				break;
 			
 			default: //set control voltage full-scale
-				set_control_voltage(pot_decoder_0[i], adc_value << 4);
+				set_control_voltage(pot_decoder_0[i], pot_group_0[i] << 4);
 				break;
 			
 		}
@@ -129,12 +137,15 @@ void scan_pots_and_update_control_voltages(void) {
 		
 	}
 	
-	//now read second set of pots form U4 and set appropriate DAC S&H channel
+	//now read second set of pots from U4 and set appropriate DAC S&H channel
 	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
 	{
 		
 		adc_value = read_pot(POTMUX_EN1, i+1);
-		set_control_voltage(pot_decoder_1[i], adc_value <<4);
+		int adc_change = adc_value - pot_group_1[i];
+		pot_group_1[i] = pot_group_1[i] + (adc_change >> 2);		
+		
+		set_control_voltage(pot_decoder_1[i], pot_group_1[i] <<4);
 
 	}
 	
@@ -142,7 +153,7 @@ void scan_pots_and_update_control_voltages(void) {
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[midi_note_number]);
 	
-	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[midi_note_number + 12]);
+	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[midi_note_number + 12]); //temporily pitch VCO2 one octave up from VCO1
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	
