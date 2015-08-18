@@ -173,8 +173,11 @@ void update_spi(void) {
 				
 				ISW11_SW_ON ^= 1<<0; //toggle switch state
 				current_sw_state ^= (1<<ISW11_SW); //toggle read switch state
+				//update_spi();
 				vco1_init_cv = set_vco_init_cv(VCO1);
 				vco2_init_cv = set_vco_init_cv(VCO2);
+				//vco1_pitch_table[11] = 1638; //need initial value here for 7 bit additive tuning algorithm to work. Once Octave 0 is tuned, this won't be necessray as C0/MIDI note 0 is 0V
+				//vco2_pitch_table[11] = 1638;
 				tune_octave(1, VCO1);
 				tune_octave(1, VCO2);
 				tune_octave(2, VCO1);
@@ -193,6 +196,16 @@ void update_spi(void) {
 				tune_octave(8, VCO2);
 				tune_octave(9, VCO1);
 				tune_octave(9, VCO2);
+				
+				//for (int i = 0; i <= 11; i++) {
+					//
+					//vco1_pitch_table[i+12] = vco1_pitch_table[36 + i] - 3277; // -2V Risk of going below 0 here
+					//vco2_pitch_table[i+12] = vco2_pitch_table[36 + i] - 3277;
+					//
+					//vco1_pitch_table[i + 24] = vco1_pitch_table[36 + i] - 1638; // -1V
+					//vco1_pitch_table[i + 24] = vco2_pitch_table[36 + i] - 1638;
+					//
+				//}
 				
 			}
 	

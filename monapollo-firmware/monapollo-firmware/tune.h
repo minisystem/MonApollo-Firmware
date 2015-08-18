@@ -30,6 +30,8 @@ extern volatile uint16_t osc_count;
 extern volatile uint16_t vco1_init_cv;
 extern volatile uint16_t vco2_init_cv;
 
+extern volatile uint8_t compare_match_counter;
+
 extern uint16_t vco1_pitch_table[128]; 
 extern uint16_t vco2_pitch_table[128];
 

@@ -6,6 +6,7 @@
 #include "display.h"
 
 ISR (TIMER0_COMP_vect) { //timer 0 output compare interrupt for tuning
+	compare_match_counter++;
 	OCR0A = period-1; //OCR0A counts n-1 periods - see comment in tune.c about setting OCR0A
 	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
 	if (period_counter == 0) {
@@ -18,7 +19,7 @@ ISR (TIMER0_COMP_vect) { //timer 0 output compare interrupt for tuning
 	} else {
 		
 		osc_count = TCNT1;
-		value_to_display = osc_count;
+		value_to_display = compare_match_counter;//osc_count;
 		TCCR1B = 0; //turn off 16 bit timer/counter1
 		count_finished = TRUE;
 		period_counter = 0;

@@ -87,7 +87,7 @@ void scan_pots_and_update_control_voltages(void) {
 		{
 			case 8: //exception for VCO2 fine
 				
-				value_to_display = pot_group_0[i];
+				//value_to_display = pot_group_0[i];
 				fine_offset = 512 - pot_group_0[i];
 				set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);
 				

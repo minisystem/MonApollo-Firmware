@@ -12,7 +12,9 @@ volatile uint8_t no_overflow = TRUE;
 volatile uint8_t count_finished = FALSE;
 volatile uint16_t osc_count = 0;
 
+volatile uint8_t compare_match_counter = 0; //diagnostic counter to troubleshoot OCR0A compare match business
 
+//these probably don't need to be volatile - not accessed in interrupt
 volatile uint16_t vco1_init_cv = 0;
 volatile uint16_t vco2_init_cv = 0;
 
@@ -61,12 +63,10 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 	struct control_voltage *vco_mix_cv;
 	struct control_voltage *vco_pw_cv;
 	struct control_voltage *vco_pitch_cv;
-	
-	
-	
+
 	count_finished = FALSE;
+	
 	if (vco == VCO1) { //turn on VCO1 pulse
-		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
 		//turn on VCO1 pulse, all others off
 		switch_byte |= (1<<VCO1_SAW);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
@@ -75,8 +75,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
 		reference_count = 19111;//38222; //MIDI note C0
 		
-	} else { //turn on VCO2 pulse
-		
+	} else { //turn on VCO2 pulse	
 		//turn on VCO2 pulse, all others off
 		switch_byte |= (1<<VCO2_SAW);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
@@ -117,8 +116,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 		while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 			
 			update_display(vco + 1, DEC);
-
-			
+		
 			set_control_voltage(vco_init_cv, init_cv);
 			set_control_voltage(vco_pw_cv, MAX);
 			set_control_voltage(&volume_cv, MIN);
@@ -152,7 +150,7 @@ uint16_t set_vco_init_cv(uint8_t vco) {
 
 void tune_octave(uint8_t octave, uint8_t vco) {
 
-	uint16_t pitch_reference[12] = { //holds the 2.5MHz counts for each note within an octave independent of octave # being tuned
+	uint16_t pitch_reference[12] = { //holds the 16 bit timer counts for each note within an octave independent of octave # being tuned
 	    
 	PITCH_C,
 	PITCH_Cb,
@@ -218,27 +216,27 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 	struct control_voltage *vco_pitch_cv;	
 
 	if (vco == VCO1) { //set up parameters for VCO1 tuning
-		//this will change in v1.1 of analog board when comparator is used to generate pulse for T0 pin
-		//turn on VCO1 pulse, all others off
+
+		//turn on VCO1 SAW, all others off
 		switch_byte |= (1<<VCO1_SAW);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 		vco_mix_cv = &vco1_mix_cv;
 		vco_pw_cv = &vco1_pw_cv;
 		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
-		vco_number = 10;
+		vco_number = 10; //allows second digit to display VCO being tuned
 		init_cv = vco1_init_cv;
 		vco_pitch_table = vco1_pitch_table;
 		
 		
 	} else { //set up parameters for VCO2 tuning
 		
-		//turn on VCO2 pulse, all others off
+		//turn on VCO2 SAW, all others off
 		switch_byte |= (1<<VCO2_SAW);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 		vco_mix_cv = &vco2_mix_cv;
 		vco_pw_cv = &vco2_pw_cv;
 		vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
-		vco_number = 20;
+		vco_number = 20; //allows second digit to display VCO being tuned
 		init_cv = vco2_init_cv;
 		vco_pitch_table = vco2_pitch_table;
 	}
@@ -272,7 +270,7 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 	//set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to period -1 in output compare ISR
 	//for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called
 	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-		
+	compare_match_counter = 0;	
 	for (int note_number = 0; note_number <= 11; note_number++) 
 		{
 		
@@ -280,8 +278,10 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 		uint16_t osc_pitch_cv = 136 + vco_pitch_table[(octave*12 + note_number) - 1]; //use previous pitch CV as a reference and add 136, which is ~83.333 mV on 14 bit 10V scale. ie. 1/12 of 1V
 		//this method is faster than full 14 bit successive approximation, but isn't 'blind', so if there is some wacky scaling at the pitch extremes it could falter
 		//will need to test more thoroughly
-		for (int dac_bit = 6; dac_bit >= 0; dac_bit--) { //now do successive approximation on 7 LSBs
-			osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set
+		//osc_pitch_cv = 0;
+		for (int dac_bit = 6; dac_bit >= 0; dac_bit--) { //now do successive approximation on 8 LSBs
+			osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set. Omar scoffed at this line as if it didn't need to be done. Why?
+			//oh, maybe because it should just be done once before loop. Doing it for each iteration after bit 7 is redundant
 			osc_pitch_cv |= (1<<dac_bit);
 
 			set_control_voltage(vco_pitch_cv, osc_pitch_cv);
@@ -290,14 +290,14 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 			
 
 			while (count_finished == FALSE) {
-				update_display(vco_number + octave, DEC);	
+				update_display(vco_number + octave + (compare_match_counter>>4)*100, DEC);	
 				//need to have a watchdog timer here to escape while loop if it takes too long
 				
 				//not sure what's really necessary here - definitely pitch and init_cv, but what else?
 				set_control_voltage(vco_pitch_cv, osc_pitch_cv);
 				set_control_voltage(vco_init_cv, init_cv);
 				set_control_voltage(vco_pw_cv, MAX);
-				set_control_voltage(&volume_cv, MIN);//may not be necessary
+				set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 				set_control_voltage(&cutoff_cv, MAX);
 				set_control_voltage(&sustain_1_cv, MAX);
 				set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
@@ -307,7 +307,7 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 			}							
 				
 			//Omar changed this from <= to < which makes sense. <= was an error because if it's equal you don't want to clear the bit
-			if ((osc_count < reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
+			if ((osc_count <= reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
 				
 			if (osc_count == reference_count && no_overflow == TRUE) {
 				break;	//if you hit the reference count then get out of here		

@@ -71,56 +71,15 @@ void setup_midi_usart(void)
 }
 
 
-//volatile uint8_t digit[] = {
-	//ONES,
-	//TENS,
-	//HUNDS,
-	//THOUS,
-//};
-
-
 
 ISR (USART_RX_vect) { // USART receive interrupt
 	 
 	uint8_t inByte = UDR0;
-	midi_device_input(&midi_device, 1, &inByte);	
+	midi_device_input(&midi_device, 1, &inByte); //calling a function in an interrupt is inefficient according to AVR C guidelines so this function should maybe be inlined in main loop if inByte is made volatile	
 	  	
 }
 
-ISR (TIMER2_OVF_vect) { //main scanning interrupt handler
-	
-	//display_dec(value_to_display, digit[place]);
-	//
-	//scan_pots_and_update_control_voltages();		
-//
-		//
-	////do SPI read/write every 5 interrupts (16.5 ms)
-	//if (switch_timer++ == 5)
-	//{
-		//switch_timer = 0;
-		//update_spi();	
-			  	//
-	//}
-		//
-	////increment digit display place
-	//if (place++ == 3) //post increment
-	//{
-		//place = 0;
-	//}
-	
 
-	
-}	
-
-//ISR (TIMER0_COMP_vect) {
-	//
-	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp sync LED
-	//TCNT0 = 0; //reset timer
-	//period_counter = 1;
-	//value_to_display = 4242;
-	//
-//}
-//
 
 
 
@@ -197,25 +156,9 @@ int main(void)
 	////set initial pitch offset CVs
 	vco1_init_cv = set_vco_init_cv(VCO1);
 	vco2_init_cv = set_vco_init_cv(VCO2);
-	value_to_display = vco1_init_cv;
+	value_to_display = compare_match_counter;//vco1_init_cv;
 	
-	//tune_octave(1);
-	//tune_octave(2);
-	//tune_octave(3);
-	//tune_octave(4);
-	//tune_octave(5);
-	//tune_octave(6);
-	//tune_octave(7);
-	//tune_octave(8);
-	//tune_octave(9);
-	//fill in remaining MIDI notes from 107 to 127
-	//uint16_t delta_semitone = vco1_pitch_table[107] - vco1_pitch_table[106];
-	//value_to_display = delta_semitone;
-	//for (int i = 1; i <= 20; i++) {
-		//
-		//vco1_pitch_table[i+107]= vco1_pitch_table[107] + (delta_semitone*i);
-	//
-	//}		
+	
 
 	while(1)
 	{	
