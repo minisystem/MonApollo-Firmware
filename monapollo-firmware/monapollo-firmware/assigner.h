@@ -1,6 +1,11 @@
 #ifndef ASSIGNER_H
 #define ASSIGNER_H
 
+//
+
+#define EMPTY 255 //flag for empty note
+#define NOTE_POOL_SIZE 7
+
 struct midi_note {
 	
 	uint8_t note;

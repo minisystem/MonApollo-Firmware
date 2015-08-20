@@ -39,7 +39,7 @@ static uint8_t gate_buffer = 0;
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
-	value_to_display = note;
+	//value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
 		remove_note(note);
@@ -50,7 +50,9 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		new_note(note, velocity);
 		gate_buffer++; //increment gate_buffer
 		//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
-		//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off 
+		//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
+		//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
+		//could implement this with timers. Will it really make a difference?
 		PORTF |= (1<<GATE);
 	}
 	

@@ -1,52 +1,51 @@
 #include <avr/io.h>
 #include "assigner.h"
+#include "display.h" //added just so display can be used for troubleshooting
 
-static struct midi_note note_pool[8] = 
+static struct midi_note note_pool[8] = //create a pool to store and order incoming MIDI notes
 {
-	{-1,0},
-	{-1,0},
-	{-1,0},	
-	{-1,0},
-	{-1,0},
-	{-1,0},
-	{-1,0},
-	{-1,0}									
+	{EMPTY,	0},
+	{EMPTY,	0},
+	{EMPTY,	0},	
+	{EMPTY,	0},
+	{EMPTY,	0},
+	{EMPTY,	0},
+	{EMPTY,	0},
+	{EMPTY,	0}									
 };
 
 
-//static uint8_t free_slot = 0;
+static uint8_t current_note = 0; //this acts as a buffer for the current note to maintain pitch during release stage of envelopes
 
-uint8_t get_current_note() {
+
+uint8_t get_current_note() { //this is a kludge. Either make current_note global or force inline this function? Ask Omar
 	
-	return note_pool[0].note;
+	return current_note;
 	
 }
 
 void new_note(uint8_t note, uint8_t velocity) {
 	
-
-		
+	
 	//shift contents of note_pool right by one element
-	memmove(note_pool + 1, note_pool, sizeof(note_pool) -sizeof(*note_pool)); //sizeof struct - sizeof one element of struct
-		
+	memmove(note_pool + 1, note_pool, sizeof(note_pool) -sizeof(*note_pool)); //last arguemnt: sizeof struct - sizeof one element of struct. See http://www.cplusplus.com/forum/beginner/1936/
 	
-	
+	//add new note to pool
 	note_pool[0].note = note;
 	note_pool[0].velocity = velocity;
 	
-	
-	
+	current_note = note; //set current note
 	
 } 
 void remove_note(uint8_t note){
 	
 	uint8_t free_slot = 0;
-	
+	uint8_t temp_note = note_pool[0].note; //holder for current note
 	for (int i = 0; i <= 7; i++) { //search for note in note stack
 		
 		if (note_pool[i].note == note) {
 			
-			note_pool[i].note = -1;
+			note_pool[i].note = EMPTY;
 			free_slot = i;
 			break;
 			
@@ -54,15 +53,21 @@ void remove_note(uint8_t note){
 		
 	}
 	
-	//if it's the first note, then return. Omar pointed out that this optimization will cause problems if you release most recently played note
-	//if (free_slot == 0) return;
-
+	
 	//now shift elements left	
 	memmove(note_pool + free_slot, note_pool + free_slot + 1, sizeof(note_pool) - (sizeof(*note_pool)*(free_slot + 1)));
-	note_pool[7].note = -1;
+	note_pool[7].note = EMPTY;	
 	
-	//if releasing the last note in the stack then need to preserve pitch for envelope release
-	//if (free_slot == 0) note_pool[0].note = note;
+	//check to see if this is the last note released
+	if (note_pool[0].note == EMPTY) {
+		
+		current_note = temp_note; //store last note released for maintaining pitch during envelope release stage
+		
+	} else {		
+		
+		current_note = note_pool[0].note; //otherwise, the current note is the next one in the note stack
+
+	}	
 	
 }
 
