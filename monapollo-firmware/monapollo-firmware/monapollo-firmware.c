@@ -29,32 +29,34 @@ MidiDevice midi_device;
 
 
 
-//counter for switch scanning
-volatile uint8_t switch_timer = 0;
+//counter for switch scanning in main loop
+uint8_t switch_timer = 0;
 
 //MIDI gate buffer for note stealing
-volatile uint8_t gate_buffer = 0;
-
-//volatile uint8_t place = 0; //digit place for LED display
+static uint8_t gate_buffer = 0;
 
 
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
-	//value_to_display = note;
+	value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
+		remove_note(note);
 		gate_buffer--;
 		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 				
 	} else {
+		new_note(note, velocity);
 		gate_buffer++; //increment gate_buffer
-		PORTF &= ~(1<<GATE); //turn gate off to retrigger envelopes - maybe need to do it longer than one clock cycle though
+		//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
+		//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off 
 		PORTF |= (1<<GATE);
 	}
 	
 }
 void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
+	remove_note(note);
 	gate_buffer--;
 	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 }
@@ -75,8 +77,10 @@ void setup_midi_usart(void)
 ISR (USART_RX_vect) { // USART receive interrupt
 	 
 	uint8_t inByte = UDR0;
-	midi_device_input(&midi_device, 1, &inByte); //calling a function in an interrupt is inefficient according to AVR C guidelines so this function should maybe be inlined in main loop if inByte is made volatile	
-	  	
+	midi_device_input(&midi_device, 1, &inByte); 
+	//calling a function in an interrupt is inefficient according to AVR C guidelines
+	// so this function should maybe be inlined in main loop if inByte is made volatile	
+	//***HOWEVER***, xnor-midi example code has this function being called from USART_RX_vect ISR  	
 }
 
 
@@ -164,13 +168,11 @@ int main(void)
 	{	
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 	
-		//display_dec(value_to_display, digit[place]);
 		update_display(value_to_display, DEC);
 			
 		scan_pots_and_update_control_voltages();
-
 			
-		//do SPI read/write every 5 interrupts (16.5 ms)
+		//do SPI read/write every loops - whole section needs major update
 		if (switch_timer++ == 5)
 		{
 			switch_timer = 0;
@@ -178,10 +180,5 @@ int main(void)
 				
 		}
 			
-		////increment digit display place
-		//if (place++ == 3) //post increment
-		//{
-			//place = 0;
-		//}
 	}
 }

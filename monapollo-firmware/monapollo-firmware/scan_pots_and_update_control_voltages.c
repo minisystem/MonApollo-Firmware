@@ -8,6 +8,7 @@
 #include "adc.h"
 #include "hardware.h"
 #include "tune.h"
+#include "assigner.h"
 //#include "pot_to_dac_map.h"
 
 //I don't think any of these need to be volatile any more
@@ -71,6 +72,7 @@ struct control_voltage *pot_decoder_1[15] = {
 	&release_2_cv,
 	&release_1_cv
 	}; 
+	
 void scan_pots_and_update_control_voltages(void) {
 
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
@@ -151,9 +153,10 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
-	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[midi_note_number]);
 	
-	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[midi_note_number + 12]); //temporily pitch VCO2 one octave up from VCO1
+	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[get_current_note()]); //need to change this to get note number from assigner. Something like get_current_note()
+	
+	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[get_current_note() + 12]); //temporarily pitch VCO2 one octave up from VCO1
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	

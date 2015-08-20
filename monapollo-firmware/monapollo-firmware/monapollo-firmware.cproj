@@ -70,6 +70,9 @@
     <Compile Include="adc.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="assigner.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="dac.c">
       <SubType>compile</SubType>
     </Compile>

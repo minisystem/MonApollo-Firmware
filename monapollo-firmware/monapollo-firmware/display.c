@@ -4,7 +4,7 @@
 #include "hardware.h"
 #include "display_map.h"
 
-volatile uint8_t place = 0;
+
 
 void display_dec(uint16_t number, uint8_t digit)
 {
@@ -71,7 +71,9 @@ void display_dec(uint16_t number, uint8_t digit)
 }
 
 void update_display(uint16_t number, uint8_t type) {
-
+	
+	static uint8_t place = 0;
+	
 	uint8_t digit[] = {
 		ONES,
 		TENS,

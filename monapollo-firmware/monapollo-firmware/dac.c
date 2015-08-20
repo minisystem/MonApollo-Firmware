@@ -6,8 +6,8 @@
 #include "hardware.h"
 #include "dac.h"
 
-struct control_voltage vco1_pitch_cv = {VCO1_PITCH, DAC_MUX_EN1};
-struct control_voltage vco2_pitch_cv = {VCO2_PITCH, DAC_MUX_EN1};	
+struct control_voltage vco1_pitch_cv	={VCO1_PITCH, DAC_MUX_EN1};
+struct control_voltage vco2_pitch_cv	={VCO2_PITCH, DAC_MUX_EN1};	
 
 struct control_voltage vco2_mix_cv		={VCO2_MIX,		DAC_MUX_EN1};
 struct control_voltage vco1_mix_cv		={VCO1_MIX,		DAC_MUX_EN1};

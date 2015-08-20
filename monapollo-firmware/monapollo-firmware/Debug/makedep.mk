@@ -4,6 +4,8 @@
 
 adc.c
 
+assigner.c
+
 dac.c
 
 display.c

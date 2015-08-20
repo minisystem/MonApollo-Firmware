@@ -38,6 +38,7 @@ SUBDIRS :=  \
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../adc.c \
+../assigner.c \
 ../dac.c \
 ../display.c \
 ../interrupts.c \
@@ -61,6 +62,7 @@ ASM_SRCS +=
 
 OBJS +=  \
 adc.o \
+assigner.o \
 dac.o \
 display.o \
 interrupts.o \
@@ -78,6 +80,7 @@ xnormidi-develop/sysex_tools.o
 
 OBJS_AS_ARGS +=  \
 adc.o \
+assigner.o \
 dac.o \
 display.o \
 interrupts.o \
@@ -95,6 +98,7 @@ xnormidi-develop/sysex_tools.o
 
 C_DEPS +=  \
 adc.d \
+assigner.d \
 dac.d \
 display.d \
 interrupts.d \
@@ -112,6 +116,7 @@ xnormidi-develop/sysex_tools.d
 
 C_DEPS_AS_ARGS +=  \
 adc.d \
+assigner.d \
 dac.d \
 display.d \
 interrupts.d \
@@ -136,6 +141,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 
