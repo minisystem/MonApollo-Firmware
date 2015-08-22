@@ -4,7 +4,7 @@
 //
 
 #define EMPTY 255 //flag for empty note
-#define NOTE_POOL_SIZE 7
+#define NOTE_POOL_SIZE 7 //not used yet
 
 struct midi_note {
 	

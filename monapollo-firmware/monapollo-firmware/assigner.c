@@ -2,7 +2,7 @@
 #include "assigner.h"
 #include "display.h" //added just so display can be used for troubleshooting
 
-static struct midi_note note_pool[8] = //create a pool to store and order incoming MIDI notes
+static struct midi_note note_pool[8] = //create a pool to store and order incoming MIDI notes. Eventualyl want this to be initialized to NOTE_POOL_SIZE definition in assigner.h
 {
 	{EMPTY,	0},
 	{EMPTY,	0},
@@ -18,7 +18,7 @@ static struct midi_note note_pool[8] = //create a pool to store and order incomi
 static uint8_t current_note = 0; //this acts as a buffer for the current note to maintain pitch during release stage of envelopes
 
 
-uint8_t get_current_note() { //this is a kludge. Either make current_note global or force inline this function? Ask Omar
+uint8_t get_current_note() { //this is a kludge. Either make current_note global or force inline this function? Ask Omar. BUT, this could be where interpolation is calculated!
 	
 	return current_note;
 	

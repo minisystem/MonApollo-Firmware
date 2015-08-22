@@ -875,7 +875,7 @@ ISR (TIMER1_OVF_vect) {
      482:	18 95       	reti
 
 00000484 <note_off_event>:
-		//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers 
+		//could implement this with timers. Will it really make a difference?
 		PORTF |= (1<<GATE);
 	}
 	
@@ -935,7 +935,8 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
      4d0:	80 93 c3 01 	sts	0x01C3, r24
 		//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
 		//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
-		//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers 
+		//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
+		//could implement this with timers. Will it really make a difference?
 		PORTF |= (1<<GATE);
      4d4:	89 9a       	sbi	0x11, 1	; 17
      4d6:	08 95       	ret
