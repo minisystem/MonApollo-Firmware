@@ -32,13 +32,13 @@ extern volatile uint16_t vco2_init_cv;
 
 extern volatile uint8_t compare_match_counter;
 
-extern uint16_t vco1_pitch_table[128]; 
-extern uint16_t vco2_pitch_table[128];
+extern uint16_t vco1_pitch_table[17]; 
+extern uint16_t vco2_pitch_table[17];
 
-uint16_t set_vco_init_cv(uint8_t vco); //returns 14 bit OSC_INIT_CV
+uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference); //returns 14 bit OSC_INIT_CV
 
 void tune_octave(uint8_t octave, uint8_t vco); //fill pitch tables for specified octave
 
-
+void tune_8ths(uint8_t vco); //tune every 8th MIDI note
 
 #endif

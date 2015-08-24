@@ -3,7 +3,6 @@
 
 #include <avr/io.h>
 
-
 #include "dac.h"
 #include "adc.h"
 #include "hardware.h"
@@ -48,10 +47,7 @@ struct control_voltage *pot_decoder_0[16] = {
 	&vco2_pw_cv
 		
 };
-
-
-						 							 			
-
+					 							 			
 //Second group of pot inputs 1-15 (input 0 is grounded) on U4 demultiplexer
 //This is an array of pointers to control_voltage structs	
 struct control_voltage *pot_decoder_1[15] = {
@@ -96,9 +92,7 @@ void scan_pots_and_update_control_voltages(void) {
 				break;
 			
 			case 9: //exception for TUNE - apply to both VCO1 and VCO2
-				//adc_difference = adc_value - adc_previous;
-				//adc_previous = adc_previous + (adc_difference>>2);
-				//value_to_display = adc_previous;
+
 				tune_offset = 512 - pot_group_0[i];
 				set_control_voltage(&tune_cv, vco1_init_cv + tune_offset);
 				break;
@@ -117,25 +111,6 @@ void scan_pots_and_update_control_voltages(void) {
 				break;
 			
 		}
-		//if (i == 8 || i == 9) //exception to handle tune and fine for VCO1 and VCO2
-		//{
-			//uint16_t tune_value = vco2_init_cv;//6303;//9759; //init CV offset of about -5.8V
-			//if (i == 9) tune_value = vco1_init_cv;//-= 1638; //add an octave (1V) to VCO2 pitch
-			//if (adc_value >= 512) {
-				//set_control_voltage(pot_decoder_0[i],(tune_value + (adc_value - 512)));
-				//tune_offset = adc_value - 512;
-			//} else {
-				//set_control_voltage(pot_decoder_0[i],(tune_value - (512- adc_value)));
-				//tune_offset = adc_value;
-			//}
-//
-		//} else if (i == 11) //exception to handle ARP_RATE pot
-		//{
-			////store ARP pot value, but don't set DAC
-			//
-		//} else {
-			//set_control_voltage(pot_decoder_0[i], adc_value << 4);
-		//}
 		
 	}
 	
@@ -154,9 +129,23 @@ void scan_pots_and_update_control_voltages(void) {
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	
-	set_control_voltage(&vco1_pitch_cv, vco1_pitch_table[get_current_note()]); //need to change this to get note number from assigner. Something like get_current_note()
+	uint8_t note = get_current_note();
+	uint8_t pitch_index = note>>3;
+	uint8_t delta_note = note - pitch_index*8; //will range from 0 to 7
+		
+	uint16_t y0 = vco1_pitch_table[pitch_index -1];
+	uint16_t y1 = vco1_pitch_table[pitch_index];
 	
-	set_control_voltage(&vco2_pitch_cv, vco2_pitch_table[get_current_note() + 12]); //temporarily pitch VCO2 one octave up from VCO1
+	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>
+	
+	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
+	
+	y0 = vco2_pitch_table[pitch_index - 1];
+	y1 = vco2_pitch_table[pitch_index];
+	
+	interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3);
+	
+	set_control_voltage(&vco2_pitch_cv, interpolated_pitch_cv); //temporarily pitch VCO2 one octave up from VCO1
 	
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);	
