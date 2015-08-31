@@ -488,7 +488,8 @@ void tune_8ths(uint8_t vco) {
 			
 
 				while (count_finished == FALSE) {
-					update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);	
+					//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
+					update_display(vco_number*100 + period, DEC);	
 					//need to have a watchdog timer here to escape while loop if it takes too long
 				
 					//not sure what's really necessary here - definitely pitch and init_cv, but what else?
