@@ -28,7 +28,7 @@ void new_note(uint8_t note, uint8_t velocity) {
 	
 	
 	//shift contents of note_pool right by one element
-	memmove(note_pool + 1, note_pool, sizeof(note_pool) -sizeof(*note_pool)); //last arguemnt: sizeof struct - sizeof one element of struct. See http://www.cplusplus.com/forum/beginner/1936/
+	memmove(note_pool + 1, note_pool, sizeof(note_pool) -sizeof(*note_pool)); //last argument: sizeof struct - sizeof one element of struct. See http://www.cplusplus.com/forum/beginner/1936/
 	
 	//add new note to pool
 	note_pool[0].note = note;

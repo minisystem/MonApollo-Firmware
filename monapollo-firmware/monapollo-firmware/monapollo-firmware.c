@@ -19,6 +19,7 @@
 #include "pot_to_dac_map.h"
 #include "midi.h"
 #include "tune.h"
+#include "utils.h"
 
 #include "xnormidi-develop/midi.h"
 #include "xnormidi-develop/midi_device.h"
@@ -118,7 +119,7 @@ int main(void)
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
 	
 	//set up switch port
-	DDRF &= ~(1<<ISW8_SW); //set ISW8_SW pin as input
+	DDRF &= ~(1<<ISW8_SW); //set BMOD_SW pin as input
 	
 	//setup ADC
     setup_adc();		

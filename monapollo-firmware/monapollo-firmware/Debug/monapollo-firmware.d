@@ -20,7 +20,7 @@ monapollo-firmware.d monapollo-firmware.o: .././monapollo-firmware.c \
  .././midi.h .././xnormidi-develop/midi_device.h \
  .././xnormidi-develop/midi_function_types.h \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/include/stdbool.h \
- .././xnormidi-develop/bytequeue/bytequeue.h .././tune.h \
+ .././xnormidi-develop/bytequeue/bytequeue.h .././tune.h .././utils.h \
  .././xnormidi-develop/midi.h .././xnormidi-develop/midi_device.h
 
 c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/avr/io.h:
@@ -84,6 +84,8 @@ c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.
 .././xnormidi-develop/bytequeue/bytequeue.h:
 
 .././tune.h:
+
+.././utils.h:
 
 .././xnormidi-develop/midi.h:
 

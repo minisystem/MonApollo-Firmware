@@ -77,6 +77,9 @@
 #define ISW6_LED			5 //VCO2 TRI U16
 #define ISW7_LED			6 //VCO2 PULSE U16
 
+#define VCO1_32F			1 //LED3 on LED LATCH 4
+#define VCO2_32F			5 //LED8 on LED LATCH 4
+
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7
 

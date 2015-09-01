@@ -19,8 +19,8 @@ volatile uint8_t ISW8_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 //debounce switch state flags
 //again, combine into a single byte and do bit manipulations to determine previous switch states
 //flags for direct (into MCU) input switches
-volatile uint8_t previous_sw_state = 0;
-volatile uint8_t current_sw_state = 0;
+static uint8_t previous_sw_state = 0;
+static uint8_t current_sw_state = 0;
 //flags for SPI input switches (currently only 1 SPDR byte - will need to make these variables wider or have multiple flag bytes for each successive SPI byte)
 volatile uint8_t spi_sw_current_state = 0;
 volatile uint8_t spi_sw_previous_state = 0;
@@ -64,12 +64,20 @@ void setup_spi(void) {
 	
 }
 
+uint8_t spi_shift_byte(uint8_t byte) { //shifts out byte for LED data and simultaneously reads switch data
+	
+	SPDR = byte;
+	while (!(SPSR & (1<<SPIF)));
+	return SPDR;
+	
+}
+
 void update_spi(void) {
 	
 			SPI_PORT |= SPI_SW_LATCH;
 			
 			//SHIFT 5th BYTE
-			SPDR =
+			uint8_t spi_data = 
 			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
 			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
 			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
@@ -79,10 +87,9 @@ void update_spi(void) {
 			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
 			ISW8_SW_ON << ISW8_LED;
 			
-			while (!(SPSR & (1<<SPIF)));
-			
+					
 			//Now read SPDR for switch data shifted in from 74XX165 U14
-			spi_sw_current_state = SPDR;
+			spi_sw_current_state = spi_shift_byte(spi_data);
 			
 			spi_sw_current_state ^= spi_sw_previous_state;
 			spi_sw_previous_state ^= spi_sw_current_state;
@@ -92,10 +99,9 @@ void update_spi(void) {
 			sw_latch_five ^= spi_sw_current_state; //Omar's solution.
 			
 			//SHIFT 4th BYTE
-			SPDR = 0; //no LEDs connected in current test set up
-			while (!(SPSR & (1<<SPIF)));
 			//Now read SPDR for switch data shifted in from 74XX165 (U9)
-			sw_latch_four = SPDR;
+			spi_data = (1<<VCO2_32F | 1<<VCO1_32F);
+			sw_latch_four = spi_shift_byte(spi_data);
 			//toggling not implemented here yet.
 			ISW12_SW_ON = (sw_latch_four >> ISW12_SW) & 1;
 			//check if ISW13_SW bit is set
@@ -103,18 +109,16 @@ void update_spi(void) {
 
 			
 			//SHIFT 3th BYTE
-			SPDR = 0;
-			while (!(SPSR & (1<<SPIF)));
+			sw_latch_three = spi_shift_byte(0);
 
 			//SHIFT 2th BYTE
-			SPDR = 0;
-			while (!(SPSR & (1<<SPIF)));
+			sw_latch_two = spi_shift_byte(0);
 			
 			//SHIFT 1st BYTE
 			
-			SPDR = (ISW12_SW_ON << ISW12_LED) | (ISW11_SW_ON << ISW11_LED) | (ISW9_SW_ON << ISW9_LED); 
+			spi_data = (ISW12_SW_ON << ISW12_LED) | (ISW11_SW_ON << ISW11_LED) | (ISW9_SW_ON << ISW9_LED); 
 			//Wait for SPI shift to complete
-			while (!(SPSR & (1<<SPIF)));
+			sw_latch_one = spi_shift_byte(spi_data);
 			
 			//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 			
@@ -178,29 +182,6 @@ void update_spi(void) {
 				//vco2_init_cv = set_vco_init_cv(VCO2, 24079);
 				tune_8ths(VCO1);
 				tune_8ths(VCO2);
-				
-				//vco1_pitch_table[11] = 1638; //need initial value here for 7 bit additive tuning algorithm to work. Once Octave 0 is tuned, this won't be necessray as C0/MIDI note 0 is 0V
-				//vco2_pitch_table[11] = 1638;
-				//tune_octave(1, VCO1);
-				//tune_octave(1, VCO2);
-				//tune_octave(2, VCO1);
-				//tune_octave(2, VCO2);
-				//tune_octave(3, VCO1);
-				//tune_octave(3, VCO2);
-				//tune_octave(4, VCO1);
-				//tune_octave(4, VCO2);
-				//tune_octave(5, VCO1);
-				//tune_octave(5, VCO2);
-				//tune_octave(6, VCO1);
-				//tune_octave(6, VCO2);
-				//tune_octave(7, VCO1);
-				//tune_octave(7, VCO2);
-				//tune_octave(8, VCO1);
-				//tune_octave(8, VCO2);
-				//tune_octave(9, VCO1);
-				//tune_octave(9, VCO2);
-				
-	
 				
 			}
 	
