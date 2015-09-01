@@ -64,18 +64,18 @@
 
 //LED defines
 //define LED bits - number corresponds to bit position in serial-parallel shift register (74HC595)
-#define ISW12_LED			2 //ARP MODE
-#define ISW11_LED			7 //WRITE
-#define ISW9_LED			0 //EG2 INV
+#define ARP_MODE_LED			2 //ARP MODE
+#define PROG_WRITE_LED			7 //WRITE
+#define EG2_INV_LED			0 //EG2 INV
 
-#define ISW8_LED			7 //B MOD
-#define ISW4_LED			1 //SYNC U16
-#define ISW1_LED			2 //VCO1 SAW U16
-#define ISW2_LED			3 //VCO1 TRI U16
-#define ISW3_LED			0 //VCO1 PULSE U16
-#define ISW5_LED			4 //VCO2 SAW U16
-#define ISW6_LED			5 //VCO2 TRI U16
-#define ISW7_LED			6 //VCO2 PULSE U16
+#define BMOD_LED				7 //B MOD
+#define VCO_SYNC_LED			1 //SYNC U16
+#define VCO1_SAW_LED			2 //VCO1 SAW U16
+#define VCO1_TRI_LED			3 //VCO1 TRI U16
+#define VCO1_PULSE_LED			0 //VCO1 PULSE U16
+#define VCO2_SAW_LED			4 //VCO2 SAW U16
+#define VCO2_TRI_LED			5 //VCO2 TRI U16
+#define VCO2_PULSE_LED			6 //VCO2 PULSE U16
 
 #define VCO1_32F			1 //LED3 on LED LATCH 4
 #define VCO2_32F			5 //LED8 on LED LATCH 4

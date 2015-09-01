@@ -78,14 +78,14 @@ void update_spi(void) {
 			
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
-			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
-			BMOD_SW_ON << ISW8_LED;
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI_LED |
+			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE_LED |
+			BMOD_SW_ON << BMOD_LED;
 			
 					
 			//Now read SPDR for switch data shifted in from 74XX165 U14
@@ -116,7 +116,7 @@ void update_spi(void) {
 			
 			//SHIFT 1st BYTE
 			
-			spi_data = (ISW12_SW_ON << ISW12_LED) | (PROG_WRITE_ON << ISW11_LED) | (EG2_INV_ON << ISW9_LED); 
+			spi_data = (ISW12_SW_ON << ARP_MODE_LED) | (PROG_WRITE_ON << PROG_WRITE_LED) | (EG2_INV_ON << EG2_INV_LED); 
 			//Wait for SPI shift to complete
 			sw_latch_one = spi_shift_byte(spi_data);
 			

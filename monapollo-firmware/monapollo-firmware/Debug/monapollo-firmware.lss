@@ -1738,11 +1738,11 @@ void update_spi(void) {
 			
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
      91c:	a0 91 3f 02 	lds	r26, 0x023F
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
      920:	e0 90 3f 02 	lds	r14, 0x023F
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
      924:	c0 91 3f 02 	lds	r28, 0x023F
 void update_spi(void) {
 	
@@ -1751,17 +1751,17 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      928:	80 91 3f 02 	lds	r24, 0x023F
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
      92c:	e0 91 3f 02 	lds	r30, 0x023F
-			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI_LED |
      930:	40 91 3f 02 	lds	r20, 0x023F
-			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE_LED |
      934:	20 91 3f 02 	lds	r18, 0x023F
-			BMOD_SW_ON << ISW8_LED;
+			BMOD_SW_ON << BMOD_LED;
      938:	90 91 42 02 	lds	r25, 0x0242
      93c:	97 95       	ror	r25
      93e:	99 27       	eor	r25, r25
@@ -1774,7 +1774,7 @@ void update_spi(void) {
 			uint8_t spi_data = 
      942:	81 70       	andi	r24, 0x01	; 1
      944:	98 2b       	or	r25, r24
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
      946:	aa 1f       	adc	r26, r26
      948:	aa 27       	eor	r26, r26
      94a:	aa 1f       	adc	r26, r26
@@ -1786,8 +1786,8 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      94e:	a9 2b       	or	r26, r25
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
      950:	e6 94       	lsr	r14
      952:	e6 94       	lsr	r14
      954:	ff 24       	eor	r15, r15
@@ -1806,9 +1806,9 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      966:	0a 2b       	or	r16, r26
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
      968:	c6 95       	lsr	r28
      96a:	d0 e0       	ldi	r29, 0x00	; 0
      96c:	c1 70       	andi	r28, 0x01	; 1
@@ -1827,11 +1827,11 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      97e:	a0 2b       	or	r26, r16
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
      980:	e2 95       	swap	r30
      982:	ef 70       	andi	r30, 0x0F	; 15
      984:	f0 e0       	ldi	r31, 0x00	; 0
@@ -1851,12 +1851,12 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      998:	6a 2b       	or	r22, r26
-			((sw_latch_five >> ISW4_SW) & 1) << ISW4_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
+			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI_LED |
      99a:	42 95       	swap	r20
      99c:	46 95       	lsr	r20
      99e:	47 70       	andi	r20, 0x07	; 7
@@ -1879,12 +1879,12 @@ void update_spi(void) {
 			//SHIFT 5th BYTE
 			uint8_t spi_data = 
      9b8:	86 2b       	or	r24, r22
-			((sw_latch_five >> ISW1_SW) & 1) << ISW1_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << ISW2_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << ISW3_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
-			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
-			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
+			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
+			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI_LED |
+			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE_LED |
      9ba:	22 95       	swap	r18
      9bc:	26 95       	lsr	r18
      9be:	26 95       	lsr	r18
@@ -1901,7 +1901,7 @@ void update_spi(void) {
      9d4:	07 94       	ror	r0
      9d6:	32 2f       	mov	r19, r18
      9d8:	20 2d       	mov	r18, r0
-			BMOD_SW_ON << ISW8_LED;
+			BMOD_SW_ON << BMOD_LED;
 			
 					
 			//Now read SPDR for switch data shifted in from 74XX165 U14
@@ -1973,7 +1973,7 @@ void update_spi(void) {
 			
 			//SHIFT 1st BYTE
 			
-			spi_data = (ISW12_SW_ON << ISW12_LED) | (PROG_WRITE_ON << ISW11_LED) | (EG2_INV_ON << ISW9_LED); 
+			spi_data = (ISW12_SW_ON << ARP_MODE_LED) | (PROG_WRITE_ON << PROG_WRITE_LED) | (EG2_INV_ON << EG2_INV_LED); 
      a5c:	20 91 45 02 	lds	r18, 0x0245
      a60:	80 91 46 02 	lds	r24, 0x0246
      a64:	90 91 47 02 	lds	r25, 0x0247
