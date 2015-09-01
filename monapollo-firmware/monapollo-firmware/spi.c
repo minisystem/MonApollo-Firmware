@@ -9,12 +9,12 @@
 
 //switch flags
 //ultimately combine these into a single byte and do bit manipulations to determine switch states
-volatile uint8_t ISW9_SW_ON = 0; //flag for ISW9 switch
-volatile uint8_t ISW11_SW_ON = 0; //flag for ISW11 switch
+volatile uint8_t EG2_INV_ON = 0; //flag for ISW9 switch
+volatile uint8_t PROG_WRITE_ON = 0; //flag for ISW11 switch
 volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
 volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
 volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
-volatile uint8_t ISW8_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
+volatile uint8_t BMOD_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 
 //debounce switch state flags
 //again, combine into a single byte and do bit manipulations to determine previous switch states
@@ -85,7 +85,7 @@ void update_spi(void) {
 			((sw_latch_five >> ISW5_SW) & 1) << ISW5_LED |
 			((sw_latch_five >> ISW6_SW) & 1) << ISW6_LED |
 			((sw_latch_five >> ISW7_SW) & 1) << ISW7_LED |
-			ISW8_SW_ON << ISW8_LED;
+			BMOD_SW_ON << ISW8_LED;
 			
 					
 			//Now read SPDR for switch data shifted in from 74XX165 U14
@@ -116,7 +116,7 @@ void update_spi(void) {
 			
 			//SHIFT 1st BYTE
 			
-			spi_data = (ISW12_SW_ON << ISW12_LED) | (ISW11_SW_ON << ISW11_LED) | (ISW9_SW_ON << ISW9_LED); 
+			spi_data = (ISW12_SW_ON << ISW12_LED) | (PROG_WRITE_ON << ISW11_LED) | (EG2_INV_ON << ISW9_LED); 
 			//Wait for SPI shift to complete
 			sw_latch_one = spi_shift_byte(spi_data);
 			
@@ -136,19 +136,19 @@ void update_spi(void) {
 			previous_sw_state ^= current_sw_state;
 			current_sw_state &= previous_sw_state;
 			
-			if (current_sw_state & (1<<ISW8_SW))
+			if (current_sw_state & (1<<BMOD_SW))
 			{
-				ISW8_SW_ON ^= 1 << 0; //toggle switch state
+				BMOD_SW_ON ^= 1 << 0; //toggle switch state
 			}
 			
-			if (current_sw_state & (1<<ISW11_SW)) {
+			if (current_sw_state & (1<<PROG_WRITE)) {
 				
-				ISW11_SW_ON ^= 1 << 0; //toggle switch state
+				PROG_WRITE_ON ^= 1 << 0; //toggle switch state
 			}
 			
-			if (current_sw_state & (1<<ISW9_SW)) {
+			if (current_sw_state & (1<<EG2_INV)) {
 				
-				ISW9_SW_ON ^= 1 << 0; //toggle switch state
+				EG2_INV_ON ^= 1 << 0; //toggle switch state
 			}
 			
 			//update analog switch latch:
@@ -163,7 +163,7 @@ void update_spi(void) {
 			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW |
 			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI |
 			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE |
-			ISW8_SW_ON << BMOD;
+			BMOD_SW_ON << BMOD;
 			VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
 			_delay_us(1); //why is this delay here????
 			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
@@ -171,12 +171,12 @@ void update_spi(void) {
 			
 			//set EG2 INV bit. This changes the nth bit to x from: http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
 			//need to make sure this doesn't interfere with anything else on this port
-			EG2_POL_PORT ^= (-ISW9_SW_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
+			EG2_POL_PORT ^= (-EG2_INV_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
 			
-			if (ISW11_SW_ON) { //temporary tune button hack
+			if (PROG_WRITE_ON) { //temporary tune button hack
 				
-				ISW11_SW_ON ^= 1<<0; //toggle switch state
-				current_sw_state ^= (1<<ISW11_SW); //toggle read switch state
+				PROG_WRITE_ON ^= 1<<0; //toggle switch state
+				current_sw_state ^= (1<<PROG_WRITE); //toggle read switch state
 				//update_spi();
 				//vco1_init_cv = set_vco_init_cv(VCO1, 24079);
 				//vco2_init_cv = set_vco_init_cv(VCO2, 24079);

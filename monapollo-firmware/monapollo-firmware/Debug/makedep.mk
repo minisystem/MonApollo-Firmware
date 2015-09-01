@@ -22,6 +22,8 @@ spi.c
 
 tune.c
 
+utils.c
+
 xnormidi-develop\bytequeue\bytequeue.c
 
 xnormidi-develop\bytequeue\interrupt_setting.c

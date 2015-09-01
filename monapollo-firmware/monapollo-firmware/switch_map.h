@@ -18,8 +18,8 @@
 
 
 //define direct MCU input switch bits
-#define ISW8_SW				PF2
-#define ISW9_SW				PF3
-#define ISW11_SW		    PF4
+#define BMOD_SW				PF2
+#define EG2_INV				PF3
+#define PROG_WRITE		    PF4
 
 #endif

@@ -47,6 +47,7 @@ C_SRCS +=  \
 ../scan_pots_and_update_control_voltages.c \
 ../spi.c \
 ../tune.c \
+../utils.c \
 ../xnormidi-develop/bytequeue/bytequeue.c \
 ../xnormidi-develop/bytequeue/interrupt_setting.c \
 ../xnormidi-develop/midi.c \
@@ -71,6 +72,7 @@ monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
 tune.o \
+utils.o \
 xnormidi-develop/bytequeue/bytequeue.o \
 xnormidi-develop/bytequeue/interrupt_setting.o \
 xnormidi-develop/midi.o \
@@ -89,6 +91,7 @@ monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
 tune.o \
+utils.o \
 xnormidi-develop/bytequeue/bytequeue.o \
 xnormidi-develop/bytequeue/interrupt_setting.o \
 xnormidi-develop/midi.o \
@@ -107,6 +110,7 @@ monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
 tune.d \
+utils.d \
 xnormidi-develop/bytequeue/bytequeue.d \
 xnormidi-develop/bytequeue/interrupt_setting.d \
 xnormidi-develop/midi.d \
@@ -125,6 +129,7 @@ monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
 tune.d \
+utils.d \
 xnormidi-develop/bytequeue/bytequeue.d \
 xnormidi-develop/bytequeue/interrupt_setting.d \
 xnormidi-develop/midi.d \
@@ -141,6 +146,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 

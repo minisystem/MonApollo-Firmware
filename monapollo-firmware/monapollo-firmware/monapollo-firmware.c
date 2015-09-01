@@ -119,7 +119,7 @@ int main(void)
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH | 1<< DISP_CATHODE_LATCH); //set DISP latches to LOW (inactive)
 	
 	//set up switch port
-	DDRF &= ~(1<<ISW8_SW); //set BMOD_SW pin as input
+	DDRF &= ~(1<<BMOD_SW); //set BMOD_SW pin as input
 	
 	//setup ADC
     setup_adc();		
