@@ -66,7 +66,7 @@
 //define LED bits - number corresponds to bit position in serial-parallel shift register (74HC595)
 #define ARP_MODE_LED			2 //ARP MODE
 #define PROG_WRITE_LED			7 //WRITE
-#define EG2_INV_LED			0 //EG2 INV
+#define EG2_INV_LED				0 //EG2 INV
 
 #define BMOD_LED				7 //B MOD
 #define VCO_SYNC_LED			1 //SYNC U16

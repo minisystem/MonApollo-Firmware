@@ -6,30 +6,29 @@
 #include "led_map.h"
 #include "hardware.h"
 #include "tune.h"
+#include "utils.h"
 
 //switch flags
 //ultimately combine these into a single byte and do bit manipulations to determine switch states
-volatile uint8_t EG2_INV_ON = 0; //flag for ISW9 switch
-volatile uint8_t PROG_WRITE_ON = 0; //flag for ISW11 switch
-volatile uint8_t ISW12_SW_ON = 0; //flag for ISW12 switch
-volatile uint8_t ISW13_SW_ON = 0; //flag for ISW13 switch
-volatile uint8_t ISW4_SW_ON = 0;  //flag for ISW4 switch
-volatile uint8_t BMOD_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
+static uint8_t EG2_INV_ON = 0; //flag for ISW9 switch
+static uint8_t PROG_WRITE_ON = 0; //flag for ISW11 switch
+static uint8_t ARP_MODE_SW_ON = 0; //flag for ISW12 switch
+static uint8_t ARP_SYNC_SW_ON = 0; //flag for ISW13 switch
+static uint8_t VCO_SYNC_SW_ON = 0;  //flag for ISW4 switch
+static uint8_t BMOD_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 
 //debounce switch state flags
 //again, combine into a single byte and do bit manipulations to determine previous switch states
 //flags for direct (into MCU) input switches
-static uint8_t previous_sw_state = 0;
-static uint8_t current_sw_state = 0;
-//flags for SPI input switches (currently only 1 SPDR byte - will need to make these variables wider or have multiple flag bytes for each successive SPI byte)
-volatile uint8_t spi_sw_current_state = 0;
-volatile uint8_t spi_sw_previous_state = 0;
+//static uint8_t previous_sw_state = 0;
+//static uint8_t current_sw_state = 0;
+////flags for SPI input switches (currently only 1 SPDR byte - will need to make these variables wider or have multiple flag bytes for each successive SPI byte)
+static uint8_t spi_sw_current_state = 0;
+static uint8_t spi_sw_previous_state = 0;
 //switch state holder
-volatile uint8_t sw_latch_five = 0; //U16 5th switch latch in SPI chain
-volatile uint8_t sw_latch_four = 0;
-volatile uint8_t sw_latch_three = 0;
-volatile uint8_t sw_latch_two = 0;
-volatile uint8_t sw_latch_one = 0;
+static uint8_t sw_latch_five = 0; //U16 5th switch latch in SPI chain
+static uint8_t sw_latch_four = 0;
+
 
 void setup_spi(void) {
 	
@@ -77,14 +76,14 @@ void update_spi(void) {
 			SPI_PORT |= SPI_SW_LATCH;
 			
 			//SHIFT 5th BYTE
-			uint8_t spi_data = 
-			((sw_latch_five >> ISW4_SW) & 1) << VCO_SYNC_LED |
-			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW_LED |
-			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI_LED |
-			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE_LED |
-			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW_LED |
-			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI_LED |
-			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE_LED |
+			uint8_t spi_data = //Need to farm this out to some kind of switch/LED data parser that preps LED SPI outgoing bytes
+			((sw_latch_five >> VCO_SYNC_SW) & 1) << VCO_SYNC_LED |
+			((sw_latch_five >> VCO1_SAW_SW) & 1) << VCO1_SAW_LED |
+			((sw_latch_five >> VCO1_TRI_SW) & 1) << VCO1_TRI_LED |
+			((sw_latch_five >> VCO1_PULSE_SW) & 1) << VCO1_PULSE_LED |
+			((sw_latch_five >> VCO2_SAW_SW) & 1) << VCO2_SAW_LED |
+			((sw_latch_five >> VCO2_TRI_SW) & 1) << VCO2_TRI_LED |
+			((sw_latch_five >> VCO2_PULSE_SW) & 1) << VCO2_PULSE_LED |
 			BMOD_SW_ON << BMOD_LED;
 			
 					
@@ -103,22 +102,21 @@ void update_spi(void) {
 			spi_data = (1<<VCO2_32F | 1<<VCO1_32F);
 			sw_latch_four = spi_shift_byte(spi_data);
 			//toggling not implemented here yet.
-			ISW12_SW_ON = (sw_latch_four >> ISW12_SW) & 1;
-			//check if ISW13_SW bit is set
-			ISW13_SW_ON = (sw_latch_four >> ISW13_SW) & 1;
+			ARP_MODE_SW_ON = (sw_latch_four >> ARP_MODE_SW) & 1;
+			//check if ARP_SYNC_SW bit is set
+			ARP_SYNC_SW_ON = (sw_latch_four >> ARP_SYNC_SW) & 1;
 
 			
 			//SHIFT 3th BYTE
-			sw_latch_three = spi_shift_byte(0);
+			spi_shift_byte(0);
 
 			//SHIFT 2th BYTE
-			sw_latch_two = spi_shift_byte(0);
+			spi_shift_byte(0);
 			
-			//SHIFT 1st BYTE
-			
-			spi_data = (ISW12_SW_ON << ARP_MODE_LED) | (PROG_WRITE_ON << PROG_WRITE_LED) | (EG2_INV_ON << EG2_INV_LED); 
+			//SHIFT 1st BYTE			
+			spi_data = (ARP_MODE_SW_ON << ARP_MODE_LED) | (PROG_WRITE_ON << PROG_WRITE_LED) | (EG2_INV_ON << EG2_INV_LED); 
 			//Wait for SPI shift to complete
-			sw_latch_one = spi_shift_byte(spi_data);
+			spi_shift_byte(spi_data);
 			
 			//Toggle LED_LATCH to shift data to 74HC595 shift register outputs
 			
@@ -128,46 +126,33 @@ void update_spi(void) {
 			//clear SPI_SW_LATCH
 			SPI_PORT &= ~SPI_SW_LATCH;
 			
+			//EVERYTHING BELOW NEEDS TO BE MOVED OUT OF SPI FUNCTION//
+			
 			//now read switches directly connected to MCU
-			//this toggle code works, but I haven't figured out how it works
-			//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/
-			current_sw_state = SWITCH_PORT;
-			current_sw_state ^= previous_sw_state;
-			previous_sw_state ^= current_sw_state;
-			current_sw_state &= previous_sw_state;
+			uint8_t current_sw_state = read_switch_port();
 			
 			if (current_sw_state & (1<<BMOD_SW))
 			{
 				BMOD_SW_ON ^= 1 << 0; //toggle switch state
 			}
 			
-			if (current_sw_state & (1<<PROG_WRITE)) {
+			if (current_sw_state & (1<<PROG_WRITE_SW)) {
 				
 				PROG_WRITE_ON ^= 1 << 0; //toggle switch state
 			}
 			
-			if (current_sw_state & (1<<EG2_INV)) {
+			if (current_sw_state & (1<<EG2_INV_SW)) {
 				
 				EG2_INV_ON ^= 1 << 0; //toggle switch state
 			}
 			
 			//update analog switch latch:
-			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-			//enable output on VCO analog switch latch:
-			//switch latch: 7: B TRI 6: B SAW 5: B PULSE 4: B MOD 3: SYNC 2: A TRI 1: A PULSE 0: A SAW
-			DATA_BUS =
-			((sw_latch_five >> ISW4_SW) & 1) << SYNC |
-			((sw_latch_five >> ISW1_SW) & 1) << VCO1_SAW |
-			((sw_latch_five >> ISW2_SW) & 1) << VCO1_TRI |
-			((sw_latch_five >> ISW3_SW) & 1) << VCO1_PULSE |
-			((sw_latch_five >> ISW5_SW) & 1) << VCO2_SAW |
-			((sw_latch_five >> ISW6_SW) & 1) << VCO2_TRI |
-			((sw_latch_five >> ISW7_SW) & 1) << VCO2_PULSE |
-			BMOD_SW_ON << BMOD;
-			VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
-			_delay_us(1); //why is this delay here????
-			VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
-			DATA_BUS = 0;
+			//need to incorporate BMOD switch state into data byte sent to analog switch latch
+			//3rd switch bit is VCO1_OCTAVE_UP_SW state, which isn't used by analog switch latch
+			uint8_t switch_state_byte = sw_latch_five;
+			switch_state_byte ^= (-BMOD_SW_ON ^ switch_state_byte) & (1<<3);//set third bit dependent on 
+			update_analog_switch_latch(switch_state_byte);
+
 			
 			//set EG2 INV bit. This changes the nth bit to x from: http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
 			//need to make sure this doesn't interfere with anything else on this port
@@ -176,8 +161,7 @@ void update_spi(void) {
 			if (PROG_WRITE_ON) { //temporary tune button hack
 				
 				PROG_WRITE_ON ^= 1<<0; //toggle switch state
-				current_sw_state ^= (1<<PROG_WRITE); //toggle read switch state
-				//update_spi();
+				current_sw_state ^= (1<<PROG_WRITE_SW); //toggle read switch state
 				//vco1_init_cv = set_vco_init_cv(VCO1, 24079);
 				//vco2_init_cv = set_vco_init_cv(VCO2, 24079);
 				tune_8ths(VCO1);
