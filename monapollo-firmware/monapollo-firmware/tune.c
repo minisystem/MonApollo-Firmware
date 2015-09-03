@@ -68,7 +68,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	
 	if (vco == VCO1) { //turn on VCO1 pulse
 		//turn on VCO1 pulse, all others off
-		switch_byte |= (1<<VCO1_SAW);
+		switch_byte = (1<<VCO1_SAW_LATCH_BIT);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 		vco_mix_cv = &vco1_mix_cv;
 		vco_pw_cv = &vco1_pw_cv;
@@ -77,7 +77,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 		
 	} else { //turn on VCO2 pulse	
 		//turn on VCO2 pulse, all others off
-		switch_byte |= (1<<VCO2_SAW);
+		switch_byte = (1<<VCO2_SAW_LATCH_BIT);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 		vco_mix_cv = &vco2_mix_cv;
 		vco_pw_cv = &vco2_pw_cv;
@@ -218,7 +218,7 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 	if (vco == VCO1) { //set up parameters for VCO1 tuning
 
 		//turn on VCO1 SAW, all others off
-		switch_byte |= (1<<VCO1_SAW);
+		switch_byte = (1<<VCO1_SAW_LATCH_BIT);
 		vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 		vco_mix_cv = &vco1_mix_cv;
 		vco_pw_cv = &vco1_pw_cv;
@@ -231,7 +231,7 @@ void tune_octave(uint8_t octave, uint8_t vco) {
 	} else { //set up parameters for VCO2 tuning
 		
 		//turn on VCO2 SAW, all others off
-		switch_byte |= (1<<VCO2_SAW);
+		switch_byte = (1<<VCO2_SAW_LATCH_BIT);
 		vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 		vco_mix_cv = &vco2_mix_cv;
 		vco_pw_cv = &vco2_pw_cv;
@@ -414,7 +414,7 @@ void tune_8ths(uint8_t vco) {
 		if (vco == VCO1) { //set up parameters for VCO1 tuning
 
 			//turn on VCO1 SAW, all others off
-			switch_byte |= (1<<VCO1_SAW);
+			switch_byte |= (1<<VCO1_SAW_LATCH_BIT);
 			vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 			vco_mix_cv = &vco1_mix_cv;
 			vco_pw_cv = &vco1_pw_cv;
@@ -427,7 +427,7 @@ void tune_8ths(uint8_t vco) {
 		} else { //set up parameters for VCO2 tuning
 		
 			//turn on VCO2 SAW, all others off
-			switch_byte |= (1<<VCO2_SAW);
+			switch_byte |= (1<<VCO2_SAW_LATCH_BIT);
 			vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 			vco_mix_cv = &vco2_mix_cv;
 			vco_pw_cv = &vco2_pw_cv;
@@ -473,13 +473,9 @@ void tune_8ths(uint8_t vco) {
 	
 			}		
 			uint16_t reference_count = reference[note_number].count;
-			uint16_t osc_pitch_cv = 0;//136 + vco_pitch_table[(octave*12 + note_number) - 1]; //use previous pitch CV as a reference and add 136, which is ~83.333 mV on 14 bit 10V scale. ie. 1/12 of 1V
-			//this method is faster than full 14 bit successive approximation, but isn't 'blind', so if there is some wacky scaling at the pitch extremes it could falter
-			//will need to test more thoroughly
-			//osc_pitch_cv = 0;
-			for (int dac_bit = 13; dac_bit >= 0; dac_bit--) { //now do successive approximation on 8 LSBs
-				//osc_pitch_cv = (osc_pitch_cv >> dac_bit) << dac_bit; //clear bits to be set. Omar scoffed at this line as if it didn't need to be done. Why?
-				//oh, maybe because it should just be done once before loop. Doing it for each iteration after bit 7 is redundant
+			uint16_t osc_pitch_cv = 0;
+			for (int dac_bit = 13; dac_bit >= 0; dac_bit--) { //now do successive approximation
+
 				osc_pitch_cv |= (1<<dac_bit);
 
 				set_control_voltage(vco_pitch_cv, osc_pitch_cv);
@@ -493,13 +489,14 @@ void tune_8ths(uint8_t vco) {
 					//need to have a watchdog timer here to escape while loop if it takes too long
 				
 					//not sure what's really necessary here - definitely pitch and init_cv, but what else?
-					set_control_voltage(vco_pitch_cv, osc_pitch_cv);
 					set_control_voltage(vco_init_cv, init_cv);
-					set_control_voltage(vco_pw_cv, MAX);
+					set_control_voltage(vco_pitch_cv, osc_pitch_cv);
+					
+					//set_control_voltage(vco_pw_cv, MAX); //not necessary as SAW is being used to clock comparator
 					set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 					set_control_voltage(&cutoff_cv, MAX);
 					set_control_voltage(&sustain_1_cv, MAX);
-					set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+					//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
 					set_control_voltage(vco_mix_cv, MAX);
 			
 			

@@ -21,15 +21,15 @@
 
 #define GATE PF1 //define gate output
 
-//switch latch bits for VCO waveforms, SYNC and BMOD
-#define VCO1_SAW		0
-#define VCO1_TRI		2
-#define VCO1_PULSE		1
-#define VCO2_SAW		6
-#define VCO2_TRI		7
-#define VCO2_PULSE		5
-#define SYNC			3
-#define BMOD			4
+//switch latch bits for VCO waveforms, VCO_SYNC_LATCH_BIT and BMOD_LATCH_BIT
+#define VCO1_SAW_LATCH_BIT		0
+#define VCO1_TRI_LATCH_BIT		2
+#define VCO1_PULSE_LATCH_BIT	1
+#define VCO2_SAW_LATCH_BIT		6
+#define VCO2_TRI_LATCH_BIT		7
+#define VCO2_PULSE_LATCH_BIT	5
+#define VCO_SYNC_LATCH_BIT		3
+#define BMOD_LATCH_BIT			4
 
 //define minimum and maximum values for 14 bit DAC
 #define MIN 0
@@ -64,21 +64,26 @@
 
 //LED defines
 //define LED bits - number corresponds to bit position in serial-parallel shift register (74HC595)
-#define ARP_MODE_LED			2 //ARP MODE
-#define PROG_WRITE_LED			7 //WRITE
-#define EG2_INV_LED				0 //EG2 INV
+//the order of these bits are also used to store and recall and set patch data so all analog switch settings and sync/arp modes are derived from these bit mappings
 
-#define BMOD_LED				7 //B MOD
-#define VCO_SYNC_LED			1 //SYNC U16
-#define VCO1_SAW_LED			2 //VCO1 SAW U16
-#define VCO1_TRI_LED			3 //VCO1 TRI U16
-#define VCO1_PULSE_LED			0 //VCO1 PULSE U16
-#define VCO2_SAW_LED			4 //VCO2 SAW U16
-#define VCO2_TRI_LED			5 //VCO2 TRI U16
-#define VCO2_PULSE_LED			6 //VCO2 PULSE U16
+#define BMOD				7 //B MOD
+#define VCO2_PULSE			6 //VCO2 PULSE U16
+#define VCO2_TRI			5 //VCO2 TRI U16
+#define VCO2_SAW			4 //VCO2 SAW U16
+#define VCO1_TRI			3 //VCO1 TRI U16
+#define VCO1_SAW			2 //VCO1 SAW U16
+#define VCO_SYNC			1 //VCO_SYNC_LATCH_BIT U16
+#define VCO1_PULSE			0 //VCO1 PULSE U16
 
-#define VCO1_32F			1 //LED3 on LED LATCH 4
+
+
 #define VCO2_32F			5 //LED8 on LED LATCH 4
+#define VCO1_32F			1 //LED3 on LED LATCH 4
+
+#define PROG_WRITE			7 //WRITE
+#define ARP_MODE			2 //ARP MODE
+#define EG2_INV				0 //EG2 INV
+
 
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7

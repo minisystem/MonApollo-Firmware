@@ -18,10 +18,6 @@ static uint8_t VCO_SYNC_SW_ON = 0;  //flag for ISW4 switch
 static uint8_t BMOD_SW_ON = 0; //flag for ISW8 switch (direct bus into MCU)
 
 //debounce switch state flags
-//again, combine into a single byte and do bit manipulations to determine previous switch states
-//flags for direct (into MCU) input switches
-//static uint8_t previous_sw_state = 0;
-//static uint8_t current_sw_state = 0;
 ////flags for SPI input switches (currently only 1 SPDR byte - will need to make these variables wider or have multiple flag bytes for each successive SPI byte)
 static uint8_t spi_sw_current_state = 0;
 static uint8_t spi_sw_previous_state = 0;
@@ -77,14 +73,14 @@ void update_spi(void) {
 			
 			//SHIFT 5th BYTE
 			uint8_t spi_data = //Need to farm this out to some kind of switch/LED data parser that preps LED SPI outgoing bytes
-			((sw_latch_five >> VCO_SYNC_SW) & 1) << VCO_SYNC_LED |
-			((sw_latch_five >> VCO1_SAW_SW) & 1) << VCO1_SAW_LED |
-			((sw_latch_five >> VCO1_TRI_SW) & 1) << VCO1_TRI_LED |
-			((sw_latch_five >> VCO1_PULSE_SW) & 1) << VCO1_PULSE_LED |
-			((sw_latch_five >> VCO2_SAW_SW) & 1) << VCO2_SAW_LED |
-			((sw_latch_five >> VCO2_TRI_SW) & 1) << VCO2_TRI_LED |
-			((sw_latch_five >> VCO2_PULSE_SW) & 1) << VCO2_PULSE_LED |
-			BMOD_SW_ON << BMOD_LED;
+			((sw_latch_five >> VCO_SYNC_SW) & 1) << VCO_SYNC |
+			((sw_latch_five >> VCO1_SAW_SW) & 1) << VCO1_SAW |
+			((sw_latch_five >> VCO1_TRI_SW) & 1) << VCO1_TRI |
+			((sw_latch_five >> VCO1_PULSE_SW) & 1) << VCO1_PULSE |
+			((sw_latch_five >> VCO2_SAW_SW) & 1) << VCO2_SAW |
+			((sw_latch_five >> VCO2_TRI_SW) & 1) << VCO2_TRI |
+			((sw_latch_five >> VCO2_PULSE_SW) & 1) << VCO2_PULSE |
+			BMOD_SW_ON << BMOD;
 			
 					
 			//Now read SPDR for switch data shifted in from 74XX165 U14
@@ -114,7 +110,7 @@ void update_spi(void) {
 			spi_shift_byte(0);
 			
 			//SHIFT 1st BYTE			
-			spi_data = (ARP_MODE_SW_ON << ARP_MODE_LED) | (PROG_WRITE_ON << PROG_WRITE_LED) | (EG2_INV_ON << EG2_INV_LED); 
+			spi_data = (ARP_MODE_SW_ON << ARP_MODE) | (PROG_WRITE_ON << PROG_WRITE) | (EG2_INV_ON << EG2_INV); 
 			//Wait for SPI shift to complete
 			spi_shift_byte(spi_data);
 			
@@ -147,7 +143,7 @@ void update_spi(void) {
 			}
 			
 			//update analog switch latch:
-			//need to incorporate BMOD switch state into data byte sent to analog switch latch
+			//need to incorporate BMOD_LATCH_BIT switch state into data byte sent to analog switch latch
 			//3rd switch bit is VCO1_OCTAVE_UP_SW state, which isn't used by analog switch latch
 			uint8_t switch_state_byte = sw_latch_five;
 			switch_state_byte ^= (-BMOD_SW_ON ^ switch_state_byte) & (1<<3);//set third bit dependent on 
@@ -164,8 +160,9 @@ void update_spi(void) {
 				current_sw_state ^= (1<<PROG_WRITE_SW); //toggle read switch state
 				//vco1_init_cv = set_vco_init_cv(VCO1, 24079);
 				//vco2_init_cv = set_vco_init_cv(VCO2, 24079);
-				tune_8ths(VCO1);
+				tune_8ths(VCO1); //first VCO tuned will occassionally mess up the tuning of its first note. Issue still not resolved
 				tune_8ths(VCO2);
+				//tune_8ths(VCO1); //retune VCO1 to test first VCO tuned bug
 				
 			}
 	
