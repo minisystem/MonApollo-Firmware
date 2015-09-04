@@ -78,7 +78,7 @@ void setup_midi_usart(void)
 
 
 ISR (USART_RX_vect) { // USART receive interrupt
-	 
+	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
 	uint8_t inByte = UDR0;
 	midi_device_input(&midi_device, 1, &inByte); 
 	//calling a function in an interrupt is inefficient according to AVR C guidelines

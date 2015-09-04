@@ -414,7 +414,7 @@ void tune_8ths(uint8_t vco) {
 		if (vco == VCO1) { //set up parameters for VCO1 tuning
 
 			//turn on VCO1 SAW, all others off
-			switch_byte |= (1<<VCO1_SAW_LATCH_BIT);
+			switch_byte = (1<<VCO1_SAW_LATCH_BIT);
 			vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 			vco_mix_cv = &vco1_mix_cv;
 			vco_pw_cv = &vco1_pw_cv;
@@ -427,7 +427,7 @@ void tune_8ths(uint8_t vco) {
 		} else { //set up parameters for VCO2 tuning
 		
 			//turn on VCO2 SAW, all others off
-			switch_byte |= (1<<VCO2_SAW_LATCH_BIT);
+			switch_byte = (1<<VCO2_SAW_LATCH_BIT);
 			vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 			vco_mix_cv = &vco2_mix_cv;
 			vco_pw_cv = &vco2_pw_cv;
@@ -441,6 +441,7 @@ void tune_8ths(uint8_t vco) {
 
 		//set VCO init offset CV
 		set_control_voltage(vco_init_cv, init_cv);
+		//set_control_voltage(vco_pitch_cv, 8192);
 	
 		//latch switch data
 		DATA_BUS = switch_byte;
@@ -450,7 +451,7 @@ void tune_8ths(uint8_t vco) {
 		DATA_BUS = 0;
 
 		PORTF |= (1<<GATE); //turn gate on
-	
+		TCNT0 = 0; //make sure timer/counter0 is actually 0. This actually doesn't fix the first VCO tuning glitch
 		TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
 		OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
 		//set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to period -1 in output compare ISR
@@ -496,6 +497,7 @@ void tune_8ths(uint8_t vco) {
 					set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 					set_control_voltage(&cutoff_cv, MAX);
 					set_control_voltage(&sustain_1_cv, MAX);
+					set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
 					//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
 					set_control_voltage(vco_mix_cv, MAX);
 			
