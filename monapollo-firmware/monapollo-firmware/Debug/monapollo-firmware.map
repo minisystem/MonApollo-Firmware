@@ -148,7 +148,7 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x2520
+.text           0x00000000     0x24c4
  *(.vectors)
  .vectors       0x00000000       0x64 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5/crtm6450a.o
                 0x00000000                __vector_default
@@ -240,119 +240,119 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  .text          0x0000029c      0x134 display.o
                 0x0000029c                display_dec
                 0x0000037e                update_display
- .text          0x000003d0       0xb4 interrupts.o
+ .text          0x000003d0       0x9c interrupts.o
                 0x000003d0                __vector_10
-                0x0000046c                __vector_9
- .text          0x00000484        0x0 midi.o
- .text          0x00000484      0x1a8 monapollo-firmware.o
-                0x00000484                note_off_event
-                0x0000049e                note_on_event
-                0x000004d8                setup_midi_usart
-                0x000004ea                __vector_13
-                0x0000055a                main
- .text          0x0000062c      0x29e scan_pots_and_update_control_voltages.o
-                0x0000062c                scan_pots_and_update_control_voltages
- .text          0x000008ca      0x1fe spi.o
-                0x000008ca                setup_spi
-                0x00000908                spi_shift_byte
-                0x00000914                update_spi
- .text          0x00000ac8      0xb78 tune.o
-                0x00000ac8                set_vco_init_cv
-                0x00000e2a                tune_octave
-                0x0000126c                tune_8ths
- .text          0x00001640       0xe2 utils.o
-                0x00001640                read_switch_port
-                0x00001652                update_analog_switch_latch
- .text          0x00001722       0xec xnormidi-develop/bytequeue/bytequeue.o
-                0x00001722                bytequeue_init
-                0x00001730                bytequeue_enqueue
-                0x0000178e                bytequeue_length
-                0x000017b8                bytequeue_get
-                0x000017da                bytequeue_remove
- .text          0x0000180e        0xa xnormidi-develop/bytequeue/interrupt_setting.o
-                0x0000180e                store_and_clear_interrupt
-                0x00001814                restore_interrupt_setting
- .text          0x00001818      0x416 xnormidi-develop/midi.o
-                0x00001818                midi_is_statusbyte
-                0x00001820                midi_is_realtime
-                0x0000182c                midi_packet_length
-                0x000018bc                midi_send_cc
-                0x000018de                midi_send_noteon
-                0x00001900                midi_send_noteoff
-                0x00001922                midi_send_aftertouch
-                0x00001944                midi_send_pitchbend
-                0x00001992                midi_send_programchange
-                0x000019b0                midi_send_channelpressure
-                0x000019ce                midi_send_clock
-                0x000019e6                midi_send_tick
-                0x000019fe                midi_send_start
-                0x00001a16                midi_send_continue
-                0x00001a2e                midi_send_stop
-                0x00001a46                midi_send_activesense
-                0x00001a5e                midi_send_reset
-                0x00001a76                midi_send_tcquarterframe
-                0x00001a90                midi_send_songposition
-                0x00001aba                midi_send_songselect
-                0x00001ad4                midi_send_tunerequest
-                0x00001aec                midi_send_byte
-                0x00001b04                midi_send_data
-                0x00001b12                midi_send_array
-                0x00001bb6                midi_register_cc_callback
-                0x00001bbe                midi_register_noteon_callback
-                0x00001bc6                midi_register_noteoff_callback
-                0x00001bce                midi_register_aftertouch_callback
-                0x00001bd6                midi_register_pitchbend_callback
-                0x00001bde                midi_register_songposition_callback
-                0x00001be6                midi_register_progchange_callback
-                0x00001bee                midi_register_chanpressure_callback
-                0x00001bf6                midi_register_songselect_callback
-                0x00001bfe                midi_register_tc_quarterframe_callback
-                0x00001c06                midi_register_realtime_callback
-                0x00001c0e                midi_register_tunerequest_callback
-                0x00001c16                midi_register_sysex_callback
-                0x00001c1e                midi_register_fallthrough_callback
-                0x00001c26                midi_register_catchall_callback
- .text          0x00001c2e      0x52c xnormidi-develop/midi_device.o
-                0x00001c2e                midi_device_init
-                0x00001c90                midi_device_input
-                0x00001cd6                midi_device_set_send_func
-                0x00001cde                midi_device_set_pre_input_process_func
-                0x00001ce6                midi_input_callbacks
-                0x00001f2e                midi_process_byte
-                0x000020e4                midi_device_process
- .text          0x0000215a      0x33e xnormidi-develop/sysex_tools.o
-                0x0000215a                sysex_encoded_length
-                0x000021a4                sysex_decoded_length
-                0x000021f4                sysex_encode
-                0x0000236e                sysex_decode
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
- .text          0x00002498        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memmove.o)
-                0x00002498                . = ALIGN (0x2)
+                0x00000454                __vector_9
+ .text          0x0000046c        0x0 midi.o
+ .text          0x0000046c      0x19a monapollo-firmware.o
+                0x0000046c                note_off_event
+                0x00000486                note_on_event
+                0x000004c0                setup_midi_usart
+                0x000004d2                __vector_13
+                0x00000542                main
+ .text          0x00000606      0x292 scan_pots_and_update_control_voltages.o
+                0x00000606                scan_pots_and_update_control_voltages
+ .text          0x00000898      0x1fe spi.o
+                0x00000898                setup_spi
+                0x000008d6                spi_shift_byte
+                0x000008e2                update_spi
+ .text          0x00000a96      0xb4e tune.o
+                0x00000a96                set_vco_init_cv
+                0x00000df8                tune_octave
+                0x0000123a                tune_8ths
+ .text          0x000015e4       0xe2 utils.o
+                0x000015e4                read_switch_port
+                0x000015f6                update_analog_switch_latch
+ .text          0x000016c6       0xec xnormidi-develop/bytequeue/bytequeue.o
+                0x000016c6                bytequeue_init
+                0x000016d4                bytequeue_enqueue
+                0x00001732                bytequeue_length
+                0x0000175c                bytequeue_get
+                0x0000177e                bytequeue_remove
+ .text          0x000017b2        0xa xnormidi-develop/bytequeue/interrupt_setting.o
+                0x000017b2                store_and_clear_interrupt
+                0x000017b8                restore_interrupt_setting
+ .text          0x000017bc      0x416 xnormidi-develop/midi.o
+                0x000017bc                midi_is_statusbyte
+                0x000017c4                midi_is_realtime
+                0x000017d0                midi_packet_length
+                0x00001860                midi_send_cc
+                0x00001882                midi_send_noteon
+                0x000018a4                midi_send_noteoff
+                0x000018c6                midi_send_aftertouch
+                0x000018e8                midi_send_pitchbend
+                0x00001936                midi_send_programchange
+                0x00001954                midi_send_channelpressure
+                0x00001972                midi_send_clock
+                0x0000198a                midi_send_tick
+                0x000019a2                midi_send_start
+                0x000019ba                midi_send_continue
+                0x000019d2                midi_send_stop
+                0x000019ea                midi_send_activesense
+                0x00001a02                midi_send_reset
+                0x00001a1a                midi_send_tcquarterframe
+                0x00001a34                midi_send_songposition
+                0x00001a5e                midi_send_songselect
+                0x00001a78                midi_send_tunerequest
+                0x00001a90                midi_send_byte
+                0x00001aa8                midi_send_data
+                0x00001ab6                midi_send_array
+                0x00001b5a                midi_register_cc_callback
+                0x00001b62                midi_register_noteon_callback
+                0x00001b6a                midi_register_noteoff_callback
+                0x00001b72                midi_register_aftertouch_callback
+                0x00001b7a                midi_register_pitchbend_callback
+                0x00001b82                midi_register_songposition_callback
+                0x00001b8a                midi_register_progchange_callback
+                0x00001b92                midi_register_chanpressure_callback
+                0x00001b9a                midi_register_songselect_callback
+                0x00001ba2                midi_register_tc_quarterframe_callback
+                0x00001baa                midi_register_realtime_callback
+                0x00001bb2                midi_register_tunerequest_callback
+                0x00001bba                midi_register_sysex_callback
+                0x00001bc2                midi_register_fallthrough_callback
+                0x00001bca                midi_register_catchall_callback
+ .text          0x00001bd2      0x52c xnormidi-develop/midi_device.o
+                0x00001bd2                midi_device_init
+                0x00001c34                midi_device_input
+                0x00001c7a                midi_device_set_send_func
+                0x00001c82                midi_device_set_pre_input_process_func
+                0x00001c8a                midi_input_callbacks
+                0x00001ed2                midi_process_byte
+                0x00002088                midi_device_process
+ .text          0x000020fe      0x33e xnormidi-develop/sysex_tools.o
+                0x000020fe                sysex_encoded_length
+                0x00002148                sysex_decoded_length
+                0x00002198                sysex_encode
+                0x00002312                sysex_decode
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
+ .text          0x0000243c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memmove.o)
+                0x0000243c                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x00002498       0x28 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
-                0x00002498                __udivmodhi4
- .text.libgcc   0x000024c0       0x26 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
-                0x000024c0                _div
-                0x000024c0                __divmodhi4
- .text.libgcc   0x000024e6        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
- .text.libgcc   0x000024e6        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
- .text.libgcc   0x000024e6        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc   0x0000243c       0x28 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
+                0x0000243c                __udivmodhi4
+ .text.libgcc   0x00002464       0x26 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
+                0x00002464                _div
+                0x00002464                __divmodhi4
+ .text.libgcc   0x0000248a        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x0000248a        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x0000248a        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
  .text.avr-libc
-                0x000024e6       0x12 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
-                0x000024e6                memcpy
+                0x0000248a       0x12 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memcpy.o)
+                0x0000248a                memcpy
  .text.avr-libc
-                0x000024f8       0x24 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memmove.o)
-                0x000024f8                memmove
-                0x0000251c                . = ALIGN (0x2)
+                0x0000249c       0x24 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5\libc.a(memmove.o)
+                0x0000249c                memmove
+                0x000024c0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000251c        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
-                0x0000251c                _exit
-                0x0000251c                exit
+ .fini9         0x000024c0        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+                0x000024c0                _exit
+                0x000024c0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -371,11 +371,11 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000251c        0x4 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+ .fini0         0x000024c0        0x4 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00002520                _etext = .
+                0x000024c4                _etext = .
 
-.data           0x00800100       0xec load address 0x00002520
+.data           0x00800100       0xec load address 0x000024c4
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/../../../../avr/lib/avr5/crtm6450a.o
@@ -498,8 +498,8 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  COMMON         0x00800294       0xed monapollo-firmware.o
                 0x00800294                midi_device
                 0x00800381                PROVIDE (__bss_end, .)
-                0x00002520                __data_load_start = LOADADDR (.data)
-                0x0000260c                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000024c4                __data_load_start = LOADADDR (.data)
+                0x000025b0                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800381        0x0
                 0x00800381                PROVIDE (__noinit_start, .)
@@ -609,29 +609,29 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x3fa7
+.debug_info     0x00000000     0x3f61
  *(.debug_info)
  .debug_info    0x00000000      0x165 adc.o
  .debug_info    0x00000165      0x1bb assigner.o
  .debug_info    0x00000320      0x4d3 dac.o
  .debug_info    0x000007f3      0x13c display.o
- .debug_info    0x0000092f      0x178 interrupts.o
- .debug_info    0x00000aa7       0x5e midi.o
- .debug_info    0x00000b05      0x5b7 monapollo-firmware.o
- .debug_info    0x000010bc      0x6a7 scan_pots_and_update_control_voltages.o
- .debug_info    0x00001763      0x197 spi.o
- .debug_info    0x000018fa      0x850 tune.o
- .debug_info    0x0000214a       0xcc utils.o
- .debug_info    0x00002216      0x23e xnormidi-develop/bytequeue/bytequeue.o
- .debug_info    0x00002454       0xc2 xnormidi-develop/bytequeue/interrupt_setting.o
- .debug_info    0x00002516      0xd19 xnormidi-develop/midi.o
- .debug_info    0x0000322f      0x657 xnormidi-develop/midi_device.o
- .debug_info    0x00003886      0x2d0 xnormidi-develop/sysex_tools.o
- .debug_info    0x00003b56       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
- .debug_info    0x00003c33       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
- .debug_info    0x00003d10       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
- .debug_info    0x00003ded       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
- .debug_info    0x00003eca       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
+ .debug_info    0x0000092f      0x144 interrupts.o
+ .debug_info    0x00000a73       0x5e midi.o
+ .debug_info    0x00000ad1      0x598 monapollo-firmware.o
+ .debug_info    0x00001069      0x69a scan_pots_and_update_control_voltages.o
+ .debug_info    0x00001703      0x197 spi.o
+ .debug_info    0x0000189a      0x86a tune.o
+ .debug_info    0x00002104       0xcc utils.o
+ .debug_info    0x000021d0      0x23e xnormidi-develop/bytequeue/bytequeue.o
+ .debug_info    0x0000240e       0xc2 xnormidi-develop/bytequeue/interrupt_setting.o
+ .debug_info    0x000024d0      0xd19 xnormidi-develop/midi.o
+ .debug_info    0x000031e9      0x657 xnormidi-develop/midi_device.o
+ .debug_info    0x00003840      0x2d0 xnormidi-develop/sysex_tools.o
+ .debug_info    0x00003b10       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
+ .debug_info    0x00003bed       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
+ .debug_info    0x00003cca       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+ .debug_info    0x00003da7       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
+ .debug_info    0x00003e84       0xdd c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
  *(.gnu.linkonce.wi.*)
 
 .debug_abbrev   0x00000000     0x100b
@@ -658,29 +658,29 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  .debug_abbrev  0x00000fe3       0x14 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
  .debug_abbrev  0x00000ff7       0x14 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
 
-.debug_line     0x00000000     0x1891
+.debug_line     0x00000000     0x188f
  *(.debug_line)
  .debug_line    0x00000000      0x188 adc.o
  .debug_line    0x00000188      0x10c assigner.o
  .debug_line    0x00000294      0x1bf dac.o
  .debug_line    0x00000453       0xf2 display.o
- .debug_line    0x00000545       0xff interrupts.o
- .debug_line    0x00000644       0x1a midi.o
- .debug_line    0x0000065e      0x1bb monapollo-firmware.o
- .debug_line    0x00000819      0x15c scan_pots_and_update_control_voltages.o
- .debug_line    0x00000975      0x116 spi.o
- .debug_line    0x00000a8b      0x267 tune.o
- .debug_line    0x00000cf2       0xf1 utils.o
- .debug_line    0x00000de3      0x132 xnormidi-develop/bytequeue/bytequeue.o
- .debug_line    0x00000f15      0x114 xnormidi-develop/bytequeue/interrupt_setting.o
- .debug_line    0x00001029      0x1f5 xnormidi-develop/midi.o
- .debug_line    0x0000121e      0x211 xnormidi-develop/midi_device.o
- .debug_line    0x0000142f      0x188 xnormidi-develop/sysex_tools.o
- .debug_line    0x000015b7       0x9a c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
- .debug_line    0x00001651       0x99 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
- .debug_line    0x000016ea       0x88 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
- .debug_line    0x00001772       0x91 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
- .debug_line    0x00001803       0x8e c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
+ .debug_line    0x00000545       0xf0 interrupts.o
+ .debug_line    0x00000635       0x1a midi.o
+ .debug_line    0x0000064f      0x1ba monapollo-firmware.o
+ .debug_line    0x00000809      0x15b scan_pots_and_update_control_voltages.o
+ .debug_line    0x00000964      0x116 spi.o
+ .debug_line    0x00000a7a      0x276 tune.o
+ .debug_line    0x00000cf0       0xf1 utils.o
+ .debug_line    0x00000de1      0x132 xnormidi-develop/bytequeue/bytequeue.o
+ .debug_line    0x00000f13      0x114 xnormidi-develop/bytequeue/interrupt_setting.o
+ .debug_line    0x00001027      0x1f5 xnormidi-develop/midi.o
+ .debug_line    0x0000121c      0x211 xnormidi-develop/midi_device.o
+ .debug_line    0x0000142d      0x188 xnormidi-develop/sysex_tools.o
+ .debug_line    0x000015b5       0x9a c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_udivmodhi4.o)
+ .debug_line    0x0000164f       0x99 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_divmodhi4.o)
+ .debug_line    0x000016e8       0x88 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_exit.o)
+ .debug_line    0x00001770       0x91 c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_copy_data.o)
+ .debug_line    0x00001801       0x8e c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1.95/avrtoolchain/bin/../lib/gcc/avr/4.6.2/avr5\libgcc.a(_clear_bss.o)
 
 .debug_frame    0x00000000      0xb0c
  *(.debug_frame)
@@ -710,18 +710,18 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
                                 0x318 (size before relaxing)
  .debug_str     0x0000036f       0x48 display.o
                                 0x12d (size before relaxing)
- .debug_str     0x000003b7       0x98 interrupts.o
-                                0x176 (size before relaxing)
- .debug_str     0x0000044f        0xc midi.o
+ .debug_str     0x000003b7       0x71 interrupts.o
+                                0x14f (size before relaxing)
+ .debug_str     0x00000428        0xc midi.o
                                  0xd9 (size before relaxing)
- .debug_str     0x0000045b      0x3b8 monapollo-firmware.o
-                                0x50f (size before relaxing)
- .debug_str     0x00000813       0xf9 scan_pots_and_update_control_voltages.o
+ .debug_str     0x00000434      0x3c9 monapollo-firmware.o
+                                0x4f9 (size before relaxing)
+ .debug_str     0x000007fd       0xf9 scan_pots_and_update_control_voltages.o
                                 0x3de (size before relaxing)
- .debug_str     0x0000090c      0x109 spi.o
+ .debug_str     0x000008f6      0x109 spi.o
                                 0x1e3 (size before relaxing)
- .debug_str     0x00000a15       0xcc tune.o
-                                0x3ef (size before relaxing)
+ .debug_str     0x000009ff       0xe2 tune.o
+                                0x400 (size before relaxing)
  .debug_str     0x00000ae1       0x60 utils.o
                                 0x147 (size before relaxing)
  .debug_str     0x00000b41       0xb9 xnormidi-develop/bytequeue/bytequeue.o
@@ -735,7 +735,7 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  .debug_str     0x0000116e       0xdc xnormidi-develop/sysex_tools.o
                                 0x1df (size before relaxing)
 
-.debug_loc      0x00000000     0x2a06
+.debug_loc      0x00000000     0x29e8
  *(.debug_loc)
  .debug_loc     0x00000000       0x60 adc.o
  .debug_loc     0x00000060      0x16b assigner.o
@@ -745,19 +745,19 @@ LOAD c:/program files (x86)/atmel/atmel studio 6.0/extensions/atmel/avrgcc/3.4.1
  .debug_loc     0x00000436      0x1e0 monapollo-firmware.o
  .debug_loc     0x00000616      0x270 scan_pots_and_update_control_voltages.o
  .debug_loc     0x00000886       0xd1 spi.o
- .debug_loc     0x00000957      0x8a3 tune.o
- .debug_loc     0x000011fa       0x4b utils.o
- .debug_loc     0x00001245      0x229 xnormidi-develop/bytequeue/bytequeue.o
- .debug_loc     0x0000146e      0x963 xnormidi-develop/midi.o
- .debug_loc     0x00001dd1      0x668 xnormidi-develop/midi_device.o
- .debug_loc     0x00002439      0x5cd xnormidi-develop/sysex_tools.o
+ .debug_loc     0x00000957      0x885 tune.o
+ .debug_loc     0x000011dc       0x4b utils.o
+ .debug_loc     0x00001227      0x229 xnormidi-develop/bytequeue/bytequeue.o
+ .debug_loc     0x00001450      0x963 xnormidi-develop/midi.o
+ .debug_loc     0x00001db3      0x668 xnormidi-develop/midi_device.o
+ .debug_loc     0x0000241b      0x5cd xnormidi-develop/sysex_tools.o
 
 .debug_macinfo
  *(.debug_macinfo)
 OUTPUT(monapollo-firmware.elf elf32-avr)
 LOAD linker stubs
 
-.debug_ranges   0x00000000      0x110
+.debug_ranges   0x00000000      0x108
  .debug_ranges  0x00000000       0x30 scan_pots_and_update_control_voltages.o
- .debug_ranges  0x00000030       0x98 tune.o
- .debug_ranges  0x000000c8       0x48 xnormidi-develop/sysex_tools.o
+ .debug_ranges  0x00000030       0x90 tune.o
+ .debug_ranges  0x000000c0       0x48 xnormidi-develop/sysex_tools.o

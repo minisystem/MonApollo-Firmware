@@ -451,17 +451,24 @@ void tune_8ths(uint8_t vco) {
 		DATA_BUS = 0;
 
 		PORTF |= (1<<GATE); //turn gate on
-		TCNT0 = 0; //make sure timer/counter0 is actually 0. This actually doesn't fix the first VCO tuning glitch
-		TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
-		OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
+		
+		//TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+		//OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
+		period = 1; //need to initialize to minimum period number here
 		//set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to period -1 in output compare ISR
 		//for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called
-		TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		//TCNT0 = 0; //make sure timer/counter0 is actually 0. This actually doesn't fix the first VCO tuning glitch
 		compare_match_counter = 0;	
 		for (int note_number = 0; note_number <= 15; note_number++) 
 			{
 			period = reference[note_number].period;
-		
+			//period timer needs to be initialized here and turned off after each note's SAR to prevent glitching caused by leaving timer0 running
+			TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+			OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
+			TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+			TCNT0 = 0; //make sure timer/counter0 is actually 0. 
+			
 			if (note_number <= 2) {
 	
 				//set timer/counter1 to /64 0.3125 MHz
@@ -476,17 +483,19 @@ void tune_8ths(uint8_t vco) {
 			uint16_t reference_count = reference[note_number].count;
 			uint16_t osc_pitch_cv = 0;
 			for (int dac_bit = 13; dac_bit >= 0; dac_bit--) { //now do successive approximation
-
+				
 				osc_pitch_cv |= (1<<dac_bit);
 
 				set_control_voltage(vco_pitch_cv, osc_pitch_cv);
 				count_finished = FALSE;
 				period_counter = 0;
 			
-
+				
 				while (count_finished == FALSE) {
 					//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
-					update_display(vco_number*100 + period, DEC);	
+					//update_display(vco_number*100 + period, DEC);//
+					value_to_display = TCNT0;
+					update_display(value_to_display, DEC);	
 					//need to have a watchdog timer here to escape while loop if it takes too long
 				
 					//not sure what's really necessary here - definitely pitch and init_cv, but what else?
@@ -517,15 +526,17 @@ void tune_8ths(uint8_t vco) {
 		
 			//vco_pitch_table[octave*12 + note_number] = osc_pitch_cv; //store the note control voltage in the pitch table
 			*(vco_pitch_table + (note_number+1)) = osc_pitch_cv;		
-		
-		
+			
+			//need to turn timer off here. This seems to have stopped periodic glitching of first note of first VCO tuned.
+			TIMSK0 &= ~(1<<OCIE0A); //turn off timer0 compare match A interrupt
+			TCCR0A = 0; //turn off timer0
 		}
 	
 
 	
 		PORTF &= ~(1<<GATE); //turn gate off
 		
-		TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
+		//TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
 	
 	
 	}	
