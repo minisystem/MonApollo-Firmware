@@ -143,6 +143,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	PORTF &= ~(1<<GATE); //turn gate off
 	
 	TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
+	TCCR0A = 0; //turn off timer0 period timer
 	
 	return init_cv;
 	
@@ -493,9 +494,9 @@ void tune_8ths(uint8_t vco) {
 				
 				while (count_finished == FALSE) {
 					//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
-					//update_display(vco_number*100 + period, DEC);//
-					value_to_display = TCNT0;
-					update_display(value_to_display, DEC);	
+					update_display(vco_number*100 + period, DEC);//
+					//value_to_display = TCNT0;
+					//update_display(value_to_display, DEC);	
 					//need to have a watchdog timer here to escape while loop if it takes too long
 				
 					//not sure what's really necessary here - definitely pitch and init_cv, but what else?
