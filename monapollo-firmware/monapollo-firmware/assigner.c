@@ -58,7 +58,8 @@ void remove_note(uint8_t note){
 	memmove(note_pool + free_slot, note_pool + free_slot + 1, sizeof(note_pool) - (sizeof(*note_pool)*(free_slot + 1)));
 	note_pool[7].note = EMPTY;	
 	
-	//check to see if this is the last note released
+	//check to see if this is the last note released		
+	//if it is, this might be a good place to ensure gate_buffer is empty
 	if (note_pool[0].note == EMPTY) {
 		
 		current_note = temp_note; //store last note released for maintaining pitch during envelope release stage

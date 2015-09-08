@@ -1,10 +1,11 @@
 #include <avr/io.h>
 
+#include "utils.h"
 #include "spi.h"
 #include "hardware.h"
 #include "switch_map.h"
 
-
+struct switch_states switch_states = {0,0,0};
 
 uint8_t read_switch_port(void) {
 	
