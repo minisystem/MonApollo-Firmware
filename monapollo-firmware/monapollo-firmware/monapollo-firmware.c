@@ -18,6 +18,7 @@
 #include "switch_map.h"
 #include "pot_to_dac_map.h"
 #include "midi.h"
+#include "synth.h"
 #include "tune.h"
 #include "utils.h"
 
@@ -179,7 +180,10 @@ int main(void)
 		if (switch_timer++ == 5)
 		{
 			switch_timer = 0;
+			//read switches directly connected to MCU				
+			switch_states.byte2 ^= read_switch_port(); //toggle switch states
 			update_spi();
+			refresh_synth();
 				
 		}
 			

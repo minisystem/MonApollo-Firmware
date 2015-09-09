@@ -46,6 +46,7 @@ C_SRCS +=  \
 ../monapollo-firmware.c \
 ../scan_pots_and_update_control_voltages.c \
 ../spi.c \
+../synth.c \
 ../tune.c \
 ../utils.c \
 ../xnormidi-develop/bytequeue/bytequeue.c \
@@ -71,6 +72,7 @@ midi.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
+synth.o \
 tune.o \
 utils.o \
 xnormidi-develop/bytequeue/bytequeue.o \
@@ -90,6 +92,7 @@ midi.o \
 monapollo-firmware.o \
 scan_pots_and_update_control_voltages.o \
 spi.o \
+synth.o \
 tune.o \
 utils.o \
 xnormidi-develop/bytequeue/bytequeue.o \
@@ -109,6 +112,7 @@ midi.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
+synth.d \
 tune.d \
 utils.d \
 xnormidi-develop/bytequeue/bytequeue.d \
@@ -128,6 +132,7 @@ midi.d \
 monapollo-firmware.d \
 scan_pots_and_update_control_voltages.d \
 spi.d \
+synth.d \
 tune.d \
 utils.d \
 xnormidi-develop/bytequeue/bytequeue.d \
@@ -146,6 +151,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 

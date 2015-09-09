@@ -20,6 +20,8 @@ scan_pots_and_update_control_voltages.c
 
 spi.c
 
+synth.c
+
 tune.c
 
 utils.c

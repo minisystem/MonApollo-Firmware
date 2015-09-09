@@ -76,7 +76,7 @@
 #define VCO1_PULSE			0 //VCO1 PULSE U16
 
 
-
+#define VCO2_16F			6 //LED9 on LED LATCH 4
 #define VCO2_32F			5 //LED8 on LED LATCH 4
 #define VCO1_32F			1 //LED3 on LED LATCH 4
 
