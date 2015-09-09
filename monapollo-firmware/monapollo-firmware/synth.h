@@ -2,6 +2,7 @@
 #define SYNTH_H
 
 void refresh_synth(void);
+uint8_t add_octave_to_note(uint8_t note, uint8_t VCO);
 
 struct patch {
 	
@@ -15,6 +16,7 @@ struct patch {
 	
 	};
 	
-extern struct patch patch;	
+extern struct patch patch;
+
 
 #endif

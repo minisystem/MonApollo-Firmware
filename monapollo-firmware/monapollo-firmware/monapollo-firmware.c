@@ -41,7 +41,7 @@ static uint8_t gate_buffer = 0;
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
-	value_to_display = note;
+	//value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
 		remove_note(note);

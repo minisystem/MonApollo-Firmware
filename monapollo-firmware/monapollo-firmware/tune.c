@@ -181,7 +181,7 @@ void tune_8ths(uint8_t vco) {
 			{	16	,	7584	},
 			{	32	,	9556	},
 			{	32	,	6020	},
-			{	64	,	7584	}
+			{	64	,	7584	} //end with "MIDI note" 136 - this allows octave switching to go all the way up to and beyond 21 KHz
 	
 		};
 

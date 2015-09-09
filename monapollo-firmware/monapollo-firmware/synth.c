@@ -29,6 +29,32 @@ uint8_t vco2_octave[5] =
 		{VCO2_4F},
 		{VCO2_2F}
 	};		
+
+uint8_t add_octave_to_note (uint8_t note, uint8_t VCO) {
+	
+	uint8_t n = 0;
+	
+	if (VCO == VCO1) {
+		
+		n = octave_index & 0b00001111; //mask to chop off top 4 bits, which are octave index for VCO2 
+
+		
+	} else {
+		
+		n = (octave_index & 0b11110000) >> 4; //mask to chop off bottom 4 bits and shift right 4 bits to get octave index for VCO2
+				
+	}
+	
+	note = (n*12) + note; //calculate MIDI note after octave addition
+	if (note > 136) { //note is beyond range
+			
+		note = 136;
+			
+	}
+		
+	return note;	
+	
+}	
 	
 void refresh_synth(void) {
 	
@@ -75,7 +101,7 @@ void refresh_synth(void) {
 		
 	}	
 	
-	value_to_display = octave_index;			
+	//value_to_display = octave_index;			
 				
 	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) //temporary tune button hack
 		{ 
