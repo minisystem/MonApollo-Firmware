@@ -133,27 +133,14 @@ void scan_pots_and_update_control_voltages(void) {
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
 	//value_to_display = note;
 	uint8_t vco1_note = add_octave_to_note(note, VCO1);
-	uint8_t pitch_index = vco1_note>>3;
-	uint8_t delta_note = vco1_note - pitch_index*8; //will range from 0 to 7
-	
-	value_to_display = vco1_note;
-		
-	uint16_t y0 = vco1_pitch_table[pitch_index -1];
-	uint16_t y1 = vco1_pitch_table[pitch_index];
-	
-	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>
+
+	uint16_t interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
 	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	
-	uint8_t vco2_note = note;//add_octave_to_note(note, VCO1);
-	pitch_index = vco2_note>>3;
-	delta_note = vco2_note - pitch_index*8; //will range from 0 to 7
+	uint8_t vco2_note = note; //add_octave_to_note(note, VCO2);
 	
-	
-	y0 = vco2_pitch_table[pitch_index - 1];
-	y1 = vco2_pitch_table[pitch_index];
-	
-	interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3);
+	interpolated_pitch_cv = interpolate_pitch_cv(note, vco2_pitch_table);
 	
 	set_control_voltage(&vco2_pitch_cv, interpolated_pitch_cv); 
 	

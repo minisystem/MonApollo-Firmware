@@ -354,3 +354,16 @@ void tune_8ths(uint8_t vco) {
 	
 	}	
 	
+uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table) {
+	
+	uint8_t pitch_index = note>>3;
+	uint8_t delta_note = note - pitch_index*8; //will range from 0 to 7
+		
+	uint16_t y0 = pitch_table[pitch_index -1];
+	uint16_t y1 = pitch_table[pitch_index];
+	
+	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>	
+	
+	return interpolated_pitch_cv;
+	
+}

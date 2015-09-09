@@ -16,8 +16,8 @@
 #define PITCH_Ab    21452
 #define PITCH_B     20248
 
-#define VCO1		0
-#define VCO2		1
+#define VCO1		0b00001111 //these are masks used by add_octave_to_note() function
+#define VCO2		0b11110000
 
 
 
@@ -40,5 +40,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference); //returns 14 bit
 void tune_octave(uint8_t octave, uint8_t vco); //fill pitch tables for specified octave
 
 void tune_8ths(uint8_t vco); //tune every 8th MIDI note
+
+uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table);
 
 #endif

@@ -2,7 +2,8 @@
 #define SYNTH_H
 
 void refresh_synth(void);
-uint8_t add_octave_to_note(uint8_t note, uint8_t VCO);
+void update_octave_range(void);
+uint8_t add_octave_to_note(uint8_t note, uint8_t octave_index_mask);
 
 struct patch {
 	

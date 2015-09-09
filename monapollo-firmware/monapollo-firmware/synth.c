@@ -14,37 +14,32 @@ static uint8_t octave_index = 0;
 
 uint8_t vco1_octave[5] = 
 	{
-		{VCO1_32F},
-		{VCO1_16F},
-		{VCO1_8F},
-		{VCO1_4F},
-		{VCO1_2F}				
+		VCO1_32F,
+		VCO1_16F,
+		VCO1_8F,
+		VCO1_4F,
+		VCO1_2F				
 	};
 	
 uint8_t vco2_octave[5] =
 	{
-		{VCO2_32F},
-		{VCO2_16F},
-		{VCO2_8F},
-		{VCO2_4F},
-		{VCO2_2F}
+		VCO2_32F,
+		VCO2_16F,
+		VCO2_8F,
+		VCO2_4F,
+		VCO2_2F
 	};		
 
-uint8_t add_octave_to_note (uint8_t note, uint8_t VCO) {
+uint8_t add_octave_to_note (uint8_t note, uint8_t octave_index_mask) {
 	
 	uint8_t n = 0;
 	
-	if (VCO == VCO1) {
-		
-		n = octave_index & 0b00001111; //mask to chop off top 4 bits, which are octave index for VCO2 
-
-		
-	} else {
-		
-		n = (octave_index & 0b11110000) >> 4; //mask to chop off bottom 4 bits and shift right 4 bits to get octave index for VCO2
-				
-	}
 	
+	//mask chops off top 4 bits for VCO1, which are octave index for VCO2
+	//or mask chops off bottom 4 bits and shift right 4 bits to get octave index for VCO2	
+	n = octave_index & octave_index_mask;
+	if (octave_index_mask == VCO2) octave_index = octave_index >> 4;
+
 	note = (n*12) + note; //calculate MIDI note after octave addition
 	if (note > 136) { //note is beyond range
 			
@@ -54,7 +49,41 @@ uint8_t add_octave_to_note (uint8_t note, uint8_t VCO) {
 		
 	return note;	
 	
-}	
+}
+
+void update_octave_range(void) {
+	
+	if ((switch_states.byte0 >> VCO1_OCTAVE_UP_SW) & 1) {
+		
+		if (++octave_index == 5) octave_index = 4;
+		switch_states.byte0 ^= (1<<VCO1_OCTAVE_UP_SW); //toggle switch state bit
+		patch.byte_4 &= 0b1110000; //clear vco1 octave bits - this masks top 3 bits which are for VCO2 octave LEDs
+		patch.byte_4 |= (1<<vco1_octave[octave_index]); //set octave
+		
+	}
+	
+	if ((switch_states.byte1 >> VCO1_OCTAVE_DOWN_SW) & 1) { //this didn't work initially because VCO1_OCTAVE_DOWN_SW pull down resistor wasn't installed on PCB!!!
+	
+		if (octave_index == 0) {} else {octave_index--;}
+		switch_states.byte1 ^= (1<<VCO1_OCTAVE_DOWN_SW);
+		patch.byte_4 &= 0b11100000;
+		patch.byte_4 |= (1<<vco1_octave[octave_index]);
+
+	}
+	
+	if ((switch_states.byte1 >> VCO2_OCTAVE_UP_SW) & 1) {
+		
+		
+	}	
+	
+	if ((switch_states.byte1 >> VCO2_OCTAVE_DOWN_SW) & 1) {
+		
+		
+	}
+	
+	
+}
+	
 	
 void refresh_synth(void) {
 	
@@ -83,23 +112,8 @@ void refresh_synth(void) {
 	EG2_POL_PORT ^= (-EG2_INV_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
 	
 	//parse octave switch data
-	if ((switch_states.byte0 >> VCO1_OCTAVE_UP_SW) & 1) {
-	
-		if (++octave_index == 5) octave_index = 4;
-		switch_states.byte0 ^= (1<<VCO1_OCTAVE_UP_SW); //toggle switch state bit
-		patch.byte_4 &= 0b1110000; //clear vco1 octave bits - this masks top 3 bits which are for VCO2 octave LEDs
-		patch.byte_4 |= (1<<vco1_octave[octave_index]); //set octave
-		
-	}
-	
-	if ((switch_states.byte1 >> VCO1_OCTAVE_DOWN_SW) & 1) { //this didn't work initially because VCO1_OCTAVE_DOWN_SW pull down resistor wasn't installed on PCB!!!
-		
-		if (octave_index == 0) {} else {octave_index--;}
-		switch_states.byte1 ^= (1<<VCO1_OCTAVE_DOWN_SW);	
-		patch.byte_4 &= 0b11100000;
-		patch.byte_4 |= (1<<vco1_octave[octave_index]);	
-		
-	}	
+	update_octave_range();
+
 	
 	//value_to_display = octave_index;			
 				
@@ -117,3 +131,4 @@ void refresh_synth(void) {
 		
 	
 }
+
