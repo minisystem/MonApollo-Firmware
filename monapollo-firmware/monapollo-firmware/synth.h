@@ -14,5 +14,7 @@ struct patch {
 	uint8_t byte_5; //VCO WAVEFORMS, VCO SYNC + BMOD
 	
 	};
+	
+extern struct patch patch;	
 
 #endif

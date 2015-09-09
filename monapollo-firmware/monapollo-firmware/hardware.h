@@ -75,9 +75,16 @@
 #define VCO_SYNC			1 //VCO_SYNC_LATCH_BIT U16
 #define VCO1_PULSE			0 //VCO1 PULSE U16
 
-
+#define VCO2_2F				0 //LED12 on LED LATCH 3
+#define VCO2_4F				1 //LED11 on LED LATCH 3
+#define VCO2_8F				7 //LED10 on LED LATCH 4
 #define VCO2_16F			6 //LED9 on LED LATCH 4
 #define VCO2_32F			5 //LED8 on LED LATCH 4
+
+#define VCO1_2F				4 //LED7 on LED LATCH 4
+#define VCO1_4F				3 //LED6 on LED LATCH 4
+#define VCO1_8F				0 //LED5 on LED LATCH 4
+#define VCO1_16F			2 //LED4 on LED LATCH 4
 #define VCO1_32F			1 //LED3 on LED LATCH 4
 
 #define PROG_WRITE			7 //WRITE

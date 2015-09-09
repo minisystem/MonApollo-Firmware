@@ -5,6 +5,7 @@
 #include "switch_map.h"
 #include "led_map.h"
 #include "hardware.h"
+#include "synth.h"
 #include "tune.h"
 #include "utils.h"
 
@@ -59,19 +60,9 @@ void update_spi(void) {
 	
 			SPI_PORT |= SPI_SW_LATCH;
 			
-			//SHIFT 5th BYTE
-			uint8_t spi_data = //Need to farm this out to some kind of switch/LED data parser that preps LED SPI outgoing bytes
-			((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |
-			((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
-			((switch_states.byte0 >> VCO1_TRI_SW) & 1) << VCO1_TRI |
-			((switch_states.byte0 >> VCO1_PULSE_SW) & 1) << VCO1_PULSE |
-			((switch_states.byte0 >> VCO2_SAW_SW) & 1) << VCO2_SAW |
-			((switch_states.byte0 >> VCO2_TRI_SW) & 1) << VCO2_TRI |
-			((switch_states.byte0 >> VCO2_PULSE_SW) & 1) << VCO2_PULSE |
-			((switch_states.byte2 >> BMOD_SW) & 1) << BMOD;
-							
-			//Now read SPDR for switch data shifted in from 74XX165 U14
-			spi_sw_byte0_current_state = spi_shift_byte(spi_data);
+			//SHIFT 5th BYTE				
+			//Read SPDR for switch data shifted in from 74XX165 U14 and write LED data to LED latch 5
+			spi_sw_byte0_current_state = spi_shift_byte(patch.byte_5);
 			
 			spi_sw_byte0_current_state ^= spi_sw_byte0_previous_state;
 			spi_sw_byte0_previous_state ^= spi_sw_byte0_current_state;
@@ -82,7 +73,9 @@ void update_spi(void) {
 			
 			//SHIFT 4th BYTE
 			//Now read SPDR for switch data shifted in from 74XX165 (U9)
-			spi_data = (1<<VCO2_16F | 1<<VCO1_32F); //turn on 32' octave LEDs as default 
+			//uint8_t spi_data = (1<<VCO2_32F | 1<<VCO1_32F); //turn on 32' octave LEDs as default 
+			
+			uint8_t spi_data = patch.byte_4;
 					
 			spi_sw_byte1_current_state = spi_shift_byte(spi_data);
 	
@@ -102,7 +95,7 @@ void update_spi(void) {
 			//SHIFT 1st BYTE			
 			spi_data =	((switch_states.byte1 >> ARP_MODE_SW) & 1) << ARP_MODE | 
 						((switch_states.byte2 >> PROG_WRITE_SW) & 1) << PROG_WRITE | 
-						((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV; 
+						((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV; 			
 			//Wait for SPI shift to complete
 			spi_shift_byte(spi_data);
 			
