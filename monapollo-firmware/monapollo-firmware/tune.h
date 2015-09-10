@@ -16,7 +16,7 @@
 #define PITCH_Ab    21452
 #define PITCH_B     20248
 
-#define VCO1		0b00001111 //these are masks used by add_octave_to_note() function
+#define VCO1		0b00001111 //these are masks used by transpose_note() function ***NOT CURRENTLY USED***
 #define VCO2		0b11110000
 
 
@@ -34,6 +34,8 @@ extern volatile uint8_t compare_match_counter;
 
 extern uint16_t vco1_pitch_table[17]; 
 extern uint16_t vco2_pitch_table[17];
+
+void initialize_voice_for_tuning(void);
 
 uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference); //returns 14 bit OSC_INIT_CV
 

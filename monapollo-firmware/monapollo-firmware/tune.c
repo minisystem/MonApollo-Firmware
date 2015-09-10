@@ -20,14 +20,9 @@ volatile uint16_t vco2_init_cv = 0;
 
 uint16_t vco1_pitch_table[17] = {0};
 uint16_t vco2_pitch_table[17] = {0};
-	
-uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add extra argument here to set reference count for base frequency
 
-	uint16_t init_cv = 0;
-	 timer1_clock |= (1<<CS11) | (1<<CS10);
-	//disable UART so MIDI data doesn't interrupt tuning
+void initialize_voice_for_tuning(void) {
 	
-	//setup control voltages	
 	set_control_voltage(&volume_cv, MIN); //turn volume all the way down
 	//turn off all pitch modulation
 	set_control_voltage(&pitch_lfo_cv, MIN);
@@ -55,6 +50,17 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	set_control_voltage(&release_1_cv, MIN);
 	//turn off noise
 	set_control_voltage(&noise_mix_cv, MIN);
+}	
+	
+uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add extra argument here to set reference count for base frequency
+
+	uint16_t init_cv = 0;
+	timer1_clock |= (1<<CS11) | (1<<CS10);
+	 
+	//TO DO: disable UART so MIDI data doesn't interrupt tuning
+	
+	//setup control voltages	
+	initialize_voice_for_tuning();
 	
 	//these variables hold VCO specific parameters
 	uint8_t switch_byte = 0;
@@ -99,7 +105,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
 	OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
 	//set OCR0A to 1 here means first ISR interrupt will occur after 2 periods, it is then set to 0 to count only single periods
-	//for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called
+	//for reasons I don't understand yet, starting with OCR0A set to 0 results in a multi-second delay before first compare match ISR is called ***ACTUALLY, THIS MAY BE RELATED TO LEAVING Timer0 RUNNING. COULD TRY TO SET OCR0A TO 0 NOW and SEE IF IT WORKS
 	TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt	
 	period = 1; //only counting 1 period 
 	for (int dac_bit = 13; dac_bit >= 0; dac_bit--) {
@@ -190,33 +196,7 @@ void tune_8ths(uint8_t vco) {
 		//disable UART so MIDI data doesn't interrupt tuning
 	
 		//setup control voltages	
-		set_control_voltage(&volume_cv, MIN); //turn volume all the way down
-		//turn off all pitch modulation
-		set_control_voltage(&pitch_lfo_cv, MIN);
-		set_control_voltage(&pitch_eg2_cv, MIN);
-		set_control_voltage(&pitch_vco2_cv, MIN);
-		//turn off glide
-		set_control_voltage(&glide_cv, MIN);
-		//turn off all pulse width modulation
-		set_control_voltage(&pwm_eg2_cv, MIN);
-		set_control_voltage(&pwm_lfo_cv, MIN);
-		//turn off all filter modulation
-		set_control_voltage(&fil_lfo_cv, MIN);
-		set_control_voltage(&fil_eg2_cv, MIN);
-		set_control_voltage(&fil_vco2_cv, MIN);
-		set_control_voltage(&key_track_cv, MIN);
-		//open filter with no resonance
-		set_control_voltage(&cutoff_cv, MAX);
-		set_control_voltage(&res_cv, MIN);
-		//turn off VCA LFO modulation
-		set_control_voltage(&amp_lfo_cv, MIN);
-		//initialize VCA envelope
-		set_control_voltage(&attack_1_cv, MIN);
-		set_control_voltage(&decay_1_cv, MIN);
-		set_control_voltage(&sustain_1_cv, MAX);
-		set_control_voltage(&release_1_cv, MIN);
-		//turn off noise
-		set_control_voltage(&noise_mix_cv, MIN);
+		initialize_voice_for_tuning();
 
 		//these variables hold VCO specific parameters
 		uint8_t switch_byte = 0;
@@ -277,7 +257,7 @@ void tune_8ths(uint8_t vco) {
 			period = reference[note_number].period;
 			//period timer needs to be initialized here and turned off after each note's SAR to prevent glitching caused by leaving timer0 running
 			TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
-			OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1) ***COULD PROBABLY CHANGE THIS TO 0 NOW***
+			OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1) ***COULD PROBABLY CHANGE THIS TO 0 NOW*** - NOPE. NEEDS TO BE 1!!!
 			TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
 			TCNT0 = 0; //make sure timer/counter0 is actually 0. 
 			

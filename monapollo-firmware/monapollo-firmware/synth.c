@@ -32,14 +32,10 @@ uint8_t vco2_octave[5] =
 		VCO2_2F
 	};		
 
-uint8_t add_octave_to_note (uint8_t note, uint8_t vco) {
+uint8_t transpose_note (uint8_t note, uint8_t vco) {
 	
 	uint8_t n = 0;
 	
-	
-	//mask chops off top 4 bits for VCO1, which are octave index for VCO2
-	//or mask chops off bottom 4 bits and shift right 4 bits to get octave index for VCO2	
-	//n = octave_index & octave_index_mask;
 	n = octave_index.vco1;
 	if (vco == VCO2) n = octave_index.vco2;
 
@@ -60,7 +56,6 @@ void update_octave_range(void) {
 		
 		if (++octave_index.vco1 == 5) octave_index.vco1 = 4;
 		switch_states.byte0 ^= (1<<VCO1_OCTAVE_UP_SW); //toggle switch state bit
-
 		
 	}
 	
@@ -68,13 +63,10 @@ void update_octave_range(void) {
 	
 		if (octave_index.vco1 == 0) {} else {octave_index.vco1--;}
 		switch_states.byte1 ^= (1<<VCO1_OCTAVE_DOWN_SW);
-		//patch.byte_4 &= 0b11100000;
-		//patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]);
 
 	}
 	
 	patch.byte_4 = 0; //clear the whole damn byte as all bits are set below
-	//patch.byte_4 &= 0b11100000; //clear vco1 octave bits - this masks top 3 bits which are for VCO2 octave LEDs
 	patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]); //set octave	
 	
 	if ((switch_states.byte1 >> VCO2_OCTAVE_UP_SW) & 1) {
@@ -89,9 +81,7 @@ void update_octave_range(void) {
 		switch_states.byte1 ^= (1<<VCO2_OCTAVE_DOWN_SW);
 		
 	}
-	
-	//patch.byte_4 &= 0b00011111; //clear vco2 octave bits - this masks bottom 5 bits which are for VCO1 octave LEDs
-	
+			
 	patch.byte_3 &= 0b11111100; //clear bottom 2 bits for patch byte_3, which are for VCO2 2' and 4'
 	
 	if (octave_index.vco2 > 2) { //VCO2 2' and 4' LEDs are on LED latch 3
@@ -135,9 +125,6 @@ void refresh_synth(void) {
 	
 	//parse octave switch data
 	update_octave_range();
-
-	
-	//value_to_display = octave_index;			
 				
 	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) //temporary tune button hack
 		{ 

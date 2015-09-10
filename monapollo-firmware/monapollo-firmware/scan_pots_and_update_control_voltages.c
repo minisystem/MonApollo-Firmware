@@ -10,11 +10,11 @@
 #include "assigner.h"
 //#include "pot_to_dac_map.h"
 
-//I don't think any of these need to be volatile any more
 
-volatile uint16_t adc_previous = 0;
-volatile uint16_t adc_value = 0;
-volatile int adc_difference = 0;
+
+static uint16_t adc_previous = 0;
+static uint16_t adc_value = 0;
+static int adc_difference = 0;
 int tune_offset = 0; //fine tune offset to display
 
 uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup table
@@ -87,8 +87,7 @@ void scan_pots_and_update_control_voltages(void) {
 				
 				//value_to_display = pot_group_0[i];
 				fine_offset = 512 - pot_group_0[i];
-				set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);
-				
+				set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);			
 				break;
 			
 			case 9: //exception for TUNE - apply to both VCO1 and VCO2
@@ -129,16 +128,16 @@ void scan_pots_and_update_control_voltages(void) {
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	
-	uint8_t note = get_current_note();
+	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	//value_to_display = note;
-	uint8_t vco1_note = add_octave_to_note(note, VCO1);
+	value_to_display = note;
+	uint8_t vco1_note = transpose_note(note, VCO1); //transpose 
 
 	uint16_t interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
 	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	
-	uint8_t vco2_note = add_octave_to_note(note, VCO2);
+	uint8_t vco2_note = transpose_note(note, VCO2);
 	
 	interpolated_pitch_cv = interpolate_pitch_cv(vco2_note, vco2_pitch_table);
 	
