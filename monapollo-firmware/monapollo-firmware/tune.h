@@ -27,19 +27,21 @@ extern volatile uint8_t timer1_clock;
 extern volatile uint8_t no_overflow;
 extern volatile uint8_t count_finished;
 extern volatile uint16_t osc_count;
-extern volatile uint16_t vco1_init_cv;
-extern volatile uint16_t vco2_init_cv;
+extern uint16_t vco1_init_cv;
+extern uint16_t vco2_init_cv;
 
 extern volatile uint8_t compare_match_counter;
 
 extern uint16_t vco1_pitch_table[17]; 
 extern uint16_t vco2_pitch_table[17];
 
+extern uint16_t filter_pitch_table[16];
+
 void initialize_voice_for_tuning(void);
 
-uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference); //returns 14 bit OSC_INIT_CV
+void tune_filter(void); //tune self-oscillating filter
 
-void tune_octave(uint8_t octave, uint8_t vco); //fill pitch tables for specified octave
+uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference); //returns 14 bit OSC_INIT_CV
 
 void tune_8ths(uint8_t vco); //tune every 8th MIDI note
 

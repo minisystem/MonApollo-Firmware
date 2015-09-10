@@ -131,8 +131,9 @@ void refresh_synth(void) {
 				
 		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle read switch state
 
-		tune_8ths(VCO1);
 		tune_8ths(VCO2);
+		tune_8ths(VCO1);
+		tune_filter();
 		_delay_ms(200);	//give some time for release to decay to avoid pops	
 				
 		}

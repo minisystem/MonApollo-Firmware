@@ -15,13 +15,14 @@ volatile uint16_t osc_count = 0;
 volatile uint8_t compare_match_counter = 0; //diagnostic counter to troubleshoot OCR0A compare match business
 
 //these probably don't need to be volatile - not accessed in interrupt
-volatile uint16_t vco1_init_cv = 0;
-volatile uint16_t vco2_init_cv = 0;
+uint16_t vco1_init_cv = 0;
+uint16_t vco2_init_cv = 0;
 
 uint16_t vco1_pitch_table[17] = {0};
 uint16_t vco2_pitch_table[17] = {0};
+uint16_t filter_pitch_table[16] = {0};	
 
-void initialize_voice_for_tuning(void) {
+void initialize_voice_for_tuning(void) { //this function sets all CVs required for oscillator tuning
 	
 	set_control_voltage(&volume_cv, MIN); //turn volume all the way down
 	//turn off all pitch modulation
@@ -134,7 +135,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 			
 		}
 		//remember that as INIT_CV goes up, pitch goes down, so looking for osc_count >= reference_count instead of <= as is the case for normal oscillator tuning
-		//similarily, OR no_overflow == FALSE not AND no_overflow == FALSE to clear bits that make initial pitch too low
+		//similarily, OR no_overflow == FALSE *not* AND no_overflow == FALSE to clear bits that make initial pitch too low
 		if ((osc_count > reference_count)  || (no_overflow == FALSE)) init_cv &= ~(1 << dac_bit);
 		no_overflow = TRUE;
 		
@@ -211,7 +212,7 @@ void tune_8ths(uint8_t vco) {
 		if (vco == VCO1) { //set up parameters for VCO1 tuning
 
 			//turn on VCO1 SAW, all others off
-			switch_byte = (1<<VCO1_SAW_LATCH_BIT);
+			switch_byte = (1<<VCO1_PULSE_LATCH_BIT);
 			vco_init_cv = &tune_cv; //VCO1 init CV currently mapped to tune_cv - need to rename tune_cv to vco1_init_cv
 			vco_mix_cv = &vco1_mix_cv;
 			vco_pw_cv = &vco1_pw_cv;
@@ -224,7 +225,7 @@ void tune_8ths(uint8_t vco) {
 		} else { //set up parameters for VCO2 tuning
 		
 			//turn on VCO2 SAW, all others off
-			switch_byte = (1<<VCO2_SAW_LATCH_BIT);
+			switch_byte = (1<<VCO2_PULSE_LATCH_BIT);
 			vco_init_cv = &fine_cv;	//VCO2 initi CV currently mapped to fine_cv - need to rename fine_cv to vco2_init_cv
 			vco_mix_cv = &vco2_mix_cv;
 			vco_pw_cv = &vco2_pw_cv;
@@ -238,7 +239,7 @@ void tune_8ths(uint8_t vco) {
 
 		//set VCO init offset CV
 		set_control_voltage(vco_init_cv, init_cv);
-		//set_control_voltage(vco_pitch_cv, 8192);
+		
 	
 		//latch switch data
 		DATA_BUS = switch_byte;
@@ -332,7 +333,148 @@ void tune_8ths(uint8_t vco) {
 		//TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
 	
 	
-	}	
+	}
+	
+void tune_filter(void) {
+
+	struct pitch_reference {
+		
+		
+		uint8_t period;
+		uint16_t count;
+		
+	};
+
+	struct pitch_reference reference[15] =
+	{
+						 //start with MIDI note 24 (32.7 Hz). Calibrate self-oscillating filter so that 0V filter_cutoff produces 20.6 Hz (MIDI note 16)
+	{	2	,	19111	},
+	{	2	,	12039	},
+	{	1	,	30337	},
+	{	1	,	19111	},
+	{	2	,	24079	},
+	{	2	,	15169	},
+	{	4	,	19111	},
+	{	4	,	12039	},
+	{	8	,	15169	},
+	{	8	,	9556	},
+	{	16	,	12039	},
+	{	16	,	7584	},
+	{	32	,	9556	},
+	{	32	,	6020	},
+	{	64	,	7584	} //end with "MIDI note" 136 - this allows octave switching to go all the way up to and beyond 21 KHz
+		
+	};
+
+	
+	//initialize CVs for filter tuning
+	set_control_voltage(&volume_cv, MIN); //turn volume all the way down
+	//turn off all pitch modulation
+	set_control_voltage(&pitch_lfo_cv, MIN);
+	set_control_voltage(&pitch_eg2_cv, MIN);
+	set_control_voltage(&pitch_vco2_cv, MIN);
+	//turn off glide
+	set_control_voltage(&glide_cv, MIN);
+	//turn off all pulse width modulation
+	set_control_voltage(&pwm_eg2_cv, MIN);
+	set_control_voltage(&pwm_lfo_cv, MIN);
+	//turn off all filter modulation
+	set_control_voltage(&fil_lfo_cv, MIN);
+	set_control_voltage(&fil_eg2_cv, MIN);
+	set_control_voltage(&fil_vco2_cv, MIN);
+	set_control_voltage(&key_track_cv, MIN);
+	//open filter with max resonance
+	set_control_voltage(&cutoff_cv, MAX); //need to start with MAX to get filter oscillating
+	set_control_voltage(&res_cv, MAX);
+	//turn off VCA LFO modulation
+	set_control_voltage(&amp_lfo_cv, MIN);
+	//initialize VCA envelope
+	set_control_voltage(&attack_1_cv, MIN);
+	set_control_voltage(&decay_1_cv, MIN);
+	set_control_voltage(&sustain_1_cv, MAX);
+	set_control_voltage(&release_1_cv, MIN);
+	//turn off noise, VCO1 and VCO2
+	set_control_voltage(&noise_mix_cv, MIN);
+	set_control_voltage(&vco1_mix_cv, MIN);
+	set_control_voltage(&vco2_mix_cv, MIN);
+
+	period = 1; //need to initialize to minimum period number here
+	PORTF |= (1<<GATE); //turn gate on
+	
+	
+	
+	for (int note_number = 0; note_number <= 14; note_number++)
+	{
+		period = reference[note_number].period;
+		//period timer needs to be initialized here and turned off after each note's SAR to prevent glitching caused by leaving timer0 running
+		TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
+		OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1) ***COULD PROBABLY CHANGE THIS TO 0 NOW*** - NOPE. NEEDS TO BE 1!!!
+		TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+		TCNT0 = 0; //make sure timer/counter0 is actually 0.
+		
+		if (note_number <= 1) {
+			
+			//set timer/counter1 to /64 0.3125 MHz
+			timer1_clock = (1<<CS11) | (1<<CS10);
+			
+		} else {
+			
+			//set timer/counter1 to /8 2.5 MHz
+			timer1_clock = (1<<CS11);
+			
+		}
+		//the following should be moved to its own function as it is duplicated in the init_cv function. Something like tune_note(*cv, period, reference_count), where *cv points to CV that needs to be calculated`
+		uint16_t reference_count = reference[note_number].count;
+		uint16_t pitch_cv = 0;
+		for (int dac_bit = 13; dac_bit >= 0; dac_bit--) { //now do successive approximation
+		
+			pitch_cv |= (1<<dac_bit);
+
+			set_control_voltage(&cutoff_cv, pitch_cv);
+			count_finished = FALSE;
+			period_counter = 0;
+		
+		
+			while (count_finished == FALSE) {
+				//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
+				update_display(300 + period, DEC);//
+				//value_to_display = TCNT0;
+				//update_display(value_to_display, DEC);
+				//need to have a watchdog timer here to escape while loop if it takes too long
+		
+				set_control_voltage(&cutoff_cv, pitch_cv);
+				set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
+				set_control_voltage(&res_cv, MAX);
+				set_control_voltage(&sustain_1_cv, MAX);
+				set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
+						
+			}
+		
+			//Omar changed this from <= to < which makes sense. <= was an error because if it's equal you don't want to clear the bit
+			if ((osc_count <= reference_count) && (no_overflow == TRUE))pitch_cv &= ~(1<<dac_bit);
+		
+			if (osc_count == reference_count && no_overflow == TRUE) {
+				break;	//if you hit the reference count then get out of here
+			}
+			no_overflow = TRUE;
+		
+		
+	}
+	
+	
+	filter_pitch_table[note_number+1] = pitch_cv;
+	
+	//need to turn timer off here. This seems to have stopped periodic glitching of first note of first VCO tuned.
+	TIMSK0 &= ~(1<<OCIE0A); //turn off timer0 compare match A interrupt
+	TCCR0A = 0; //turn off timer0
+}
+
+
+
+PORTF &= ~(1<<GATE); //turn gate off
+	
+	
+}			
 	
 uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table) {
 	
