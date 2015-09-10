@@ -87,7 +87,7 @@ void update_spi(void) {
 			switch_states.byte1 ^= spi_sw_byte1_current_state; //Omar's solution.			
 							
 			//SHIFT 3th BYTE
-			spi_shift_byte(0);
+			spi_shift_byte(patch.byte_3);
 
 			//SHIFT 2th BYTE
 			spi_shift_byte(0);

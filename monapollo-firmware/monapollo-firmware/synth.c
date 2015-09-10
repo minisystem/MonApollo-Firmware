@@ -10,7 +10,9 @@
 
 struct patch patch = {0,0,0,0,0};
 	
-static uint8_t octave_index = 0;
+static struct octave_index octave_index = {0,0};
+			
+//static uint8_t octave_index = 0;
 
 uint8_t vco1_octave[5] = 
 	{
@@ -30,15 +32,16 @@ uint8_t vco2_octave[5] =
 		VCO2_2F
 	};		
 
-uint8_t add_octave_to_note (uint8_t note, uint8_t octave_index_mask) {
+uint8_t add_octave_to_note (uint8_t note, uint8_t vco) {
 	
 	uint8_t n = 0;
 	
 	
 	//mask chops off top 4 bits for VCO1, which are octave index for VCO2
 	//or mask chops off bottom 4 bits and shift right 4 bits to get octave index for VCO2	
-	n = octave_index & octave_index_mask;
-	if (octave_index_mask == VCO2) octave_index = octave_index >> 4;
+	//n = octave_index & octave_index_mask;
+	n = octave_index.vco1;
+	if (vco == VCO2) n = octave_index.vco2;
 
 	note = (n*12) + note; //calculate MIDI note after octave addition
 	if (note > 136) { //note is beyond range
@@ -55,32 +58,51 @@ void update_octave_range(void) {
 	
 	if ((switch_states.byte0 >> VCO1_OCTAVE_UP_SW) & 1) {
 		
-		if (++octave_index == 5) octave_index = 4;
+		if (++octave_index.vco1 == 5) octave_index.vco1 = 4;
 		switch_states.byte0 ^= (1<<VCO1_OCTAVE_UP_SW); //toggle switch state bit
-		patch.byte_4 &= 0b1110000; //clear vco1 octave bits - this masks top 3 bits which are for VCO2 octave LEDs
-		patch.byte_4 |= (1<<vco1_octave[octave_index]); //set octave
+
 		
 	}
 	
 	if ((switch_states.byte1 >> VCO1_OCTAVE_DOWN_SW) & 1) { //this didn't work initially because VCO1_OCTAVE_DOWN_SW pull down resistor wasn't installed on PCB!!!
 	
-		if (octave_index == 0) {} else {octave_index--;}
+		if (octave_index.vco1 == 0) {} else {octave_index.vco1--;}
 		switch_states.byte1 ^= (1<<VCO1_OCTAVE_DOWN_SW);
-		patch.byte_4 &= 0b11100000;
-		patch.byte_4 |= (1<<vco1_octave[octave_index]);
+		//patch.byte_4 &= 0b11100000;
+		//patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]);
 
 	}
 	
+	patch.byte_4 = 0; //clear the whole damn byte as all bits are set below
+	//patch.byte_4 &= 0b11100000; //clear vco1 octave bits - this masks top 3 bits which are for VCO2 octave LEDs
+	patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]); //set octave	
+	
 	if ((switch_states.byte1 >> VCO2_OCTAVE_UP_SW) & 1) {
 		
-		
+		if (++octave_index.vco2 == 5) octave_index.vco2 = 4;
+		switch_states.byte1 ^= (1<<VCO2_OCTAVE_UP_SW); //toggle switch state bit		
 	}	
 	
 	if ((switch_states.byte1 >> VCO2_OCTAVE_DOWN_SW) & 1) {
 		
+		if (octave_index.vco2 == 0) {} else {octave_index.vco2--;}
+		switch_states.byte1 ^= (1<<VCO2_OCTAVE_DOWN_SW);
 		
 	}
 	
+	//patch.byte_4 &= 0b00011111; //clear vco2 octave bits - this masks bottom 5 bits which are for VCO1 octave LEDs
+	
+	patch.byte_3 &= 0b11111100; //clear bottom 2 bits for patch byte_3, which are for VCO2 2' and 4'
+	
+	if (octave_index.vco2 > 2) { //VCO2 2' and 4' LEDs are on LED latch 3
+
+						
+		patch.byte_3 |= (1<<vco2_octave[octave_index.vco2]);	
+				
+	} else { //VCO2 8', 16' and 32' are on LED latch 4
+		
+		patch.byte_4 |= (1<<vco2_octave[octave_index.vco2]); //set octave
+	}	
 	
 }
 	

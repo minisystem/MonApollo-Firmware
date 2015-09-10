@@ -138,9 +138,9 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	
-	uint8_t vco2_note = note; //add_octave_to_note(note, VCO2);
+	uint8_t vco2_note = add_octave_to_note(note, VCO2);
 	
-	interpolated_pitch_cv = interpolate_pitch_cv(note, vco2_pitch_table);
+	interpolated_pitch_cv = interpolate_pitch_cv(vco2_note, vco2_pitch_table);
 	
 	set_control_voltage(&vco2_pitch_cv, interpolated_pitch_cv); 
 	

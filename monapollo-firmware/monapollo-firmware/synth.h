@@ -3,7 +3,7 @@
 
 void refresh_synth(void);
 void update_octave_range(void);
-uint8_t add_octave_to_note(uint8_t note, uint8_t octave_index_mask);
+uint8_t add_octave_to_note(uint8_t note, uint8_t vco);
 
 struct patch {
 	
@@ -19,5 +19,11 @@ struct patch {
 	
 extern struct patch patch;
 
+struct octave_index {
+	
+	uint8_t vco1:3;
+	uint8_t vco2:3;
+	
+};
 
 #endif
