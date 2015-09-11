@@ -115,7 +115,7 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = note;	
+	//value_to_display = note;	
 	
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	
@@ -131,12 +131,15 @@ void scan_pots_and_update_control_voltages(void) {
 		{
 			case 2: //exception to handle filter key tracking: use key_track pot setting to determine how much pitch cv contributes to filter cutoff
 				interpolated_pitch_cv = interpolate_pitch_cv(note-8, filter_pitch_table); //subtract 8 from note because filter pitch is calibrated so that 0V is E, 20.6 Hz
-				uint16_t divided_pitch_cv = ((pot_group_1[3]>>2)/255.0)*interpolated_pitch_cv; //reduce pot resolution to 8 bits for faster integer division. pot_group[3] is key_track pot value.
-				//Need to look into this further to see how much time it takes. Here is where fixed point fractional math could help
+				uint16_t key_track_byte = (pot_group_1[3]) + 3;// >> 2; //convert 10 bit value to 8 bit value				 
+				uint16_t divided_pitch_cv = ((uint32_t)key_track_byte*interpolated_pitch_cv) >> 10; //note that produce of key_track_byte and interpolated_pitch_cv needs to be cast as uint32t - otherwise product is evaluated incorrectly
+
+				//value_to_display = divided_pitch_cv;
+							
 				uint16_t filter_cutoff_cv = divided_pitch_cv + (pot_group_1[i] << 4); //filter cutoff CV is the sum of filter cutoff pot and key track amount.
 				if (filter_cutoff_cv > MAX) filter_cutoff_cv = MAX;
 				set_control_voltage(&cutoff_cv, filter_cutoff_cv);
-				//set_control_voltage(&cutoff_cv, pot_group_1[i] <<4);
+				value_to_display = filter_cutoff_cv;
 				break;
 			
 			default:
