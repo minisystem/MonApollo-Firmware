@@ -41,7 +41,7 @@ void display_dec(uint16_t number, uint8_t digit)
 	//determine cathode byte based on digit to display
 	uint8_t cathode_byte;
 	
-	switch(digit) {
+	switch(digit) { //modulo is a bad idea because it is massively time consuming. Maybe a lookup table could be used?
 		
 		case ONES:
 		cathode_byte = dec[(number % 10)]; //print first decimal digit

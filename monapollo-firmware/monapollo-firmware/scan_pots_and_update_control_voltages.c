@@ -113,27 +113,48 @@ void scan_pots_and_update_control_voltages(void) {
 		
 	}
 	
+	uint8_t note = get_current_note(); //get current note from assigner
+	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
+	value_to_display = note;	
+	
+	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
+	
 	//now read second set of pots from U4 and set appropriate DAC S&H channel
 	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
 	{
 		
 		adc_value = read_pot(POTMUX_EN1, i+1);
 		int adc_change = adc_value - pot_group_1[i];
-		pot_group_1[i] = pot_group_1[i] + (adc_change >> 2);		
+		pot_group_1[i] = pot_group_1[i] + (adc_change >> 2);
 		
-		set_control_voltage(pot_decoder_1[i], pot_group_1[i] <<4);
+		switch(i) 
+		{
+			case 2: //exception to handle filter key tracking: use key_track pot setting to determine how much pitch cv contributes to filter cutoff
+				interpolated_pitch_cv = interpolate_pitch_cv(note-8, filter_pitch_table); //subtract 8 from note because filter pitch is calibrated so that 0V is E, 20.6 Hz
+				uint16_t divided_pitch_cv = ((pot_group_1[3]>>2)/255.0)*interpolated_pitch_cv; //reduce pot resolution to 8 bits for faster integer division. pot_group[3] is key_track pot value.
+				//Need to look into this further to see how much time it takes. Here is where fixed point fractional math could help
+				uint16_t filter_cutoff_cv = divided_pitch_cv + (pot_group_1[i] << 4); //filter cutoff CV is the sum of filter cutoff pot and key track amount.
+				if (filter_cutoff_cv > MAX) filter_cutoff_cv = MAX;
+				set_control_voltage(&cutoff_cv, filter_cutoff_cv);
+				//set_control_voltage(&cutoff_cv, pot_group_1[i] <<4);
+				break;
+			
+			default:
+				set_control_voltage(pot_decoder_1[i], pot_group_1[i] <<4);
+				break;
+		}		
+		
+		
 
 	}
 	
 	//set VCO1 and VCO2 pitch control voltages. Remember, set_control_voltage() is expecting a pointer to a control_voltage struct
 	//that contains the control_voltage multiplexer channel and the multiplexer address
 	
-	uint8_t note = get_current_note(); //get current note from assigner
-	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = note;
+
 	uint8_t vco1_note = transpose_note(note, VCO1); //transpose 
 
-	uint16_t interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
+	interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
 	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	
