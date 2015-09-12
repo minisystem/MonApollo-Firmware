@@ -217,7 +217,7 @@ void tune_8ths(uint8_t vco) {
 			vco_mix_cv = &vco1_mix_cv;
 			vco_pw_cv = &vco1_pw_cv;
 			vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
-			vco_number = 10; //allows second digit to display VCO being tuned
+			vco_number = 1; //allows second digit to display VCO being tuned
 			init_cv = vco1_init_cv;
 			vco_pitch_table = vco1_pitch_table;
 		
@@ -230,7 +230,7 @@ void tune_8ths(uint8_t vco) {
 			vco_mix_cv = &vco2_mix_cv;
 			vco_pw_cv = &vco2_pw_cv;
 			vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
-			vco_number = 20; //allows second digit to display VCO being tuned
+			vco_number = 2; //allows second digit to display VCO being tuned
 			init_cv = vco2_init_cv;
 			vco_pitch_table = vco2_pitch_table;
 		}
@@ -288,7 +288,6 @@ void tune_8ths(uint8_t vco) {
 				while (count_finished == FALSE) {
 					//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
 					update_display(vco_number*100 + period, DEC);//
-					//value_to_display = TCNT0;
 					//update_display(value_to_display, DEC);	
 					//need to have a watchdog timer here to escape while loop if it takes too long
 				
@@ -330,7 +329,7 @@ void tune_8ths(uint8_t vco) {
 	
 		PORTF &= ~(1<<GATE); //turn gate off
 		
-		//TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
+		
 	
 	
 	}
@@ -397,6 +396,15 @@ void tune_filter(void) {
 	set_control_voltage(&noise_mix_cv, MIN);
 	set_control_voltage(&vco1_mix_cv, MIN);
 	set_control_voltage(&vco2_mix_cv, MIN);
+
+
+	//latch switch data
+	DATA_BUS = 0; //turn off all VCO waveforms
+	VCO_SW_LATCH_PORT |= (1<<VCO_SW_LATCH);
+	//_delay_us(1); //why is this delay here????
+	VCO_SW_LATCH_PORT &= ~(1<<VCO_SW_LATCH);
+	//DATA_BUS = 0;
+
 
 	period = 1; //need to initialize to minimum period number here
 	PORTF |= (1<<GATE); //turn gate on
