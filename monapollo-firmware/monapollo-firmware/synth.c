@@ -131,10 +131,15 @@ void refresh_synth(void) {
 				
 		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle read switch state
 
-		tune_8ths(VCO2);
+		vco1_init_cv = set_vco_init_cv(VCO1, 24079);
+		vco2_init_cv = set_vco_init_cv(VCO2, 24079);
+
 		tune_8ths(VCO1);
+		tune_8ths(VCO2);
 		tune_filter();
+		save_tuning_tables();
 		_delay_ms(200);	//give some time for release to decay to avoid pops	
+		
 				
 		}
 		

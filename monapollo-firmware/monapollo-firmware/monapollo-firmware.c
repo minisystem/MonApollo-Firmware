@@ -9,6 +9,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <avr/eeprom.h>
+#include "assigner.h"
 #include "spi.h"
 #include "dac.h"
 #include "adc.h"
@@ -29,8 +31,9 @@
 MidiDevice midi_device;
 
 
-
-
+//uint16_t EEMEM test_word_eeprom;
+//uint16_t test_word = 1234;
+//
 //counter for switch scanning in main loop
 uint8_t switch_timer = 0;
 
@@ -138,33 +141,21 @@ int main(void)
 	
 	update_spi(); //initial update of SPI - will eventual be useful for picking up special power up switch holds
 	
-	
-	//set up timer/counter0 to be clocked by T0 input
-	
-	//TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
-	//OCR0A = 0; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1)
-	//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-	//
-	//set up 16 bit timer
-	
-	//TCCR1B |= (1<<CS11) | (1<<CS10); //clock /64 to run at 312.5 KHz
-	//TIMSK1 |= (1<<TOIE1); //enable timer1 overflow interrupt		
-	
-
-	
-	////set up main timer interrupt
-	////this generates the main scanning interrupt
-	//TCCR2A |= (1<<CS22) | (1<<CS21); //Timer2 20MHz/256 prescaler
-	//TIMSK2 |= (1<<TOIE2); //enable Timer2 overflow interrupt over flows approx. every 3ms
-	
-
 		
 	sei(); //enable global interrupts
 	
 	////set initial pitch offset CVs
-	vco1_init_cv = set_vco_init_cv(VCO1, 24079);
-	vco2_init_cv = set_vco_init_cv(VCO2, 24079);
+	//vco1_init_cv = set_vco_init_cv(VCO1, 24079);
+	//vco2_init_cv = set_vco_init_cv(VCO2, 24079);
 	//value_to_display = compare_match_counter;//vco1_init_cv;
+	
+
+	
+	//eeprom_update_word((uint16_t*)109, test_word);
+	//value_to_display = eeprom_read_word((uint16_t*)109);
+	
+	load_tuning_tables();
+	//value_to_display = vco1_init_cv;
 	
 	//set initial switch states
 	switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
@@ -174,7 +165,7 @@ int main(void)
 	while(1)
 	{	
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
-	
+		value_to_display = vco1_init_cv;
 		update_display(value_to_display, DEC);
 			
 		scan_pots_and_update_control_voltages();

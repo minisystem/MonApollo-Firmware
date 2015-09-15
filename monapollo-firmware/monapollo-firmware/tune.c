@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <stdio.h>
+#include <avr/eeprom.h>
 #include "tune.h"
 #include "dac.h"
 #include "hardware.h"
@@ -14,13 +15,20 @@ volatile uint16_t osc_count = 0;
 
 volatile uint8_t compare_match_counter = 0; //diagnostic counter to troubleshoot OCR0A compare match business
 
-//these probably don't need to be volatile - not accessed in interrupt
+//init VCO offset CVs
 uint16_t vco1_init_cv = 0;
 uint16_t vco2_init_cv = 0;
-
+//tuning tables
 uint16_t vco1_pitch_table[17] = {0};
 uint16_t vco2_pitch_table[17] = {0};
 uint16_t filter_pitch_table[16] = {0};	
+//allocate space in EEPROM for init_cvs and tuning tables
+uint16_t EEMEM vco1_init_cv_eeprom = 0;
+uint16_t EEMEM vco2_init_cv_eeprom = 0;
+uint16_t EEMEM vco1_pitch_table_eeprom[17];
+uint16_t EEMEM vco2_pitch_table_eeprom[17];
+uint16_t EEMEM filter_pitch_table_eeprom[16];	
+	
 
 void initialize_voice_for_tuning(void) { //this function sets all CVs required for oscillator tuning
 	
@@ -66,6 +74,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	//these variables hold VCO specific parameters
 	uint8_t switch_byte = 0;
 	uint16_t reference_count = 0;
+	uint16_t *eeprom_addr = 0;
 	struct control_voltage *vco_init_cv;
 	struct control_voltage *vco_mix_cv;
 	struct control_voltage *vco_pw_cv;
@@ -81,6 +90,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 		vco_pw_cv = &vco1_pw_cv;
 		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
 		reference_count = base_reference;//38222; //make this an argument passed to function
+		eeprom_addr = &vco1_init_cv_eeprom;
 		
 	} else { //turn on VCO2 pulse	
 		//turn on VCO2 pulse, all others off
@@ -90,6 +100,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 		vco_pw_cv = &vco2_pw_cv;
 		vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
 		reference_count = base_reference;
+		eeprom_addr = &vco2_init_cv_eeprom;
 	}
 	
 	//latch switch data
@@ -152,6 +163,19 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 	TIMSK0 &= ~(1<<OCIE0A); //turn off compare match A interrupt
 	TCCR0A = 0; //turn off timer0 period timer
 	
+	//if (vco == VCO1) {
+	//
+		//eeprom_update_word(&vco1_init_cv_eeprom, init_cv);
+		//
+	//} else {
+		//
+		//eeprom_update_word(&vco2_init_cv_eeprom, init_cv);
+	//}				
+		
+	eeprom_update_word(eeprom_addr, init_cv);
+	//value_to_display = eeprom_read_word(&vco1_init_cv_eeprom);	
+
+	
 	return init_cv;
 	
 }
@@ -204,6 +228,7 @@ void tune_8ths(uint8_t vco) {
 		uint8_t vco_number = 0; //vco number to display during octave tuning
 		uint16_t init_cv = 0;
 		uint16_t *vco_pitch_table = NULL; //pointer to vco pitch table
+		
 		struct control_voltage *vco_init_cv;
 		struct control_voltage *vco_mix_cv;
 		struct control_voltage *vco_pw_cv;
@@ -220,6 +245,7 @@ void tune_8ths(uint8_t vco) {
 			vco_number = 1; //allows second digit to display VCO being tuned
 			init_cv = vco1_init_cv;
 			vco_pitch_table = vco1_pitch_table;
+			
 		
 		
 		} else { //set up parameters for VCO2 tuning
@@ -233,6 +259,7 @@ void tune_8ths(uint8_t vco) {
 			vco_number = 2; //allows second digit to display VCO being tuned
 			init_cv = vco2_init_cv;
 			vco_pitch_table = vco2_pitch_table;
+			
 		}
 	
 
@@ -325,8 +352,9 @@ void tune_8ths(uint8_t vco) {
 			TCCR0A = 0; //turn off timer0
 		}
 	
-
-	
+		
+		//eeprom_update_block((const void*)vco_pitch_table, (void*)vco_pitch_table_eeprom, sizeof(vco_pitch_table));
+		
 		PORTF &= ~(1<<GATE); //turn gate off
 		
 		
@@ -470,7 +498,7 @@ void tune_filter(void) {
 	}
 	
 	
-	filter_pitch_table[note_number+1] = pitch_cv;
+	filter_pitch_table[note_number+1] = pitch_cv + 32; //32 is an offset that is trying to fix a bug somewhere else. This fix seems to work, but why 2^5 shift is required doesn't make sense to me yet. Need to look into this further
 	
 	//need to turn timer off here. This seems to have stopped periodic glitching of first note of first VCO tuned.
 	TIMSK0 &= ~(1<<OCIE0A); //turn off timer0 compare match A interrupt
@@ -478,9 +506,37 @@ void tune_filter(void) {
 }
 
 
+//eeprom_update_block((const void*)filter_pitch_table, (void*)filter_pitch_table_eeprom, sizeof(filter_pitch_table));
 
 PORTF &= ~(1<<GATE); //turn gate off
 	
+	
+}	
+
+
+void save_tuning_tables(void) { //write tuning tables to memory
+	
+	eeprom_update_block((const void*)filter_pitch_table, (void*)filter_pitch_table_eeprom, sizeof(filter_pitch_table));
+	eeprom_update_block((const void*)vco1_pitch_table, (void*)vco1_pitch_table_eeprom, sizeof(vco1_pitch_table));
+	eeprom_update_block((const void*)vco2_pitch_table, (void*)vco2_pitch_table_eeprom, sizeof(vco2_pitch_table));
+	
+	
+}
+
+void load_tuning_tables(void) { //retrieve tuning tables from memory
+	
+	
+	vco1_init_cv = eeprom_read_word(&vco1_init_cv_eeprom);
+	vco2_init_cv = eeprom_read_word(&vco2_init_cv_eeprom);
+	//uint16_t eeprom_addr = 0;
+	//vco1_init_cv = eeprom_read_word((uint16_t*)eeprom_addr);
+	//eeprom_addr += sizeof(vco2_init_cv);
+	//vco2_init_cv = eeprom_read_word((uint16_t*)eeprom_addr);
+	eeprom_read_block((void*)vco1_pitch_table, (const void*)vco1_pitch_table_eeprom, sizeof(vco1_pitch_table));
+	eeprom_read_block((void*)vco2_pitch_table, (const void*)vco2_pitch_table_eeprom, sizeof(vco2_pitch_table));
+	eeprom_read_block((void*)filter_pitch_table, (const void*)filter_pitch_table_eeprom, sizeof(filter_pitch_table));
+	
+	//value_to_display = vco1_init_cv_eeprom;
 	
 }			
 	

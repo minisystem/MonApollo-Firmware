@@ -8,13 +8,13 @@
 #include "hardware.h"
 #include "tune.h"
 #include "assigner.h"
-//#include "pot_to_dac_map.h"
+#include "synth.h"
 
 
 
-static uint16_t adc_previous = 0;
+
 static uint16_t adc_value = 0;
-static int adc_difference = 0;
+
 int tune_offset = 0; //fine tune offset to display
 
 uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup table
@@ -131,7 +131,8 @@ void scan_pots_and_update_control_voltages(void) {
 		{
 			case 2: //exception to handle filter key tracking: use key_track pot setting to determine how much pitch cv contributes to filter cutoff
 				interpolated_pitch_cv = interpolate_pitch_cv(note-8, filter_pitch_table); //subtract 8 from note because filter pitch is calibrated so that 0V is E, 20.6 Hz
-				uint16_t key_track_byte = (pot_group_1[3]); //			 
+				uint16_t key_track_byte = (pot_group_1[3]); //
+				//if (key_track_byte > 1020) key_track_byte = 1024;			 
 				uint16_t divided_pitch_cv = ((uint32_t)key_track_byte*interpolated_pitch_cv) >> 10; //note that produce of key_track_byte and interpolated_pitch_cv needs to be cast as uint32t - otherwise product is evaluated incorrectly
 
 				//value_to_display = divided_pitch_cv;
@@ -139,7 +140,7 @@ void scan_pots_and_update_control_voltages(void) {
 				uint16_t filter_cutoff_cv = divided_pitch_cv + (pot_group_1[i] << 4); //filter cutoff CV is the sum of filter cutoff pot and key track amount.
 				if (filter_cutoff_cv > MAX) filter_cutoff_cv = MAX; //make sure there is no overflow/wrap by capping max
 				set_control_voltage(&cutoff_cv, filter_cutoff_cv);
-				value_to_display = filter_cutoff_cv;
+				//value_to_display = filter_cutoff_cv;
 				break;
 			
 			default:
