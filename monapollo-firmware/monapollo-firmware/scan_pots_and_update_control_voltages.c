@@ -160,6 +160,8 @@ void scan_pots_and_update_control_voltages(void) {
 
 	interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
 	
+	value_to_display = interpolated_pitch_cv;
+	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	
 	uint8_t vco2_note = transpose_note(note, VCO2);

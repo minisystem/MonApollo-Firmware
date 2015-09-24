@@ -1,13 +1,15 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/eeprom.h>
+#include <avr/wdt.h>
+#include <avr/delay.h>
 #include "tune.h"
 #include "dac.h"
 #include "hardware.h"
 #include "display.h"
 
 volatile uint8_t period_counter = 0; //need this to track first interrupt after count started
-volatile uint8_t period = 0; //this is the actual period number that OCR0A is set to
+volatile uint8_t period = 0; //this is the actual period number that OCR0A is set to 
 volatile uint8_t timer1_clock = 0;
 volatile uint8_t no_overflow = TRUE;
 volatile uint8_t count_finished = FALSE;
@@ -59,6 +61,8 @@ void initialize_voice_for_tuning(void) { //this function sets all CVs required f
 	set_control_voltage(&release_1_cv, MIN);
 	//turn off noise
 	set_control_voltage(&noise_mix_cv, MIN);
+	set_control_voltage(&vco1_mix_cv, MIN);
+	set_control_voltage(&vco2_mix_cv, MIN);
 }	
 	
 uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add extra argument here to set reference count for base frequency
@@ -130,7 +134,9 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 		count_finished = FALSE;
 		period_counter = 0;
 		//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
-		
+		//enable watchdog timer
+		//WDTCR |= (1<<WDP2) | (1<<WDP1) | (1<<WDP0) | (1<<WDE)| (1<<WDCE);
+		wdt_enable(WDTO_2S);
 		while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 			
 			update_display(vco + 1, DEC);
@@ -145,6 +151,10 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add ex
 			set_control_voltage(vco_pitch_cv, 0);	
 			
 		}
+		//turn off watchdog timer
+		//WDTCR |= (1<<WDCE) | (1<<WDE);
+		//WDTCR = 0x00;
+		wdt_disable();
 		//remember that as INIT_CV goes up, pitch goes down, so looking for osc_count >= reference_count instead of <= as is the case for normal oscillator tuning
 		//similarily, OR no_overflow == FALSE *not* AND no_overflow == FALSE to clear bits that make initial pitch too low
 		if ((osc_count > reference_count)  || (no_overflow == FALSE)) init_cv &= ~(1 << dac_bit);
@@ -286,7 +296,7 @@ void tune_8ths(uint8_t vco) {
 			//period timer needs to be initialized here and turned off after each note's SAR to prevent glitching caused by leaving timer0 running
 			TCCR0A |= (1<<CS02) | (1<<CS01) | (1<<CS00) | (1<<WGM01); //clocked by external T0 pin, rising edge + clear timer on compare match
 			OCR0A = 1; //output compare register - set to number of periods to be counted. OCR0A needs to be set to (periods_to_be_counted - 1) ***COULD PROBABLY CHANGE THIS TO 0 NOW*** - NOPE. NEEDS TO BE 1!!!
-			TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+			//TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
 			TCNT0 = 0; //make sure timer/counter0 is actually 0. 
 			
 			if (note_number <= 2) {
@@ -306,12 +316,17 @@ void tune_8ths(uint8_t vco) {
 			for (int dac_bit = 13; dac_bit >= 0; dac_bit--) { //now do successive approximation
 				
 				osc_pitch_cv |= (1<<dac_bit);
-
+				TIMSK0 &= ~(1<<OCIE0A); //turn off output compare match A interrupt
 				set_control_voltage(vco_pitch_cv, osc_pitch_cv);
+				_delay_ms(2); //add delay here to allow pitch to slew to its final value
+				TIMSK0 |= (1<<OCIE0A); //enable output compare match A interrupt
+				//TCNT0 = 0;
+				
 				count_finished = FALSE;
 				period_counter = 0;
 			
-				
+				//enable watchdog timer
+				wdt_enable(WDTO_2S);
 				while (count_finished == FALSE) {
 					//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
 					update_display(vco_number*100 + period, DEC);//
@@ -325,14 +340,17 @@ void tune_8ths(uint8_t vco) {
 					//set_control_voltage(vco_pw_cv, MAX); //not necessary as SAW is being used to clock comparator
 					set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 					set_control_voltage(&cutoff_cv, MAX);
+					set_control_voltage(&res_cv, MIN);
 					set_control_voltage(&sustain_1_cv, MAX);
-					set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
-					//set_control_voltage(&sustain_2_cv, MAX); //can't remember is EG1 for VCA or EG2????
+					//set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
+					set_control_voltage(vco_pw_cv, 8192);
 					set_control_voltage(vco_mix_cv, MAX);
+					set_control_voltage(&glide_cv, MIN); //keep glide to a minimum
 			
 			
 				}							
-				
+				//turn off watchdog timer
+				wdt_disable();
 				//Omar changed this from <= to < which makes sense. <= was an error because if it's equal you don't want to clear the bit
 				if ((osc_count <= reference_count) && (no_overflow == TRUE)) osc_pitch_cv &= ~(1<<dac_bit);
 				
@@ -470,7 +488,8 @@ void tune_filter(void) {
 			count_finished = FALSE;
 			period_counter = 0;
 		
-		
+			//enable watchdog timer
+			wdt_enable(WDTO_2S);
 			while (count_finished == FALSE) {
 				//update_display(vco_number + period + (compare_match_counter>>4)*100, DEC);
 				update_display(300 + period, DEC);//
@@ -485,7 +504,8 @@ void tune_filter(void) {
 				set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
 						
 			}
-		
+			//turn off watchdog timer
+			wdt_disable();
 			//Omar changed this from <= to < which makes sense. <= was an error because if it's equal you don't want to clear the bit
 			if ((osc_count <= reference_count) && (no_overflow == TRUE))pitch_cv &= ~(1<<dac_bit);
 		
@@ -551,5 +571,36 @@ uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table) {
 	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>	
 	
 	return interpolated_pitch_cv;
+	
+}
+
+void set_one_volt_per_octave(void) {
+	
+	uint16_t vpo_pitch_table[17] = {
+		
+		0,
+		1092,
+		2185,
+		3277,
+		4369,
+		5461,
+		6554,
+		7646,
+		8738,
+		9830,
+		10923,
+		12015,
+		13107,
+		14199,
+		15292,
+		16384,
+		16384
+		
+	};
+	
+	
+	memcpy((void*)vco1_pitch_table, (const void*)vpo_pitch_table, (size_t)sizeof(vpo_pitch_table));
+	memcpy((void*)vco2_pitch_table, (const void*)vpo_pitch_table, (size_t)sizeof(vpo_pitch_table));
+	
 	
 }
