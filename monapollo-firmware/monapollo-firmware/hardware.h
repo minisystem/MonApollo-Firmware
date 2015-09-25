@@ -4,6 +4,7 @@
 //define PORTS
 #define SPI_PORT			PORTB
 #define SPI_LATCH_PORT		PORTJ
+#define LFO_LATCH_PORT		PORTJ
 #define VCO_SW_LATCH_PORT	PORTJ
 #define EG2_POL_PORT		PORTJ
 #define DATA_BUS			PORTA
@@ -59,6 +60,14 @@
 //define LFO waveform switch latch (not yet implemented in hardware)
 #define LFO_SW_LATCH		PJ5
 
+//define LFO DEMUX waveform selection bytes:
+#define LFO_TRI_ADDR	0
+#define LFO_SINE_ADDR	4
+#define LFO_SAW_ADDR	2
+#define LFO_PULSE_ADDR	6
+#define LFO_RNDM_ADDR	1	
+
+
 //EG2 polarity pin on PORTJ
 #define EG2_POL			PJ4
 
@@ -88,9 +97,15 @@
 #define VCO1_32F			1 //LED3 on LED LATCH 4
 
 #define PROG_WRITE			7 //WRITE
+#define PROG_MANUAL			6 //MANUAL
 #define ARP_MODE			2 //ARP MODE
 #define EG2_INV				0 //EG2 INV
 
+#define LFO_TRI				7 //LED17 on LED LATCH 2
+#define LFO_SAW				6 //LED18 on LED LATCH 2
+#define LFO_SINE			5 //LED19 on LED LATCH 2
+#define LFO_RNDM			4 //LED20 on LED LATCH 2
+#define LFO_PULSE			0b00110000 //STUPIDHEAD DID NOT MAKE A LED FOR LFO PULSE. LIGHT UP SAW AND RNDMN INSTEAD
 
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7

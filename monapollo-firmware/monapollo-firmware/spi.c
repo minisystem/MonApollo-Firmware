@@ -90,12 +90,13 @@ void update_spi(void) {
 			spi_shift_byte(patch.byte_3);
 
 			//SHIFT 2th BYTE
-			spi_shift_byte(0);
+			spi_shift_byte(patch.byte_2);
 			
-			//SHIFT 1st BYTE			
+			//SHIFT 1st BYTE	//eventually need to parse this elsewhere		
 			spi_data =	((switch_states.byte1 >> ARP_MODE_SW) & 1) << ARP_MODE | 
 						((switch_states.byte2 >> PROG_WRITE_SW) & 1) << PROG_WRITE | 
-						((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV; 			
+						((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV |
+						((switch_states.byte2 >> PROG_MANUAL_SW &1) << PROG_MANUAL); 			
 			//Wait for SPI shift to complete
 			spi_shift_byte(spi_data);
 			

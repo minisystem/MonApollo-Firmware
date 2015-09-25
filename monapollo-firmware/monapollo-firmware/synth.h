@@ -26,4 +26,11 @@ struct octave_index {
 	
 };
 
+struct lfo {
+	
+	uint8_t waveform_addr:3;
+	uint8_t led_addr:3;
+	
+	};
+
 #endif

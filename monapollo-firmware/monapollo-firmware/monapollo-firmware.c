@@ -107,8 +107,8 @@ int main(void)
 	//PORTF |= (1<<GATE); //turn gate on for testing
 	
 	DDRG |= (1<<TUNE_SELECT); //set tune select bit as output on PORTG
-	//PORTG &= ~(1<<TUNE_SELECT); //set tune select bit to 0 to select VCF/VCA output for oscillator tuning
-	PORTG |= (1<<TUNE_SELECT);
+	PORTG &= ~(1<<TUNE_SELECT); //set tune select bit to 0 to select VCF/VCA output for oscillator tuning
+	//PORTG |= (1<<TUNE_SELECT);
 	
 	setup_spi(); 
 	
@@ -124,6 +124,14 @@ int main(void)
 	
 	//set up switch port
 	DDRF &= ~(1<<BMOD_SW); //set BMOD_SW pin as input
+	
+	//set up LFO DEMUX LATCH
+	DDRJ |= (1<<LFO_SW_LATCH); //set LFO_SW_LATCH pin as output
+	DATA_BUS = LFO_TRI_ADDR;
+	LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+	LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+	DATA_BUS = 0;
+	patch.byte_2 = (1<<LFO_TRI);
 	
 	//setup ADC
     setup_adc();		

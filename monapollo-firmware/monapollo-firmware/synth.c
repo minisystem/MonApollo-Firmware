@@ -11,6 +11,19 @@
 struct patch patch = {0,0,0,0,0};
 	
 static struct octave_index octave_index = {0,0};
+
+struct lfo lfo[] = 
+
+	{
+		{LFO_TRI_ADDR, LFO_TRI},
+		{LFO_SINE_ADDR, LFO_SAW}, //DON'T KNOW WHY SWITCHING CONSTANTS' VALUES DOESN'T FIX THIS. NEEDED TO SWAP IN ACTUAL ARRAY?
+		{LFO_SAW_ADDR, LFO_SINE},
+		{LFO_PULSE_ADDR, LFO_RNDM},
+		{LFO_RNDM_ADDR, LFO_RNDM}
+	
+	};	
+	
+static uint8_t lfo_shape_index = 0;	
 			
 //static uint8_t octave_index = 0;
 
@@ -31,6 +44,16 @@ uint8_t vco2_octave[5] =
 		VCO2_4F,
 		VCO2_2F
 	};		
+	
+uint8_t lfo_shape[5] = 
+	{
+		LFO_TRI_ADDR,
+		LFO_SINE_ADDR,
+		LFO_SAW_ADDR,
+		LFO_PULSE_ADDR,
+		LFO_RNDM_ADDR
+	};
+	
 
 uint8_t transpose_note (uint8_t note, uint8_t vco) {
 	
@@ -125,6 +148,20 @@ void refresh_synth(void) {
 	
 	//parse octave switch data
 	update_octave_range();
+	
+	//parse LFO data
+	if ((switch_states.byte1 >> LFO_SHAPE_SW) & 1) {
+		
+		switch_states.byte1 ^= (1<<LFO_SHAPE_SW); //toggle switch state
+		if (++lfo_shape_index == 5) lfo_shape_index = 0;
+		DATA_BUS = lfo[lfo_shape_index].waveform_addr;
+		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+		patch.byte_2 &= 0b00001111; //clear top 4 bits 
+		patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
+		
+		
+	}		
 				
 	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) //temporary tune button hack
 		{ 
