@@ -166,7 +166,7 @@ int main(void)
 	
 	load_tuning_tables();
 	//value_to_display = vco1_init_cv;
-	set_one_volt_per_octave(); //overwrite tuning tables with 1V/octave data for calibration purposes
+	//set_one_volt_per_octave(); //overwrite tuning tables with 1V/octave data for calibration purposes
 	//set initial switch states
 	switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
 	patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);

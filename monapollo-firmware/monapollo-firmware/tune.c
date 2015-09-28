@@ -34,6 +34,7 @@ uint16_t EEMEM filter_pitch_table_eeprom[16];
 
 void initialize_voice_for_tuning(void) { //this function sets all CVs required for oscillator tuning
 	
+
 	set_control_voltage(&volume_cv, MIN); //turn volume all the way down
 	//turn off all pitch modulation
 	set_control_voltage(&pitch_lfo_cv, MIN);
@@ -65,7 +66,7 @@ void initialize_voice_for_tuning(void) { //this function sets all CVs required f
 	set_control_voltage(&vco2_mix_cv, MIN);
 }	
 	
-uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { //should add extra argument here to set reference count for base frequency
+uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) { 
 
 	uint16_t init_cv = 0;
 	timer1_clock |= (1<<CS11) | (1<<CS10);
@@ -336,16 +337,17 @@ void tune_8ths(uint8_t vco) {
 					//not sure what's really necessary here - definitely pitch and init_cv, but what else?
 					set_control_voltage(vco_init_cv, init_cv);
 					set_control_voltage(vco_pitch_cv, osc_pitch_cv);
-					
+					//set_control_voltage(&pitch_lfo_cv, MIN);
 					//set_control_voltage(vco_pw_cv, MAX); //not necessary as SAW is being used to clock comparator
-					set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
+					//set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 					set_control_voltage(&cutoff_cv, MAX);
-					set_control_voltage(&res_cv, MIN);
+					//set_control_voltage(&res_cv, MIN);
 					set_control_voltage(&sustain_1_cv, MAX);
 					//set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
 					set_control_voltage(vco_pw_cv, 8192);
 					set_control_voltage(vco_mix_cv, MAX);
-					set_control_voltage(&glide_cv, MIN); //keep glide to a minimum
+					//set_control_voltage(&glide_cv, MIN); //keep glide to a minimum
+
 			
 			
 				}							
