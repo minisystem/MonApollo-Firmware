@@ -7,6 +7,7 @@
 #include "dac.h"
 #include "hardware.h"
 #include "display.h"
+#include "utils.h"
 
 volatile uint8_t period_counter = 0; //need this to track first interrupt after count started
 volatile uint8_t period = 0; //this is the actual period number that OCR0A is set to 
@@ -339,7 +340,7 @@ void tune_8ths(uint8_t vco) {
 					set_control_voltage(vco_pitch_cv, osc_pitch_cv);
 					//set_control_voltage(&pitch_lfo_cv, MIN);
 					//set_control_voltage(vco_pw_cv, MAX); //not necessary as SAW is being used to clock comparator
-					//set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
+					set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 					set_control_voltage(&cutoff_cv, MAX);
 					//set_control_voltage(&res_cv, MIN);
 					set_control_voltage(&sustain_1_cv, MAX);
@@ -497,13 +498,16 @@ void tune_filter(void) {
 				update_display(300 + period, DEC);//
 				//value_to_display = TCNT0;
 				//update_display(value_to_display, DEC);
-				//need to have a watchdog timer here to escape while loop if it takes too long
+				
 		
 				set_control_voltage(&cutoff_cv, pitch_cv);
 				set_control_voltage(&volume_cv, MIN);//only necessary for first 2 octaves that use lower frequency reference clock
 				set_control_voltage(&res_cv, MAX);
 				set_control_voltage(&sustain_1_cv, MAX);
 				set_control_voltage(&attack_1_cv, MIN); //keep attack at minimum
+				set_control_voltage(&fil_lfo_cv, MIN);	//keep all filter modulation at a minimum
+				set_control_voltage(&fil_eg2_cv, MIN);
+				set_control_voltage(&fil_vco2_cv, MIN);
 						
 			}
 			//turn off watchdog timer
@@ -570,13 +574,15 @@ uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table) {
 	uint16_t y0 = pitch_table[pitch_index -1];
 	uint16_t y1 = pitch_table[pitch_index];
 	
-	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>	
+	uint16_t interpolated_pitch_cv = y0 + (((y1 - y0)*delta_note)>>3); //mind order of operations here: + is evaluated before >>	also, might be possible to optimize this with 16MUL8SHIFT8 from Anushri ASM util
+	
+	
 	
 	return interpolated_pitch_cv;
 	
 }
 
-void set_one_volt_per_octave(void) {
+void set_one_volt_per_octave(void) { //does this get stored in RAM? Should it go in progmem instead?
 	
 	uint16_t vpo_pitch_table[17] = {
 		

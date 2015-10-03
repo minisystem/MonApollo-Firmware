@@ -115,7 +115,7 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	//value_to_display = note;	
+	value_to_display = note;	
 	
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	
@@ -160,7 +160,7 @@ void scan_pots_and_update_control_voltages(void) {
 
 	interpolated_pitch_cv = interpolate_pitch_cv(vco1_note, vco1_pitch_table);
 	
-	value_to_display = interpolated_pitch_cv;
+	//value_to_display = interpolated_pitch_cv;
 	
 	set_control_voltage(&vco1_pitch_cv, interpolated_pitch_cv);
 	

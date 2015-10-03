@@ -14,7 +14,7 @@
 
 extern volatile uint16_t value_to_display;
 
-void display_dec(uint16_t number, uint8_t digit);
+void display_dec(uint16_t number, uint8_t place);
 
 void update_display(uint16_t number, uint8_t type);
 

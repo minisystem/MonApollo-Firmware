@@ -31,7 +31,7 @@ void tune_8ths(uint8_t vco); //tune every 8th MIDI note
 
 uint16_t interpolate_pitch_cv(uint8_t note, uint16_t *pitch_table);
 
-void set_one_volt_per_octave(); //set VCO tuning tables to exact 1V/octave response
+void set_one_volt_per_octave(); //set VCO tuning tables to exact 1V/octave response. Use this for calibration, although right now a fixed scale resistor on VCOs and filter seems to work just fine.
 
 void save_tuning_tables(void);
 
