@@ -97,7 +97,7 @@ void scan_pots_and_update_control_voltages(void) {
 				break;
 			
 			case 11: //handle ARP_RATE pot
-			
+				value_to_display = pot_group_0[11];
 				break;
 				
 			case 4: //LFO pitch modulation depth control - reduce by 1/4
@@ -115,7 +115,7 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = note;	
+	//value_to_display = 1234;	
 	
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	

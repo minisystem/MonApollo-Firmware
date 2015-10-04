@@ -21,7 +21,7 @@ uint16_t read_pot(uint8_t mux_select, uint8_t channel) {
 	
 	DATA_BUS = channel;
 	POT_MUX &= ~(1<<mux_select);
-	_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now.
+	_delay_us(2); //ADC settling time. Previously used 10 us, testing 2 us now. Now testing 1 us. See how it sounds. Nope. Needs to 2 us minimum to prevent crosstalk between multiplexor channels
 	ADCSRA |= (1<<ADSC); //start ADC conversion
 	while ((ADCSRA & (1<<ADSC))); //wait for ADC conversion to complete (13 cycles of ADC clock - 10.4 us for 1.25Mhz clock) - need to figure out what to do with this time - would interrupt be more efficient?
 	POT_MUX |= (1<<mux_select); //disable pot multiplexer U2

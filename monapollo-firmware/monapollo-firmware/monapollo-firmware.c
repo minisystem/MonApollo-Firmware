@@ -177,10 +177,10 @@ int main(void)
 		
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 		//value_to_display = vco1_init_cv;
-		PORTB |= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
-		update_display(value_to_display, DEC);
+		PORTB |= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED
+		update_display(value_to_display, DEC); //maybe move this into switch_timer loop. Probably doesn't need to be updated this frequently
 		PORTB &= ~(1<<ARP_SYNC_LED);
-			
+		 	
 		scan_pots_and_update_control_voltages();
 			
 		//do SPI read/write every loops - whole section needs major update
