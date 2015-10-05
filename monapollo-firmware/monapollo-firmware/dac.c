@@ -56,7 +56,7 @@ void set_control_voltage (struct control_voltage * cv, uint16_t value) {
 
 	_delay_us(2); //AD5556 DAC has 0.5 us settling time. 1 us wasn't long enough for transitions from 10V to 0V
 	DAC_MUX |= (1<<cv->mux_addr); //enable multiplexer
-	_delay_us(10); //wait for S&H cap to charge - need to figure out how to do this more time efficiently
+	_delay_us(2); //wait for S&H cap to charge - need to figure out how to do this more time efficiently
 	DAC_MUX &= ~(1<<cv->mux_addr); //disable multiplexer
 	
 }	
