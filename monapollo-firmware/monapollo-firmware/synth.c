@@ -1,6 +1,8 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/eeprom.h>
 
+#include "adc.h"
 #include "utils.h"
 #include "hardware.h"
 #include "synth.h"
@@ -8,7 +10,8 @@
 #include "switch_map.h"
 #include "display.h"
 
-struct patch patch = {0,0,0,0,0};
+struct patch current_patch = {0};
+struct eeprom_patch EEMEM patch_memory[42]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
 	
 static struct octave_index octave_index = {0,0};
 
@@ -54,6 +57,24 @@ uint8_t lfo_shape[5] =
 		LFO_RNDM_ADDR
 	};
 	
+	
+void save_patch(uint8_t patch_number) {
+
+	eeprom_update_block((const void*)&current_patch, (void*)&patch_memory[patch_number], sizeof(current_patch));
+}	
+	
+	
+void set_memory_mode() { //run this every time new patch is loaded to lock pots and store locked values
+	
+	for (int i = 0; i <= 29; i++) {
+		
+		pot_id[i]->locked_value = (pot_id[i]->value) >> 2;
+		pot_id[i]->locked = 1; 
+		
+	}
+	
+}	
+		
 
 uint8_t transpose_note (uint8_t note, uint8_t vco) {
 	
@@ -89,8 +110,8 @@ void update_octave_range(void) {
 
 	}
 	
-	patch.byte_4 = 0; //clear the whole damn byte as all bits are set below
-	patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]); //set octave	
+	current_patch.byte_4 = 0; //clear the whole damn byte as all bits are set below
+	current_patch.byte_4 |= (1<<vco1_octave[octave_index.vco1]); //set octave	
 	
 	if ((switch_states.byte1 >> VCO2_OCTAVE_UP_SW) & 1) {
 		
@@ -105,16 +126,16 @@ void update_octave_range(void) {
 		
 	}
 			
-	patch.byte_3 &= 0b11111100; //clear bottom 2 bits for patch byte_3, which are for VCO2 2' and 4'
+	current_patch.byte_3 &= 0b11111100; //clear bottom 2 bits for patch byte_3, which are for VCO2 2' and 4'
 	
 	if (octave_index.vco2 > 2) { //VCO2 2' and 4' LEDs are on LED latch 3
 
 						
-		patch.byte_3 |= (1<<vco2_octave[octave_index.vco2]);	
+		current_patch.byte_3 |= (1<<vco2_octave[octave_index.vco2]);	
 				
 	} else { //VCO2 8', 16' and 32' are on LED latch 4
 		
-		patch.byte_4 |= (1<<vco2_octave[octave_index.vco2]); //set octave
+		current_patch.byte_4 |= (1<<vco2_octave[octave_index.vco2]); //set octave
 	}	
 	
 }
@@ -123,7 +144,7 @@ void update_octave_range(void) {
 void refresh_synth(void) {
 	
 	//parse LED data for LED latch 5
-	patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
+	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
 					((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
 					((switch_states.byte0 >> VCO1_TRI_SW) & 1) << VCO1_TRI |
 					((switch_states.byte0 >> VCO1_PULSE_SW) & 1) << VCO1_PULSE |
@@ -157,8 +178,8 @@ void refresh_synth(void) {
 		DATA_BUS = lfo[lfo_shape_index].waveform_addr;
 		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
 		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		patch.byte_2 &= 0b00001111; //clear top 4 bits 
-		patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
+		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
+		current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
 		
 		
 	}		
@@ -188,8 +209,8 @@ void refresh_synth(void) {
 		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
 		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
 		DATA_BUS = 0;
-		patch.byte_2 &= 0b00001111; //clear top 4 bits 
-		patch.byte_2 |= (1<<LFO_TRI);
+		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
+		current_patch.byte_2 |= (1<<LFO_TRI);
 				
 				
 		}

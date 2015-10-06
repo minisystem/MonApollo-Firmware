@@ -62,7 +62,7 @@ void update_spi(void) {
 			
 			//SHIFT 5th BYTE				
 			//Read SPDR for switch data shifted in from 74XX165 U14 and write LED data to LED latch 5
-			spi_sw_byte0_current_state = spi_shift_byte(patch.byte_5);
+			spi_sw_byte0_current_state = spi_shift_byte(current_patch.byte_5);
 			
 			spi_sw_byte0_current_state ^= spi_sw_byte0_previous_state;
 			spi_sw_byte0_previous_state ^= spi_sw_byte0_current_state;
@@ -75,7 +75,7 @@ void update_spi(void) {
 			//Now read SPDR for switch data shifted in from 74XX165 (U9)
 			//uint8_t spi_data = (1<<VCO2_32F | 1<<VCO1_32F); //turn on 32' octave LEDs as default 
 			
-			uint8_t spi_data = patch.byte_4;
+			uint8_t spi_data = current_patch.byte_4;
 					
 			spi_sw_byte1_current_state = spi_shift_byte(spi_data);
 	
@@ -87,10 +87,10 @@ void update_spi(void) {
 			switch_states.byte1 ^= spi_sw_byte1_current_state; //Omar's solution.			
 							
 			//SHIFT 3th BYTE
-			spi_shift_byte(patch.byte_3);
+			spi_shift_byte(current_patch.byte_3);
 
 			//SHIFT 2th BYTE
-			spi_shift_byte(patch.byte_2);
+			spi_shift_byte(current_patch.byte_2);
 			
 			//SHIFT 1st BYTE	//eventually need to parse this elsewhere		
 			spi_data =	((switch_states.byte1 >> ARP_MODE_SW) & 1) << ARP_MODE | 

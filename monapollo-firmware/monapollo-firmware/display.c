@@ -53,7 +53,7 @@ void display_dec(uint16_t number, uint8_t place)
 	static uint8_t digit_index[4]; //array to hold digit index
 	
 	//optimized code to handle numbers from 0 to 999 from http://embeddedgurus.com/stack-overflow/2011/02/efficient-c-tip-13-use-the-modulus-operator-with-caution/
-	//would be nice to make this work for numbers from 0 to 9999 but I'll need to understand the optimized divsion routine to make it work from numbers > 999
+	//added extra division by 10 to handle 0-9999
 	static const uint8_t rem[12] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1};
 	uint16_t q1, q2, qa;
 	uint8_t q3, q4, qb;

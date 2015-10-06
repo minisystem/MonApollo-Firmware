@@ -24,6 +24,8 @@ volatile uint16_t value_to_display = 79; //global to hold display value
 //arrays to hold ADC values for each pot - needed for digital filtering of adc reads, plus will be able to be used for parameter storage and recall
 uint16_t pot_group_0[16] = {0}; 
 uint16_t pot_group_1[15] = {0};	
+	
+	
 
 //First group of pots inputs 0-15 on U2 demulitplexer
 //This is an array of pointers to control_voltage structs
@@ -69,13 +71,41 @@ struct control_voltage *pot_decoder_1[15] = {
 	&release_1_cv
 	}; 
 	
+	
+void scan_pots(void) {
+
+	int adc_change = 0;
+	
+	uint16_t *patch_value = &(current_patch.vco2_mix); //pointer to first element of current_patch struct
+	//scan 30 parameter pots
+	for (int i = 0; i <= 29; i++) {
+		
+		adc_value = read_pot(pot_id[i]);
+		adc_change = adc_value - pot_id[i]->value;
+		pot_id[i]->value = pot_id[i]->value + (adc_change >> 2);
+		*(patch_value + i) = pot_id[i]->value; //this is a hacked way of indexing the patch structure. Depends on order of pots in pot array being the same as order of parameters in patch struct
+	}
+
+	//scan volume pot
+	adc_value = read_pot(&volume_pot);
+	adc_change = adc_value - volume_pot.value;
+	volume_pot.value = volume_pot.value + (adc_change >> 2);
+	
+}
+
+void update_control_voltages(void) {
+	
+	
+	
+}			
+	
 void scan_pots_and_update_control_voltages(void) {
 
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
 	for (int i = 0; i <=15; i++)
 	{
 
-		adc_value = read_pot(POTMUX_EN0, i);
+		adc_value = read_pot(pot_id[i]);
 		//implement IIR digital low pass filter - change pot value only by some fraction (>>2) of the difference between the new and old value
 		int adc_change = adc_value - pot_group_0[i];
 		pot_group_0[i] = pot_group_0[i] + (adc_change >> 2);
@@ -123,7 +153,7 @@ void scan_pots_and_update_control_voltages(void) {
 	for (int i = 0; i <=14; i++) //first U4 input is grounded - only 15 pots, not 16 on second mux
 	{
 		
-		adc_value = read_pot(POTMUX_EN1, i+1);
+		adc_value = read_pot(pot_id[i+16]);
 		int adc_change = adc_value - pot_group_1[i];
 		pot_group_1[i] = pot_group_1[i] + (adc_change >> 2);
 		
@@ -133,7 +163,7 @@ void scan_pots_and_update_control_voltages(void) {
 				interpolated_pitch_cv = interpolate_pitch_cv(note-8, filter_pitch_table); //subtract 8 from note because filter pitch is calibrated so that 0V is E, 20.6 Hz
 				uint16_t key_track_byte = (pot_group_1[3]); //
 				//if (key_track_byte > 1020) key_track_byte = 1024;			 
-				uint16_t divided_pitch_cv = ((uint32_t)key_track_byte*interpolated_pitch_cv) >> 10; //note that produce of key_track_byte and interpolated_pitch_cv needs to be cast as uint32t - otherwise product is evaluated incorrectly
+				uint16_t divided_pitch_cv = ((uint32_t)key_track_byte*interpolated_pitch_cv) >> 10; //note that product of key_track_byte and interpolated_pitch_cv needs to be cast as uint32t - otherwise product is evaluated incorrectly
 
 				//value_to_display = divided_pitch_cv;
 							

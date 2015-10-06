@@ -131,7 +131,7 @@ int main(void)
 	LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
 	LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
 	DATA_BUS = 0;
-	patch.byte_2 = (1<<LFO_TRI);
+	current_patch.byte_2 = (1<<LFO_TRI);
 	
 	//setup ADC
     setup_adc();		
@@ -169,7 +169,7 @@ int main(void)
 	//set_one_volt_per_octave(); //overwrite tuning tables with 1V/octave data for calibration purposes
 	//set initial switch states
 	switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
-	patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);
+	current_patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);
 	
 
 	while(1)

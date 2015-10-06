@@ -53,8 +53,8 @@
 //struct for a control voltage contains mux channel and mux address
 struct control_voltage {
 	
-	uint8_t channel;
-	uint8_t mux_addr;
+	uint8_t channel:3;
+	uint8_t mux_addr:3;
 	
 };
 
@@ -99,7 +99,7 @@ extern struct control_voltage release_1_cv;
 
 void setup_dac(void);
 
-void set_dac(uint8_t dac_mux_address, uint8_t channel, uint16_t value); //no longer using this
+
 
 void set_control_voltage (struct control_voltage * cv, uint16_t value);
 
