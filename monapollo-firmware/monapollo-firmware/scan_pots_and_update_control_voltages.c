@@ -15,7 +15,7 @@
 
 static uint16_t adc_value = 0;
 
-int tune_offset = 0; //fine tune offset to display
+
 
 uint8_t midi_note_number = 0; //store incoming MIDI note here for pitch lookup table
 
@@ -72,7 +72,7 @@ struct control_voltage *pot_decoder_1[15] = {
 	}; 
 	
 	
-void scan_pots(void) {
+void scan_pots(void) { //should probably move this to adc.c
 
 	int adc_change = 0;
 	
@@ -83,6 +83,8 @@ void scan_pots(void) {
 		adc_value = read_pot(pot_id[i]);
 		adc_change = adc_value - pot_id[i]->value;
 		pot_id[i]->value = pot_id[i]->value + (adc_change >> 2);
+		//what happens next depends on mode. if pot is locked, then the value of the pot is not written to the current patch unless it is different from the pot's locked value
+		//otherwise, the pot value is assigned to it's corresponding parameter in the current_patch struct:
 		*(patch_value + i) = pot_id[i]->value; //this is a hacked way of indexing the patch structure. Depends on order of pots in pot array being the same as order of parameters in patch struct
 	}
 
@@ -93,14 +95,63 @@ void scan_pots(void) {
 	
 }
 
-void update_control_voltages(void) {
+void update_control_voltages(void) { //keep everything updated in the current order of pots. Probably arbitrary, but try to minimize change from old CV update to new CV update
 	
+	set_control_voltage(&vco2_mix_cv, (current_patch.vco2_mix << 4));
+	set_control_voltage(&vco1_mix_cv, (current_patch.vco1_mix << 4));
+	set_control_voltage(&pitch_eg2_cv, (current_patch.pitch_eg2 << 3)); //1/4 scale
+	set_control_voltage(&pitch_vco2_cv, (current_patch.pitch_vco2 << 4));
+	set_control_voltage(&pitch_lfo_cv, (current_patch.pitch_lfo << 3)); // 1/4 scale
+	set_control_voltage(&pwm_lfo_cv, (current_patch.pwm_lfo) << 4);
+	set_control_voltage(&pwm_eg2_cv, (current_patch.pwm_eg2) << 4);
+	set_control_voltage(&vco1_pw_cv, (current_patch.vco1_pw) << 4);
+	
+	int tune_offset = 512 - current_patch.tune; //master tune offset
+	
+	int fine_offset = 512 - current_patch.fine; //fine tune offset
+	
+	set_control_voltage(&fine_cv, vco2_init_cv + tune_offset + fine_offset);
+	set_control_voltage(&tune_cv, vco1_init_cv + tune_offset);
+	
+	set_control_voltage(&lfo_rate_cv, (current_patch.lfo_rate) << 4);
+	set_control_voltage(&glide_cv, (current_patch.glide) << 4);
+	set_control_voltage(&amp_lfo_cv, (current_patch.amp_lfo) << 4);
+	set_control_voltage(&volume_cv, (volume_pot.value << 4)); //volume level not a patch parameter
+	
+	set_control_voltage(&fil_eg2_cv, (current_patch.fil_eg2) << 4);
+	set_control_voltage(&res_cv, (current_patch.res) << 4);
+	
+	//this next bit should be separated out, but leave it here for now while testing decoupled adc/dac read/write
+	uint8_t note = get_current_note(); //get current note from assigner
+	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
+	value_to_display = note;
+		
+	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
+	
+	interpolated_pitch_cv = interpolate_pitch_cv(note-8, filter_pitch_table); //subtract 8 from note because filter pitch is calibrated so that 0V is E, 20.6 Hz
+	//note that product of key_track and interpolated_pitch_cv needs to be cast as uint32t - otherwise product is evaluated incorrectly
+	uint16_t divided_pitch_cv = ((uint32_t)current_patch.key_track*interpolated_pitch_cv) >> 10;
+	uint16_t filter_cutoff_cv = divided_pitch_cv + (current_patch.cutoff << 4); //filter cutoff CV is the sum of filter cutoff pot and key track amount.
+	if (filter_cutoff_cv > MAX) filter_cutoff_cv = MAX; //make sure there is no overflow/wrap by capping max
+	set_control_voltage(&cutoff_cv, filter_cutoff_cv);	
+	
+	set_control_voltage(&fil_vco2_cv, (current_patch.fil_vco2) << 4);
+	set_control_voltage(&fil_lfo_cv, (current_patch.fil_lfo) << 4);
+	set_control_voltage(&noise_mix_cv, (current_patch.noise_mix) << 4);
+	set_control_voltage(&attack_2_cv, (current_patch.attack_2) << 4);
+	set_control_voltage(&attack_1_cv, (current_patch.attack_1) << 4);
+	set_control_voltage(&decay_2_cv, (current_patch.decay_2) << 4);
+	set_control_voltage(&decay_1_cv, (current_patch.decay_1) << 4);
+	set_control_voltage(&sustain_1_cv, (current_patch.sustain_1) << 4);
+	set_control_voltage(&sustain_2_cv, (current_patch.sustain_2) << 4);
+	set_control_voltage(&release_1_cv, (current_patch.release_1) << 4);
+	set_control_voltage(&release_2_cv, (current_patch.release_2) << 4);
 	
 	
 }			
 	
 void scan_pots_and_update_control_voltages(void) {
-
+	int tune_offset = 0;
 	//read pots on U2 pot multiplexer and set appropriate DAC S&H channel
 	for (int i = 0; i <=15; i++)
 	{
@@ -145,7 +196,7 @@ void scan_pots_and_update_control_voltages(void) {
 	
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = note;	
+	value_to_display = note + 8965;	
 	
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	

@@ -69,7 +69,6 @@ void display_dec(uint16_t number, uint8_t place)
 	q1 = (number >> 1) + (number >> 2);
 	q1 += q1 >> 4;
 	q1 += q1 >> 8;
-	q1 += q1 >> 16;
 	q2 = q1 >> 3;
 	r = number - q2 * 10;
 	//r = number - (((q2 << 2) + q2) << 1);

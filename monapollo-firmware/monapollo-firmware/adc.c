@@ -39,7 +39,7 @@ struct potentiometer sustain_1_pot		={0,0,13,POTMUX_EN1,0};
 struct potentiometer release_2_pot		={0,0,14,POTMUX_EN1,0};
 struct potentiometer release_1_pot		={0,0,15,POTMUX_EN1,0};
 	
-struct potentiometer *pot_id[30] = {
+struct potentiometer *pot_id[31] = {
 
 	&vco2_mix_pot,
 	&vco1_mix_pot,
@@ -55,6 +55,7 @@ struct potentiometer *pot_id[30] = {
 	&arp_rate_pot,
 	&glide_pot,
 	&amp_lfo_pot,
+	&volume_pot, //need to get rid of volume pot and handle it seperately as it is not mapped to patch parameter
 	&vco2_pw_pot,
 	
 	&fil_eg2_pot,
