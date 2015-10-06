@@ -181,7 +181,9 @@ int main(void)
 		update_display(value_to_display, DEC); //maybe move this into switch_timer loop. Probably doesn't need to be updated this frequently
 		//PORTB &= ~(1<<ARP_SYNC_LED);
 		 	
-		scan_pots_and_update_control_voltages();
+		//scan_pots_and_update_control_voltages();
+		scan_pots();
+		update_control_voltages();
 			
 		//do SPI read/write every loops - whole section needs major update
 		if (switch_timer++ == 5)

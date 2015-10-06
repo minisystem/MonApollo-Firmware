@@ -51,7 +51,7 @@ extern struct potentiometer sustain_1_pot;
 extern struct potentiometer release_2_pot;
 extern struct potentiometer release_1_pot;
 
-extern struct potentiometer *pot_id[31];
+extern struct potentiometer *pot_id[30];
 
 
 void setup_adc(void);
