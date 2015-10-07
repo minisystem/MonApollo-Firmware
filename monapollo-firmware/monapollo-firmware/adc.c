@@ -55,7 +55,7 @@ struct potentiometer *pot_id[30] = {
 	&arp_rate_pot,
 	&glide_pot,
 	&amp_lfo_pot,
-	//&volume_pot, //need to get rid of volume pot and handle it seperately as it is not mapped to patch parameter
+	//&volume_pot, //need to get rid of volume pot and handle it separately as it is not mapped to patch parameter
 	&vco2_pw_pot,
 	
 	&fil_eg2_pot,

@@ -8,10 +8,11 @@
 #include "synth.h"
 #include "tune.h"
 #include "switch_map.h"
+#include "spi.h"
 #include "display.h"
 
 struct patch current_patch = {0};
-struct eeprom_patch EEMEM patch_memory[42]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
+struct eeprom_patch EEMEM patch_memory[NUM_PATCHES]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
 	
 static struct octave_index octave_index = {0,0};
 
@@ -56,6 +57,18 @@ uint8_t lfo_shape[5] =
 		LFO_PULSE_ADDR,
 		LFO_RNDM_ADDR
 	};
+	
+
+void lock_pots(void) { //run this every time new patch is loaded to lock pots and store locked values
+
+for (int i = 0; i <= 29; i++) {
+	
+	pot_id[i]->locked_value = (pot_id[i]->value) >> 2;
+	pot_id[i]->locked = 1;
+	
+}
+
+}		
 	
 	
 void save_patch(uint8_t patch_number) {
@@ -102,6 +115,9 @@ void save_patch(uint8_t patch_number) {
 	patch_to_save.byte_4 = current_patch.byte_4;
 	patch_to_save.byte_5 = current_patch.byte_5;
 	
+	
+	lock_pots();
+	
 	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
 }	
 	
@@ -110,6 +126,7 @@ void load_patch(uint8_t patch_number) {
 	struct eeprom_patch loaded_patch;
 	//because of bit fields in eeprom patch struct, a temporary eeprom patch needs to be filled with current_patch values and then saved to memory.
 	eeprom_read_block((void*)&loaded_patch, (const void*)&patch_memory[patch_number], sizeof(loaded_patch));
+	
 	
 	
 	current_patch.vco2_pw = loaded_patch.vco2_pw;
@@ -151,20 +168,37 @@ void load_patch(uint8_t patch_number) {
 	current_patch.byte_4 = loaded_patch.byte_4;
 	current_patch.byte_5 = loaded_patch.byte_5;
 	
+	uint8_t bitfield_lookup[] = {7, 2, 5, 0, 6, 4, 3, 1}; // *modified* De Bruijn lookup table for octave number, see: http://stackoverflow.com/questions/14429661/determine-which-single-bit-in-the-byte-is-set
+	//lookup table modified from standard 8 bit De Bruijn sequence to handle non sequential order of octave LEDs in byte_4
+	uint8_t vco1_bitfield = current_patch.byte_4 & 0b00011111; //clear top 3 bits, which are used for VCO2 octave lookup 
+	uint8_t bit_index = ((vco1_bitfield*0x1D) >> 4) & 0x7;	
+	octave_index.vco1 = bitfield_lookup[bit_index];	
+	
+	//set toggle switch bits according to patch data
+	//probably need to handle previous switch states here, which are in spi.c
+	switch_states.byte0 =	((current_patch.byte_5 >> VCO_SYNC) & 1) << VCO_SYNC_SW |
+							((current_patch.byte_5 >> VCO1_SAW) & 1) << VCO1_SAW_SW |
+							((current_patch.byte_5 >> VCO1_TRI) & 1) << VCO1_TRI_SW |
+							((current_patch.byte_5 >> VCO1_PULSE) & 1) << VCO1_PULSE_SW |
+							((current_patch.byte_5 >> VCO2_SAW) & 1) << VCO2_SAW_SW |
+							((current_patch.byte_5 >> VCO2_TRI) & 1) << VCO2_TRI_SW |
+							((current_patch.byte_5 >> VCO2_PULSE) & 1) << VCO2_PULSE_SW;
+	
+	switch_states.byte2 =	((current_patch.byte_5 >> BMOD) & 1) << BMOD_SW |
+							((current_patch.byte_1 >> EG2_INV) & 1) << EG2_INV_SW;	
+							
+	//switch_states.byte1 =					
+													
+	//spi_sw_byte0_current_state = spi_sw_byte0_previous_state = switch_states.byte0;
+	//
+	//spi_sw_byte1_current_state = spi_sw_byte1_previous_state = switch_states.byte1;						
+			
+	lock_pots();
 	
 }
 
 	
-void lock_pots(void) { //run this every time new patch is loaded to lock pots and store locked values
-	
-	for (int i = 0; i <= 29; i++) {
-		
-		pot_id[i]->locked_value = (pot_id[i]->value) >> 2;
-		pot_id[i]->locked = 1; 
-		
-	}
-	
-}	
+
 		
 
 uint8_t transpose_note (uint8_t note, uint8_t vco) {
@@ -235,17 +269,37 @@ void update_patch_programmer(void) {
 	
 	if ((switch_states.byte2>> PROG_UP_SW) & 1) {
 		
-		if (++current_patch.number == 43) current_patch.number = 42;
 		switch_states.byte2 ^= (1<<PROG_UP_SW); //toggle switch state bit
+		
+		if (++current_patch.number == NUM_PATCHES + 1) {			
+			
+			current_patch.number = NUM_PATCHES; //max patch number
+			
+		} else { //load next patch
+			
+			load_patch(current_patch.number);
+			
+		}		
 		
 	}
 	
-	if ((switch_states.byte2 >> PROG_DOWN_SW) & 1) { //this didn't work initially because VCO1_OCTAVE_DOWN_SW pull down resistor wasn't installed on PCB!!!
+	if ((switch_states.byte2 >> PROG_DOWN_SW) & 1) {
 	
-	if (current_patch.number == 1) {} else {current_patch.number--;}
-	switch_states.byte2 ^= (1<<PROG_DOWN_SW);
+		switch_states.byte2 ^= (1<<PROG_DOWN_SW); //toggle switch state bit
 
+		if (current_patch.number == 1) {} else {current_patch.number--; load_patch(current_patch.number);}
+	
 	}
+	
+	
+	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) {
+		
+		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle switch state bit
+		save_patch(current_patch.number);
+		
+		
+	}
+	
 	
 	value_to_display = current_patch.number;	
 	
@@ -276,8 +330,9 @@ void refresh_synth(void) {
 					
 	//set EG2 INV bit. This changes the nth bit to x from: http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
 	//need to make sure this doesn't interfere with anything else on this port
-	uint8_t EG2_INV_ON = (switch_states.byte2 >> EG2_INV_SW) & 1;
+	uint8_t EG2_INV_ON = (switch_states.byte2 >> EG2_INV_SW) & 1;	
 	EG2_POL_PORT ^= (-EG2_INV_ON ^ EG2_POL_PORT) & (1<<EG2_POL);
+	current_patch.byte_1 ^= (-EG2_INV_ON ^ current_patch.byte_1) & (1 << EG2_INV); //don't forget to set it in patch or it won't be saved!
 	
 	//parse octave switch data
 	update_octave_range();

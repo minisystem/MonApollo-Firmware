@@ -1,6 +1,8 @@
 #ifndef SYNTH_H
 #define SYNTH_H
 
+#define NUM_PATCHES 36 //total number of storable patches
+
 void refresh_synth(void);
 void update_octave_range(void);
 uint8_t transpose_note(uint8_t note, uint8_t vco);
@@ -15,7 +17,8 @@ enum patch_mode {
 	
 	MEMORY,
 	MANUAL,
-	EDIT
+	EDIT,
+	WRITE
 	
 	};
 	
@@ -64,6 +67,7 @@ struct patch {
 	uint8_t byte_5; //VCO WAVEFORMS, VCO SYNC + BMOD
 	
 	uint8_t number;
+	
 	enum patch_mode mode;
 	
 	};
@@ -112,20 +116,21 @@ struct eeprom_patch { //same as patch but using bit fields to compact memory for
 	uint8_t byte_4; //VCO1 + VCO2 OCTAVE SELECTION
 	uint8_t byte_5; //VCO WAVEFORMS, VCO SYNC + BMOD
 	
+	
 };
 
 
 struct octave_index {
 	
-	uint8_t vco1:3;
-	uint8_t vco2:3;
+	uint8_t vco1; //could turn into 3 bit long bit field, but memory saved is probably not worth overhead 
+	uint8_t vco2;
 	
 };
 
 struct lfo {
 	
-	uint8_t waveform_addr:3;
-	uint8_t led_addr:3;
+	uint8_t waveform_addr;  //could turn into bit field, but memory saved is probably not worth overhead 
+	uint8_t led_addr;
 	
 	};
 

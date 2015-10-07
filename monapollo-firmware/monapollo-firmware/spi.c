@@ -10,10 +10,10 @@
 #include "utils.h"
 
 //debounce spi switch state bytes
-static uint8_t spi_sw_byte0_current_state = 0;  //U14 switch latch 5th byte in SPI chain, first byte read
-static uint8_t spi_sw_byte0_previous_state = 0; 
-static uint8_t spi_sw_byte1_current_state = 0;  //U9  switch latch 4th byte in SPI chain, second byte read
-static uint8_t spi_sw_byte1_previous_state = 0;
+uint8_t spi_sw_byte0_current_state = 0;  //U14 switch latch 5th byte in SPI chain, first byte read
+uint8_t spi_sw_byte0_previous_state = 0; 
+uint8_t spi_sw_byte1_current_state = 0;  //U9  switch latch 4th byte in SPI chain, second byte read
+uint8_t spi_sw_byte1_previous_state = 0;
 
 void setup_spi(void) {
 	
