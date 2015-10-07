@@ -42,6 +42,7 @@ static uint8_t gate_buffer = 0;
 
 
 
+
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
 	//value_to_display = note;
@@ -150,7 +151,7 @@ int main(void)
 	update_spi(); //initial update of SPI - will eventual be useful for picking up special power up switch holds
 	
 	
-	
+	current_patch.number = 1;
 		
 	sei(); //enable global interrupts
 	

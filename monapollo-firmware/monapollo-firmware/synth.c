@@ -22,7 +22,7 @@ struct lfo lfo[] =
 		{LFO_SINE_ADDR, LFO_SINE}, 
 		{LFO_SAW_ADDR, LFO_SAW},
 		{LFO_PULSE_ADDR, LFO_RNDM},
-		{LFO_RNDM_ADDR, LFO_RNDM}
+		{LFO_RNDM_ADDR, LFO_RNDM}		
 	
 	};	
 	
@@ -59,12 +59,103 @@ uint8_t lfo_shape[5] =
 	
 	
 void save_patch(uint8_t patch_number) {
-
-	eeprom_update_block((const void*)&current_patch, (void*)&patch_memory[patch_number], sizeof(current_patch));
+	
+	struct eeprom_patch patch_to_save;
+	//because of bit fields in eeprom patch struct, a temporary eeprom patch needs to be filled with current_patch values and then saved to memory.
+	
+	patch_to_save.vco2_pw = current_patch.vco2_pw;
+	patch_to_save.vco1_mix = current_patch.vco1_mix;
+	patch_to_save.pitch_eg2 = current_patch.pitch_eg2;
+	patch_to_save.pitch_vco2 = current_patch.pitch_vco2;
+	patch_to_save.pitch_lfo = current_patch.pitch_lfo;
+	patch_to_save.pwm_lfo = current_patch.pwm_lfo;
+	patch_to_save.pwm_eg2 = current_patch.pwm_eg2;
+	patch_to_save.vco1_pw = current_patch.vco1_pw;
+	patch_to_save.fine = current_patch.fine;
+	patch_to_save.tune = current_patch.tune; //probably shouldn't save master tune value. Like volume, it is a parameter that doesn't apply to a patch.
+	patch_to_save.lfo_rate = current_patch.lfo_rate;
+	patch_to_save.arp_rate = current_patch.arp_rate;
+	patch_to_save.glide	= current_patch.glide;
+	patch_to_save.amp_lfo = current_patch.amp_lfo;
+	patch_to_save.vco2_pw = current_patch.vco2_pw;
+	
+	patch_to_save.fil_eg2 = current_patch.fil_eg2;
+	patch_to_save.res = current_patch.res;
+	patch_to_save.cutoff = current_patch.cutoff;
+	patch_to_save.key_track = current_patch.key_track;
+	patch_to_save.fil_vco2 = current_patch.fil_vco2;
+	patch_to_save.fil_lfo = current_patch.fil_lfo;
+	patch_to_save.noise_mix = current_patch.noise_mix;
+	patch_to_save.attack_2 = current_patch.attack_2;
+	patch_to_save.attack_1 = current_patch.attack_1;
+	patch_to_save.decay_2 = current_patch.decay_2;
+	patch_to_save.decay_1 = current_patch.decay_1;
+	patch_to_save.sustain_2 = current_patch.sustain_2;
+	patch_to_save.sustain_1 = current_patch.sustain_1;
+	patch_to_save.release_2 = current_patch.release_2;
+	patch_to_save.release_1 = current_patch.release_1;
+	
+		
+	patch_to_save.byte_1 = current_patch.byte_1;
+	patch_to_save.byte_2 = current_patch.byte_2;
+	patch_to_save.byte_3 = current_patch.byte_3;
+	patch_to_save.byte_4 = current_patch.byte_4;
+	patch_to_save.byte_5 = current_patch.byte_5;
+	
+	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
 }	
 	
+void load_patch(uint8_t patch_number) {
 	
-void set_memory_mode() { //run this every time new patch is loaded to lock pots and store locked values
+	struct eeprom_patch loaded_patch;
+	//because of bit fields in eeprom patch struct, a temporary eeprom patch needs to be filled with current_patch values and then saved to memory.
+	eeprom_read_block((void*)&loaded_patch, (const void*)&patch_memory[patch_number], sizeof(loaded_patch));
+	
+	
+	current_patch.vco2_pw = loaded_patch.vco2_pw;
+	current_patch.vco1_mix = loaded_patch.vco1_mix;
+	current_patch.pitch_eg2 = loaded_patch.pitch_eg2;
+	current_patch.pitch_vco2 = loaded_patch.pitch_vco2;
+	current_patch.pitch_lfo = loaded_patch.pitch_lfo;
+	current_patch.pwm_lfo = loaded_patch.pwm_lfo;
+	current_patch.pwm_eg2 = loaded_patch.pwm_eg2;
+	current_patch.vco1_pw = loaded_patch.vco1_pw;
+	current_patch.fine = loaded_patch.fine;
+	current_patch.tune = loaded_patch.tune; //probably shouldn't save master tune value. Like volume, it is a parameter that doesn't apply to a patch.
+	current_patch.lfo_rate = loaded_patch.lfo_rate;
+	current_patch.arp_rate = loaded_patch.arp_rate;
+	current_patch.glide	= loaded_patch.glide;
+	current_patch.amp_lfo = loaded_patch.amp_lfo;
+	current_patch.vco2_pw = loaded_patch.vco2_pw;
+	
+	current_patch.fil_eg2 = loaded_patch.fil_eg2;
+	current_patch.res = loaded_patch.res;
+	current_patch.cutoff = loaded_patch.cutoff;
+	current_patch.key_track = loaded_patch.key_track;
+	current_patch.fil_vco2 = loaded_patch.fil_vco2;
+	current_patch.fil_lfo = loaded_patch.fil_lfo;
+	current_patch.noise_mix = loaded_patch.noise_mix;
+	current_patch.attack_2 = loaded_patch.attack_2;
+	current_patch.attack_1 = loaded_patch.attack_1;
+	current_patch.decay_2 = loaded_patch.decay_2;
+	current_patch.decay_1 = loaded_patch.decay_1;
+	current_patch.sustain_2 = loaded_patch.sustain_2;
+	current_patch.sustain_1 = loaded_patch.sustain_1;
+	current_patch.release_2 = loaded_patch.release_2;
+	current_patch.release_1 = loaded_patch.release_1;
+	
+	
+	current_patch.byte_1 = loaded_patch.byte_1;
+	current_patch.byte_2 = loaded_patch.byte_2;
+	current_patch.byte_3 = loaded_patch.byte_3;
+	current_patch.byte_4 = loaded_patch.byte_4;
+	current_patch.byte_5 = loaded_patch.byte_5;
+	
+	
+}
+
+	
+void lock_pots(void) { //run this every time new patch is loaded to lock pots and store locked values
 	
 	for (int i = 0; i <= 29; i++) {
 		
@@ -139,6 +230,27 @@ void update_octave_range(void) {
 	}	
 	
 }
+
+void update_patch_programmer(void) {
+	
+	if ((switch_states.byte2>> PROG_UP_SW) & 1) {
+		
+		if (++current_patch.number == 43) current_patch.number = 42;
+		switch_states.byte2 ^= (1<<PROG_UP_SW); //toggle switch state bit
+		
+	}
+	
+	if ((switch_states.byte2 >> PROG_DOWN_SW) & 1) { //this didn't work initially because VCO1_OCTAVE_DOWN_SW pull down resistor wasn't installed on PCB!!!
+	
+	if (current_patch.number == 1) {} else {current_patch.number--;}
+	switch_states.byte2 ^= (1<<PROG_DOWN_SW);
+
+	}
+	
+	value_to_display = current_patch.number;	
+	
+	
+}	
 	
 	
 void refresh_synth(void) {
@@ -182,12 +294,14 @@ void refresh_synth(void) {
 		current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
 		
 		
-	}		
+	}
+	
+	update_patch_programmer();		
 				
-	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) //temporary tune button hack
+	if ((switch_states.byte1 >> ARP_MODE_SW) & 1) //temporary tune button hack
 		{ 
 				
-		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle read switch state
+		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle read switch state
 
 
 		//TURN OFF LFO OUTPUT

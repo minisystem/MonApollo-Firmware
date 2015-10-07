@@ -87,7 +87,8 @@ void scan_pots(void) { //should probably move this to adc.c
 		//otherwise, the pot value is assigned to it's corresponding parameter in the current_patch struct:
 		*(patch_value + i) = pot_id[i]->value; //this is a hacked way of indexing the patch structure. Depends on order of pots in pot array being the same as order of parameters in patch struct
 	}
-
+	
+	
 	//scan volume pot
 	adc_value = read_pot(&volume_pot);
 	adc_change = adc_value - volume_pot.value;
@@ -125,7 +126,7 @@ void update_control_voltages(void) { //keep everything updated in the current or
 	//this next bit should be separated out, but leave it here for now while testing decoupled adc/dac read/write
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = note;
+	//value_to_display = note;
 		
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	

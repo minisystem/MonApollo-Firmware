@@ -6,8 +6,10 @@ void update_octave_range(void);
 uint8_t transpose_note(uint8_t note, uint8_t vco);
 
 void save_patch(uint8_t patch_number);
+void load_patch(uint8_t patch_number);
+void update_patch_programmer(void);
 
-void set_memory_mode(void);
+void lock_pots(void);
 
 enum patch_mode {
 	
@@ -16,6 +18,8 @@ enum patch_mode {
 	EDIT
 	
 	};
+	
+extern enum patch_mode mode;	
 
 struct patch {
 	
@@ -58,6 +62,9 @@ struct patch {
 	uint8_t byte_3; //ARP RANGE, ARP SYNC, VCO1 4' AND 2' OCTAVE SELECTION
 	uint8_t byte_4; //VCO1 + VCO2 OCTAVE SELECTION
 	uint8_t byte_5; //VCO WAVEFORMS, VCO SYNC + BMOD
+	
+	uint8_t number;
+	enum patch_mode mode;
 	
 	};
 	

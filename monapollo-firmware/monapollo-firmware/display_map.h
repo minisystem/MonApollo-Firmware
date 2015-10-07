@@ -29,6 +29,7 @@
 #define EIGHT	(a | b | c | d | e | f | g)
 #define NINE	(a | b | c | d | f | g)
 
+
 //define hex digits
 #define A		(a | b | c | e | f | g)
 #define B		(c | d | e | f | g)
