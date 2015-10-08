@@ -117,6 +117,7 @@ void save_patch(uint8_t patch_number) {
 	
 	
 	lock_pots();
+	current_patch.mode = MEMORY;
 	
 	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
 }	
@@ -168,11 +169,19 @@ void load_patch(uint8_t patch_number) {
 	current_patch.byte_4 = loaded_patch.byte_4;
 	current_patch.byte_5 = loaded_patch.byte_5;
 	
-	uint8_t bitfield_lookup[] = {7, 2, 5, 0, 6, 4, 3, 1}; // *modified* De Bruijn lookup table for octave number, see: http://stackoverflow.com/questions/14429661/determine-which-single-bit-in-the-byte-is-set
+	//using De Bruijn sequence to determine which bit is set. For alphabet size k = 2 (binary - 0 and 1) and n = 3. 2^3 = 8. The minimum number of bits required to represent the 5 octave positions
+	uint8_t vco1_lookup[] = {7, 2, 5, 0, 6, 4, 3, 1}; // *modified* De Bruijn lookup table for octave number, see: http://stackoverflow.com/questions/14429661/determine-which-single-bit-in-the-byte-is-set
 	//lookup table modified from standard 8 bit De Bruijn sequence to handle non sequential order of octave LEDs in byte_4
-	uint8_t vco1_bitfield = current_patch.byte_4 & 0b00011111; //clear top 3 bits, which are used for VCO2 octave lookup 
-	uint8_t bit_index = ((vco1_bitfield*0x1D) >> 4) & 0x7;	
-	octave_index.vco1 = bitfield_lookup[bit_index];	
+	uint8_t vco1_bitfield = current_patch.byte_4 & 0b00011111; //clear top 3 bits, which are used for VCO2 octave lookup - probably don't need to clear these bits
+	uint8_t bit_index = ((vco1_bitfield*0x1D) >> 4) & 0x7;	//0x1D 0b11101 is the De Bruijn sequence for 8 bits 
+	octave_index.vco1 = vco1_lookup[bit_index];	
+	
+	uint8_t vco2_lookup[] = {7, 4, 5, 3, 6, 2, 1, 0}; 
+																																				 //bit order 4   3    2    1   0
+	uint8_t vco2_bitfield = ((current_patch.byte_4 & 0b11100000) >> 3) | (current_patch.byte_3 & 0b00000011); //combine  all VCO2 octave bits into one byte: 8', 16', 32', 4', 2'
+	bit_index = ((vco2_bitfield*0x1D) >> 4) & 0x7;																								     //index 2   1    0    3   4
+	octave_index.vco2 = vco2_lookup[bit_index];
+	
 	
 	//set toggle switch bits according to patch data
 	//probably need to handle previous switch states here, which are in spi.c
@@ -194,6 +203,8 @@ void load_patch(uint8_t patch_number) {
 	//spi_sw_byte1_current_state = spi_sw_byte1_previous_state = switch_states.byte1;						
 			
 	lock_pots();
+	
+	current_patch.mode = MEMORY;
 	
 }
 

@@ -4,6 +4,7 @@
 #include "display.h"
 #include "hardware.h"
 #include "display_map.h"
+#include "synth.h"
 
 
 
@@ -100,6 +101,8 @@ void display_dec(uint16_t number, uint8_t place)
 	digit_index[3] = thous_place;
 
 	cathode_byte = dec[digit_index[place]];
+	
+	if (current_patch.mode == EDIT) cathode_byte |= dp;
 	
 	//set cathode byte
 	DATA_BUS = ~(cathode_byte); //set bits for cathode (current sinks, active LOW)
