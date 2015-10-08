@@ -22,7 +22,7 @@ struct lfo lfo[] =
 		{LFO_TRI_ADDR, LFO_TRI},
 		{LFO_SINE_ADDR, LFO_SINE}, 
 		{LFO_SAW_ADDR, LFO_SAW},
-		{LFO_PULSE_ADDR, LFO_RNDM},
+		{LFO_PULSE_ADDR, LFO_RNDM},//no LED for pulse, so just use RNDM LED twice
 		{LFO_RNDM_ADDR, LFO_RNDM}		
 	
 	};	
@@ -68,7 +68,17 @@ for (int i = 0; i <= 29; i++) {
 	
 }
 
-}		
+}
+
+void unlock_pots(void) {
+	
+	for (int i = 0; i <= 29; i++) {
+		
+		pot_id[i]->locked = 0;
+		
+	}
+	
+}			
 	
 	
 void save_patch(uint8_t patch_number) {
@@ -117,6 +127,7 @@ void save_patch(uint8_t patch_number) {
 	
 	
 	lock_pots();
+	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW);
 	current_patch.mode = MEMORY;
 	
 	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
@@ -182,6 +193,11 @@ void load_patch(uint8_t patch_number) {
 	bit_index = ((vco2_bitfield*0x1D) >> 4) & 0x7;																								     //index 2   1    0    3   4
 	octave_index.vco2 = vco2_lookup[bit_index];
 	
+	uint8_t lfo_lookup[] = {7, 3, 5, 1, 6, 4, 0, 2}; //bits 7, 5, 4, 6 are irrelevant here
+	uint8_t lfo_bitfield = current_patch.byte_2 >> 4; //shave off 4 LSBs. Really could use 4 bit De Bruijn sequence here
+	bit_index = ((lfo_bitfield*0x1D) >> 4) & 0x7;
+	lfo_shape_index = lfo_lookup[bit_index];
+	
 	
 	//set toggle switch bits according to patch data
 	//probably need to handle previous switch states here, which are in spi.c
@@ -203,6 +219,8 @@ void load_patch(uint8_t patch_number) {
 	//spi_sw_byte1_current_state = spi_sw_byte1_previous_state = switch_states.byte1;						
 			
 	lock_pots();
+	
+	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW);
 	
 	current_patch.mode = MEMORY;
 	
@@ -359,6 +377,20 @@ void refresh_synth(void) {
 		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
 		current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
 		
+		
+	}
+	
+	if (((switch_states.byte2 >> PROG_MANUAL_SW) & 1)) {
+		
+		//if (current_patch.mode == MANUAL) { //if already in manual mode 
+			//
+			////switch_states.byte2 ^= (1<< PROG_MANUAL_SW);			
+			//
+		//} else {
+			switch_states.byte2 |= (1<< PROG_MANUAL_SW);
+			current_patch.mode = MANUAL;
+			unlock_pots();
+		//}		
 		
 	}
 	

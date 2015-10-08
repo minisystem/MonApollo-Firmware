@@ -169,9 +169,9 @@ int main(void)
 	//value_to_display = vco1_init_cv;
 	//set_one_volt_per_octave(); //overwrite tuning tables with 1V/octave data for calibration purposes
 	//set initial switch states
-	switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
-	current_patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);
-	
+	//switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
+	//current_patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);
+	load_patch(1);
 
 	while(1)
 	{	
@@ -192,6 +192,7 @@ int main(void)
 			switch_timer = 0;
 			//read switches directly connected to MCU				
 			switch_states.byte2 ^= read_switch_port(); //toggle switch states
+			switch_states.byte2 |= (current_patch.mode == MANUAL) << PROG_MANUAL_SW; //if MANUAL then don't toggle switch
 			update_spi();
 			refresh_synth();
 				

@@ -29,12 +29,16 @@ void scan_pots(void) { //should probably move this to adc.c
 		pot_id[i]->value = pot_id[i]->value + (adc_change >> 2);
 		//what happens next depends on mode. if pot is locked, then the value of the pot is not written to the current patch unless it is different from the pot's locked value
 		
+		uint8_t delta_pot = pot_id[i]->locked_value - ((pot_id[i]->value >> 2)); //quick and dirty subtraction, where unsigned delta pot will overflow if value > locked value. see below
+		
+		
 		if ((current_patch.mode == MANUAL) || (pot_id[i]->locked == 0)) { //if in manual mode or pot is already unlocked
 			
 			*(patch_value + i) = pot_id[i]->value; //this is a hacked way of indexing the patch structure. Depends on order of pots in pot array being the same as order of parameters in patch struct
 			
-		} else if ((((pot_id[i]->value >> 2) != pot_id[i]->locked_value)) && (pot_id[i]->locked == 1)) {
+		//} else if ((((pot_id[i]->value >> 2) != pot_id[i]->locked_value)) && (pot_id[i]->locked == 1)) { //need to figure out delta threshold here. 10 bit to 8 bit resolution should be enough???
 			
+		} else if (((delta_pot > 2) && (delta_pot < 253)) && (pot_id[i]->locked == 1)) { //set a threshold of +/- 3 for pot change  		  		  	
 			*(patch_value + i) = pot_id[i]->value;
 			pot_id[i]->locked = 0; //unlock pot
 			current_patch.mode = EDIT;

@@ -12,6 +12,7 @@ void load_patch(uint8_t patch_number);
 void update_patch_programmer(void);
 
 void lock_pots(void);
+void unlock_pots(void);
 
 enum patch_mode {
 	
