@@ -4,6 +4,7 @@
 #include "spi.h"
 #include "hardware.h"
 #include "switch_map.h"
+#include "synth.h"
 
 struct switch_states switch_states = {0,0,0};
 
@@ -12,7 +13,7 @@ uint8_t read_switch_port(void) {
 	static uint8_t previous_port_state = 0;
 	
 	uint8_t current_port_state = SWITCH_PORT; //read switch state byte
-	
+	switch_press |= current_port_state & 0b00001100; //mask for four PROG buttons 
 	//this toggle code works, but I haven't figured out how it works
 	//source: http://forum.allaboutcircuits.com/threads/help-with-programming-uc-toggle-led-using-one-switch.51602/	
 	current_port_state ^= previous_port_state;

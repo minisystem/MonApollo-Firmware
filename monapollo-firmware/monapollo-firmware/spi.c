@@ -63,7 +63,7 @@ void update_spi(void) {
 			//SHIFT 5th BYTE				
 			//Read SPDR for switch data shifted in from 74XX165 U14 and write LED data to LED latch 5
 			spi_sw_byte0_current_state = spi_shift_byte(current_patch.byte_5);
-			
+			switch_press |= spi_sw_byte0_current_state; //set switch press global flag
 			spi_sw_byte0_current_state ^= spi_sw_byte0_previous_state;
 			spi_sw_byte0_previous_state ^= spi_sw_byte0_current_state;
 			spi_sw_byte0_current_state &= spi_sw_byte0_previous_state;
@@ -78,7 +78,7 @@ void update_spi(void) {
 			uint8_t spi_data = current_patch.byte_4;
 					
 			spi_sw_byte1_current_state = spi_shift_byte(spi_data);
-	
+			switch_press |= spi_sw_byte1_current_state;
 			spi_sw_byte1_current_state ^= spi_sw_byte1_previous_state;
 			spi_sw_byte1_previous_state ^= spi_sw_byte1_current_state;
 			spi_sw_byte1_current_state &= spi_sw_byte1_previous_state;

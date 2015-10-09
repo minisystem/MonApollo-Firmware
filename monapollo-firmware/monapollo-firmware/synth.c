@@ -15,6 +15,9 @@ struct patch current_patch = {0};
 struct eeprom_patch EEMEM patch_memory[NUM_PATCHES]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
 	
 static struct octave_index octave_index = {0,0};
+	
+	
+uint8_t switch_press = 0;
 
 struct lfo lfo[] = 
 
@@ -127,7 +130,7 @@ void save_patch(uint8_t patch_number) {
 	
 	
 	lock_pots();
-	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW);
+	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
 	current_patch.mode = MEMORY;
 	
 	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
@@ -193,11 +196,12 @@ void load_patch(uint8_t patch_number) {
 	bit_index = ((vco2_bitfield*0x1D) >> 4) & 0x7;																								     //index 2   1    0    3   4
 	octave_index.vco2 = vco2_lookup[bit_index];
 	
-	uint8_t lfo_lookup[] = {7, 3, 5, 1, 6, 4, 0, 2}; //bits 7, 5, 4, 6 are irrelevant here
-	uint8_t lfo_bitfield = current_patch.byte_2 >> 4; //shave off 4 LSBs. Really could use 4 bit De Bruijn sequence here
+	uint8_t lfo_lookup[] = {0, 0, 2, 2, 1, 3, 3, 1}; //bits 7, 5, 4, 6 are irrelevant here. Complier seems to be reformatting this table???
+	uint8_t lfo_bitfield = current_patch.byte_2 & 0b11110000; //shave off 4 LSBs. Really could use 4 bit De Bruijn sequence here
 	bit_index = ((lfo_bitfield*0x1D) >> 4) & 0x7;
 	lfo_shape_index = lfo_lookup[bit_index];
-	
+	//lfo_shape_index = 0; //reset lfo bytes
+	//current_patch.byte_2 = (1<<LFO_TRI);
 	
 	//set toggle switch bits according to patch data
 	//probably need to handle previous switch states here, which are in spi.c
@@ -220,7 +224,7 @@ void load_patch(uint8_t patch_number) {
 			
 	lock_pots();
 	
-	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW);
+	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
 	
 	current_patch.mode = MEMORY;
 	
@@ -308,6 +312,7 @@ void update_patch_programmer(void) {
 			
 			load_patch(current_patch.number);
 			
+			
 		}		
 		
 	}
@@ -337,6 +342,13 @@ void update_patch_programmer(void) {
 	
 	
 void refresh_synth(void) {
+	
+	if ((switch_press) && current_patch.mode == MEMORY) {
+					
+		current_patch.mode = EDIT;
+		switch_press = 0;
+					
+	}
 	
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
@@ -371,14 +383,14 @@ void refresh_synth(void) {
 		
 		switch_states.byte1 ^= (1<<LFO_SHAPE_SW); //toggle switch state
 		if (++lfo_shape_index == 5) lfo_shape_index = 0;
-		DATA_BUS = lfo[lfo_shape_index].waveform_addr;
-		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
-		current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
-		
-		
+
+
 	}
+	current_patch.byte_2 &= 0b00001111; //clear top 4 bits
+	current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
+	DATA_BUS = lfo[lfo_shape_index].waveform_addr;
+	LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+	LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
 	
 	if (((switch_states.byte2 >> PROG_MANUAL_SW) & 1)) {
 		

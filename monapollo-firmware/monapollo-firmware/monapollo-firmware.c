@@ -190,7 +190,8 @@ int main(void)
 		if (switch_timer++ == 5)
 		{
 			switch_timer = 0;
-			//read switches directly connected to MCU				
+			switch_press = 0; //reset global switch press flag
+			//read switches directly connected to MCU	
 			switch_states.byte2 ^= read_switch_port(); //toggle switch states
 			switch_states.byte2 |= (current_patch.mode == MANUAL) << PROG_MANUAL_SW; //if MANUAL then don't toggle switch
 			update_spi();

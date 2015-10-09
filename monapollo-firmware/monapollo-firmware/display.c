@@ -103,7 +103,7 @@ void display_dec(uint16_t number, uint8_t place)
 	cathode_byte = dec[digit_index[place]];
 	
 	if (current_patch.mode == EDIT) cathode_byte |= dp;
-	if (current_patch.mode == MANUAL) cathode_byte = g;
+	if (current_patch.mode == MANUAL) cathode_byte = g; //Roland style dash for MANUAL mode. Could move this to the top as manual mode precludes the need to parse digit
 	
 	//set cathode byte
 	DATA_BUS = ~(cathode_byte); //set bits for cathode (current sinks, active LOW)

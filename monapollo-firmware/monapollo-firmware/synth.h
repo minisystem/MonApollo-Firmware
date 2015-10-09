@@ -1,7 +1,7 @@
 #ifndef SYNTH_H
 #define SYNTH_H
 
-#define NUM_PATCHES 36 //total number of storable patches
+#define NUM_PATCHES 36 //max number of patches
 
 void refresh_synth(void);
 void update_octave_range(void);
@@ -119,6 +119,8 @@ struct eeprom_patch { //same as patch but using bit fields to compact memory for
 	
 	
 };
+
+extern uint8_t switch_press; //global flag to detect any switch press except 
 
 
 struct octave_index {
