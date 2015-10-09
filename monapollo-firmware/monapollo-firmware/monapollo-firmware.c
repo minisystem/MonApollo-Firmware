@@ -194,6 +194,7 @@ int main(void)
 			//read switches directly connected to MCU	
 			switch_states.byte2 ^= read_switch_port(); //toggle switch states
 			switch_states.byte2 |= (current_patch.mode == MANUAL) << PROG_MANUAL_SW; //if MANUAL then don't toggle switch
+			//switch_states.byte2 |= (current_patch.mode == WRITE) << PROG_WRITE_SW; //if WRITE then don't toggle switch
 			update_spi();
 			refresh_synth();
 				

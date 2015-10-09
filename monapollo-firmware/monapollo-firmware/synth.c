@@ -307,8 +307,9 @@ void update_patch_programmer(void) {
 		if (++current_patch.number == NUM_PATCHES + 1) {			
 			
 			current_patch.number = NUM_PATCHES; //max patch number
-			
-		} else { //load next patch
+		
+					
+		} else if (current_patch.mode != WRITE) { //load next patch if not in WRITE mode
 			
 			load_patch(current_patch.number);
 			
@@ -321,12 +322,26 @@ void update_patch_programmer(void) {
 	
 		switch_states.byte2 ^= (1<<PROG_DOWN_SW); //toggle switch state bit
 
-		if (current_patch.number == 1) {} else {current_patch.number--; load_patch(current_patch.number);}
+		if (current_patch.number == 1) {} else {current_patch.number--;}
+		
+		if (current_patch.mode != WRITE) load_patch(current_patch.number);
 	
 	}
 	
 	
 	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) {
+		
+		//if (current_patch.mode == WRITE) {
+			//
+			//switch_states.byte2 &= ~(1<<PROG_WRITE_SW); //toggle switch state bit
+			//save_patch(current_patch.number); //write the patch
+			//
+		//} else {
+			//
+			//current_patch.mode = WRITE; //enter write mode;
+			//switch_states.byte2 |= (1<<PROG_WRITE_SW); //keep 
+			//lock_pots();
+		//}			
 		
 		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle switch state bit
 		save_patch(current_patch.number);
@@ -343,7 +358,7 @@ void update_patch_programmer(void) {
 	
 void refresh_synth(void) {
 	
-	if ((switch_press) && current_patch.mode == MEMORY) {
+	if ((switch_press) && current_patch.mode == MEMORY) { //if there are no switch presses, then what's the point of doing any of the updates? Should change the order, see if any program switches are pressed, handle them and if no other switches are pressed then just return from function
 					
 		current_patch.mode = EDIT;
 		switch_press = 0;
