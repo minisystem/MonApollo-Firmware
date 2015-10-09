@@ -130,7 +130,8 @@ void save_patch(uint8_t patch_number) {
 	
 	
 	lock_pots();
-	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
+	//if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
+	switch_states.byte2 &= ~(1<< PROG_MANUAL_SW);
 	current_patch.mode = MEMORY;
 	
 	eeprom_update_block((const void*)&patch_to_save, (void*)&patch_memory[patch_number], sizeof(patch_to_save));
@@ -212,8 +213,10 @@ void load_patch(uint8_t patch_number) {
 							((current_patch.byte_5 >> VCO2_SAW) & 1) << VCO2_SAW_SW |
 							((current_patch.byte_5 >> VCO2_TRI) & 1) << VCO2_TRI_SW |
 							((current_patch.byte_5 >> VCO2_PULSE) & 1) << VCO2_PULSE_SW;
+							
+	switch_states.byte2 &= 0b11110011; //preserve PROG switches states, clear BMOD and EG2 states
 	
-	switch_states.byte2 =	((current_patch.byte_5 >> BMOD) & 1) << BMOD_SW |
+	switch_states.byte2 |=	((current_patch.byte_5 >> BMOD) & 1) << BMOD_SW |
 							((current_patch.byte_1 >> EG2_INV) & 1) << EG2_INV_SW;	
 							
 	//switch_states.byte1 =					
@@ -224,7 +227,8 @@ void load_patch(uint8_t patch_number) {
 			
 	lock_pots();
 	
-	if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
+	//if (current_patch.mode == MANUAL) switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //if in MANUAL mode, turn off MANUAL LED
+	switch_states.byte2 &= ~(1<<PROG_MANUAL_SW);
 	
 	current_patch.mode = MEMORY;
 	
@@ -331,20 +335,21 @@ void update_patch_programmer(void) {
 	
 	if ((switch_states.byte2 >> PROG_WRITE_SW) & 1) {
 		
-		//if (current_patch.mode == WRITE) {
-			//
-			//switch_states.byte2 &= ~(1<<PROG_WRITE_SW); //toggle switch state bit
-			//save_patch(current_patch.number); //write the patch
-			//
-		//} else {
-			//
-			//current_patch.mode = WRITE; //enter write mode;
-			//switch_states.byte2 |= (1<<PROG_WRITE_SW); //keep 
-			//lock_pots();
-		//}			
+		switch_states.byte2 ^= (1<<PROG_WRITE_SW);
+		if (current_patch.mode != WRITE) {
+			switch_states.byte2 &= ~(1<< PROG_MANUAL_SW); //turn off manual mode
+			current_patch.mode = WRITE;
+			lock_pots();
+			
+			
+		} else {
+			
+			save_patch(current_patch.number); //write the patch
+			//switch_states.byte2 &= ~(1<<PROG_WRITE_SW);
+		}			
 		
-		switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle switch state bit
-		save_patch(current_patch.number);
+		//switch_states.byte2 ^= (1<<PROG_WRITE_SW); //toggle switch state bit
+		//save_patch(current_patch.number);
 		
 		
 	}

@@ -46,7 +46,6 @@ void display_dec(uint16_t number, uint8_t place)
 	//latch data to anode lines
 	DISPLAY_PORT |= (1<<DISP_ANODE_LATCH);
 	DISPLAY_PORT &= ~(1<<DISP_ANODE_LATCH);
-
 	
 	//determine cathode byte based on digit to display
 	uint8_t cathode_byte;
@@ -104,6 +103,7 @@ void display_dec(uint16_t number, uint8_t place)
 	
 	if (current_patch.mode == EDIT) cathode_byte |= dp;
 	if (current_patch.mode == MANUAL) cathode_byte = g; //Roland style dash for MANUAL mode. Could move this to the top as manual mode precludes the need to parse digit
+	
 	
 	//set cathode byte
 	DATA_BUS = ~(cathode_byte); //set bits for cathode (current sinks, active LOW)
