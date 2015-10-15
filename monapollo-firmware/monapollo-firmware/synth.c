@@ -360,6 +360,22 @@ void update_patch_programmer(void) {
 	
 }	
 	
+void update_lfo_shape(void) {
+
+	if ((switch_states.byte1 >> LFO_SHAPE_SW) & 1) {
+	
+		switch_states.byte1 ^= (1<<LFO_SHAPE_SW); //toggle switch state
+		if (++lfo_shape_index == 5) lfo_shape_index = 0;
+	}
+	
+	current_patch.byte_2 &= 0b00001111; //clear top 4 bits
+	current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
+	DATA_BUS = lfo[lfo_shape_index].waveform_addr;
+	LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+	LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+	
+}		
+	
 	
 void refresh_synth(void) {
 	
@@ -372,13 +388,13 @@ void refresh_synth(void) {
 	
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
-					((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
-					((switch_states.byte0 >> VCO1_TRI_SW) & 1) << VCO1_TRI |
-					((switch_states.byte0 >> VCO1_PULSE_SW) & 1) << VCO1_PULSE |
-					((switch_states.byte0 >> VCO2_SAW_SW) & 1) << VCO2_SAW |
-					((switch_states.byte0 >> VCO2_TRI_SW) & 1) << VCO2_TRI |
-					((switch_states.byte0 >> VCO2_PULSE_SW) & 1) << VCO2_PULSE |
-					((switch_states.byte2 >> BMOD_SW) & 1) << BMOD;
+							((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
+							((switch_states.byte0 >> VCO1_TRI_SW) & 1) << VCO1_TRI |
+							((switch_states.byte0 >> VCO1_PULSE_SW) & 1) << VCO1_PULSE |
+							((switch_states.byte0 >> VCO2_SAW_SW) & 1) << VCO2_SAW |
+							((switch_states.byte0 >> VCO2_TRI_SW) & 1) << VCO2_TRI |
+							((switch_states.byte0 >> VCO2_PULSE_SW) & 1) << VCO2_PULSE |
+							((switch_states.byte2 >> BMOD_SW) & 1) << BMOD;
 	
 			
 	//update analog switch latch:
@@ -399,30 +415,13 @@ void refresh_synth(void) {
 	update_octave_range();
 	
 	//parse LFO data
-	if ((switch_states.byte1 >> LFO_SHAPE_SW) & 1) {
-		
-		switch_states.byte1 ^= (1<<LFO_SHAPE_SW); //toggle switch state
-		if (++lfo_shape_index == 5) lfo_shape_index = 0;
-
-
-	}
-	current_patch.byte_2 &= 0b00001111; //clear top 4 bits
-	current_patch.byte_2 |= 1 << lfo[lfo_shape_index].led_addr;
-	DATA_BUS = lfo[lfo_shape_index].waveform_addr;
-	LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-	LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+	update_lfo_shape();
 	
 	if (((switch_states.byte2 >> PROG_MANUAL_SW) & 1)) {
 		
-		//if (current_patch.mode == MANUAL) { //if already in manual mode 
-			//
-			////switch_states.byte2 ^= (1<< PROG_MANUAL_SW);			
-			//
-		//} else {
 			switch_states.byte2 |= (1<< PROG_MANUAL_SW);
 			current_patch.mode = MANUAL;
 			unlock_pots();
-		//}		
 		
 	}
 	

@@ -10,17 +10,18 @@ uint8_t transpose_note(uint8_t note, uint8_t vco);
 void save_patch(uint8_t patch_number);
 void load_patch(uint8_t patch_number);
 void update_patch_programmer(void);
+void update_lfo_shape(void);
 
 void lock_pots(void);
 void unlock_pots(void);
 
 enum patch_mode {
 	
-	MEMORY,
-	MANUAL,
-	EDIT,
-	WRITE
-	
+	MEMORY, //memory mode, pots locked
+	MANUAL, //manul mode, pots unlocked
+	EDIT, //edit mode, some pots or switches have changed from memory
+	WRITE, //select same or new memory location and write patch to memory
+	MIDI //select new midi channel - show 'CHXX' on display to indicate MIDI channel is being selected. WRITE button exits. Activate this mode by pressing PROG UP/DOWN buttons simultaneously?
 	};
 	
 extern enum patch_mode mode;	
@@ -67,7 +68,8 @@ struct patch {
 	uint8_t byte_4; //VCO1 + VCO2 OCTAVE SELECTION
 	uint8_t byte_5; //VCO WAVEFORMS, VCO SYNC + BMOD
 	
-	uint8_t number;
+	uint8_t number; //patch number
+	uint8_t midi_ch; //current MIDI channel
 	
 	enum patch_mode mode;
 	
