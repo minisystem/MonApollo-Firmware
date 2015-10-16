@@ -61,9 +61,9 @@ void display_dec(uint16_t number, uint8_t place)
 
 	uint8_t thous_place, hunds_place, tens_place, ones_place;
 
-	//if (number > 999) {
-	//number = 999;
-	//}
+	if (number > 9999) {
+		number = 9999;
+		}
 	
 	/* First division by 10 */
 	q1 = (number >> 1) + (number >> 2);

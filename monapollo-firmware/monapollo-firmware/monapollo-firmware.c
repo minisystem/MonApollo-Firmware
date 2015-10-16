@@ -176,6 +176,7 @@ int main(void)
 	while(1)
 	{	
 		
+		
 		midi_device_process(&midi_device); //this needs to be called 'frequently' in order for MIDI to work
 		//value_to_display = vco1_init_cv;
 		//PORTB |= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED
@@ -186,7 +187,7 @@ int main(void)
 		scan_pots();
 		update_control_voltages();
 			
-		//do SPI read/write every loops - whole section needs major update
+		//do SPI read/write every 5 loops - whole section needs major update
 		if (switch_timer++ == 5)
 		{
 			switch_timer = 0;
@@ -196,8 +197,11 @@ int main(void)
 			switch_states.byte2 |= (current_patch.mode == MANUAL) << PROG_MANUAL_SW; //if MANUAL then don't toggle switch
 			//switch_states.byte2 |= (current_patch.mode == WRITE) << PROG_WRITE_SW; //if WRITE then don't toggle switch
 			update_spi();
-			refresh_synth();
-				
+			if (switch_press) { 
+				update_patch();
+				if (current_patch.mode == MEMORY) current_patch.mode = EDIT; //change mode to EDIT if non-program switch is detected
+			}				
+			update_patch_programmer();	
 		}
 		
 			

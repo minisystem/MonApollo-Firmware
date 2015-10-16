@@ -316,6 +316,7 @@ void update_patch_programmer(void) {
 		} else if (current_patch.mode != WRITE) { //load next patch if not in WRITE mode
 			
 			load_patch(current_patch.number);
+			update_patch();
 			
 			
 		}		
@@ -328,8 +329,11 @@ void update_patch_programmer(void) {
 
 		if (current_patch.number == 1) {} else {current_patch.number--;}
 		
-		if (current_patch.mode != WRITE) load_patch(current_patch.number);
-	
+		if (current_patch.mode != WRITE) {
+			
+			load_patch(current_patch.number); 
+			update_patch();
+		}			
 	}
 	
 	
@@ -354,8 +358,15 @@ void update_patch_programmer(void) {
 		
 	}
 	
-	
+	if (((switch_states.byte2 >> PROG_MANUAL_SW) & 1)) {
+			
+		switch_states.byte2 |= (1<< PROG_MANUAL_SW);
+		current_patch.mode = MANUAL;
+		unlock_pots();
+			
+	}
 	value_to_display = current_patch.number;	
+	//value_to_display = vco1_init_cv>>1;
 	
 	
 }	
@@ -377,15 +388,19 @@ void update_lfo_shape(void) {
 }		
 	
 	
-void refresh_synth(void) {
+void update_patch(void) {
 	
-	if ((switch_press) && current_patch.mode == MEMORY) { //if there are no switch presses, then what's the point of doing any of the updates? Should change the order, see if any program switches are pressed, handle them and if no other switches are pressed then just return from function
-					
-		current_patch.mode = EDIT;
-		switch_press = 0;
-					
-	}
+	//if (!switch_press) {// && current_patch.mode == MEMORY)
+		////if not switch preses, then just return from function
+		//
+		//
+		//update_patch_programmer();
+		//return;
+					//
+	//}
+	//switch_press = 0;
 	
+	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
 							((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
@@ -417,15 +432,9 @@ void refresh_synth(void) {
 	//parse LFO data
 	update_lfo_shape();
 	
-	if (((switch_states.byte2 >> PROG_MANUAL_SW) & 1)) {
-		
-			switch_states.byte2 |= (1<< PROG_MANUAL_SW);
-			current_patch.mode = MANUAL;
-			unlock_pots();
-		
-	}
+
 	
-	update_patch_programmer();		
+	//update_patch_programmer();		
 				
 	if ((switch_states.byte1 >> ARP_MODE_SW) & 1) //temporary tune button hack
 		{ 
@@ -441,7 +450,7 @@ void refresh_synth(void) {
 		
 		vco1_init_cv = set_vco_init_cv(VCO1, 24079);
 		vco2_init_cv = set_vco_init_cv(VCO2, 24079);
-
+		//vco1_init_cv = vco2_init_cv;
 		tune_8ths(VCO1);
 		tune_8ths(VCO2);
 		tune_filter();
