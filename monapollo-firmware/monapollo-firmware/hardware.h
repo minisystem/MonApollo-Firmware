@@ -60,6 +60,8 @@
 //define LFO waveform switch latch (not yet implemented in hardware)
 #define LFO_SW_LATCH		PJ5
 
+#define LFO_NOTE_RESET 0 //SYNC LED for LFO note-on reset. This is temporary hack
+
 //define LFO DEMUX waveform selection bytes:
 #define LFO_TRI_ADDR	0
 #define LFO_SINE_ADDR	4
@@ -67,6 +69,7 @@
 #define LFO_PULSE_ADDR	6
 #define LFO_RNDM_ADDR	1	
 
+#define LFO_RESET		PB4 //define LFO reset pin
 
 //EG2 polarity pin on PORTJ
 #define EG2_POL			PJ4

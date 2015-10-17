@@ -375,7 +375,7 @@ void tune_8ths(uint8_t vco) {
 	
 		
 		//eeprom_update_block((const void*)vco_pitch_table, (void*)vco_pitch_table_eeprom, sizeof(vco_pitch_table));
-		
+		//vco_pitch_table[0] = 0;
 		PORTF &= ~(1<<GATE); //turn gate off
 		
 		

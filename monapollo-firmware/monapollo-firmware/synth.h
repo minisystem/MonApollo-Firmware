@@ -11,6 +11,7 @@ void save_patch(uint8_t patch_number);
 void load_patch(uint8_t patch_number);
 void update_patch_programmer(void);
 void update_lfo_shape(void);
+void update_lfo_sync(void);
 
 void lock_pots(void);
 void unlock_pots(void);
@@ -21,7 +22,9 @@ enum patch_mode {
 	MANUAL, //manul mode, pots unlocked
 	EDIT, //edit mode, some pots or switches have changed from memory
 	WRITE, //select same or new memory location and write patch to memory
-	MIDI //select new midi channel - show 'CHXX' on display to indicate MIDI channel is being selected. WRITE button exits. Activate this mode by pressing PROG UP/DOWN buttons simultaneously?
+	MIDI, //select new midi channel - show 'CHXX' on display to indicate MIDI channel is being selected. WRITE button exits. Activate this mode by pressing PROG UP/DOWN buttons simultaneously?
+	CAL, //not integrated with tuning routine yet,but will be useful flag for running tuning calibration routine
+	TEST //some kind of diagnostic mode that might be useful for manually setting VCO init_cvs???
 	};
 	
 extern enum patch_mode mode;	

@@ -365,7 +365,7 @@ void update_patch_programmer(void) {
 		unlock_pots();
 			
 	}
-	value_to_display = current_patch.number;	
+	//value_to_display = current_patch.number;	
 	//value_to_display = vco1_init_cv>>1;
 	
 	
@@ -387,6 +387,22 @@ void update_lfo_shape(void) {
 	
 }		
 	
+	
+void update_lfo_sync(void) {
+	
+	static uint8_t lfo_sync_led = 0;
+	
+	if ((switch_states.byte1 >> LFO_SYNC_SW) & 1) {
+			
+		switch_states.byte1 ^= (1<<LFO_SYNC_SW); //toggle switch state
+		if (++lfo_sync_led == 5) lfo_sync_led = 0;
+	}
+	
+	current_patch.byte_2 &= 0b11110000; //clear bottom 4 bits
+	if (lfo_sync_led) current_patch.byte_2 |= (1<<(lfo_sync_led -1)); //this allows an off state when lfo_sync_led = 0;
+	
+	
+}		
 	
 void update_patch(void) {
 	
@@ -432,6 +448,8 @@ void update_patch(void) {
 	//parse LFO data
 	update_lfo_shape();
 	
+	//parse LFO sync data
+	update_lfo_sync();
 
 	
 	//update_patch_programmer();		

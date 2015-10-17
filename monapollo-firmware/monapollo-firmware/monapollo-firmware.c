@@ -45,6 +45,7 @@ static uint8_t gate_buffer = 0;
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
+	if ((current_patch.byte_2 >> LFO_NOTE_RESET) & 1) PORTB |= (1<< LFO_RESET);
 	//value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
@@ -61,6 +62,7 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		//could implement this with timers. Will it really make a difference?
 		PORTF |= (1<<GATE);
 	}
+	PORTB &= ~(1<< LFO_RESET);
 	
 }
 void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
@@ -103,6 +105,10 @@ int main(void)
 		
 	//SET PORTB PIN 7 (PB7) as OUTPUT
 	DDRB |= (1<<ARP_SYNC_LED);
+	
+	DDRB |= (1<< LFO_RESET); //set LFO reset as output. This affects LFO rate and TRI balance - needed to trim both rate and balance.
+	//PORTB |= (1<< LFO_RESET);
+	
 	
 	DDRF |= (1<<GATE); //set gate as output
 	//PORTF |= (1<<GATE); //turn gate on for testing
@@ -202,6 +208,7 @@ int main(void)
 				if (current_patch.mode == MEMORY) current_patch.mode = EDIT; //change mode to EDIT if non-program switch is detected
 			}				
 			update_patch_programmer();	
+			
 		}
 		
 			
