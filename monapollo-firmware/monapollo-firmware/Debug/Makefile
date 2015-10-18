@@ -39,6 +39,7 @@ SUBDIRS :=  \
 C_SRCS +=  \
 ../adc.c \
 ../assigner.c \
+../clock.c \
 ../dac.c \
 ../display.c \
 ../interrupts.c \
@@ -65,6 +66,7 @@ ASM_SRCS +=
 OBJS +=  \
 adc.o \
 assigner.o \
+clock.o \
 dac.o \
 display.o \
 interrupts.o \
@@ -85,6 +87,7 @@ xnormidi-develop/sysex_tools.o
 OBJS_AS_ARGS +=  \
 adc.o \
 assigner.o \
+clock.o \
 dac.o \
 display.o \
 interrupts.o \
@@ -105,6 +108,7 @@ xnormidi-develop/sysex_tools.o
 C_DEPS +=  \
 adc.d \
 assigner.d \
+clock.d \
 dac.d \
 display.d \
 interrupts.d \
@@ -125,6 +129,7 @@ xnormidi-develop/sysex_tools.d
 C_DEPS_AS_ARGS +=  \
 adc.d \
 assigner.d \
+clock.d \
 dac.d \
 display.d \
 interrupts.d \
@@ -151,6 +156,8 @@ ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:= ./makedep.mk
 
 # AVR32/GNU C Compiler
+
+
 
 
 

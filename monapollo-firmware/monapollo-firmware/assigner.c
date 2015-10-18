@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include "assigner.h"
+#include "clock.h"
 #include "display.h" //added just so display can be used for troubleshooting
 
 static struct midi_note note_pool[8] = //create a pool to store and order incoming MIDI notes. Eventualyl want this to be initialized to NOTE_POOL_SIZE definition in assigner.h

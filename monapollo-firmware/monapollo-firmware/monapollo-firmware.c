@@ -23,6 +23,7 @@
 #include "synth.h"
 #include "tune.h"
 #include "utils.h"
+#include "clock.h"
 
 #include "xnormidi-develop/midi.h"
 #include "xnormidi-develop/midi_device.h"
@@ -45,7 +46,7 @@ static uint8_t gate_buffer = 0;
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
-	if ((current_patch.byte_2 >> LFO_NOTE_RESET) & 1) PORTB |= (1<< LFO_RESET);
+	if ((current_patch.byte_2 >> LFO_KEY_SYNC) & 1) PORTB |= (1<< LFO_RESET);
 	//value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
@@ -69,6 +70,36 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 	remove_note(note);
 	gate_buffer--;
 	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
+}
+
+void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
+	//PORTB ^= (1<<ARP_SYNC_LED);
+	//if (~(current_patch.byte_2 & (1<<LFO_KEY_SYNC) >> 1)) return; //if not in a sync mode, then retrun
+	switch (real_time_byte) {
+		
+		case MIDI_CLOCK:
+		
+			if (++clock.midi_ppqn_counter == clock.divider) {
+				PORTB ^= (1<<ARP_SYNC_LED);
+				//register clock event - this will do something  - reset LFO or initiate LFO
+				clock.midi_ppqn_counter = 0; //reset MIDI ppqn clock	
+				
+			}
+			
+			break;
+			
+		case MIDI_START:
+			
+			clock.midi_ppqn_counter = 0;
+			break;
+			
+		case MIDI_STOP:
+		
+			break;		
+		
+	}
+	
+	
 }
 
 void setup_midi_usart(void)
@@ -151,6 +182,7 @@ int main(void)
 	//register callbacks
 	midi_register_noteon_callback(&midi_device, note_on_event);
 	midi_register_noteoff_callback(&midi_device, note_off_event);
+	midi_register_realtime_callback(&midi_device, real_time_event);
 	//setup MIDI USART
 	setup_midi_usart();
 	

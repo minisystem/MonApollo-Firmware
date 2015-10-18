@@ -10,6 +10,7 @@
 #include "switch_map.h"
 #include "spi.h"
 #include "display.h"
+#include "clock.h"
 
 struct patch current_patch = {0};
 struct eeprom_patch EEMEM patch_memory[NUM_PATCHES]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
@@ -390,16 +391,38 @@ void update_lfo_shape(void) {
 	
 void update_lfo_sync(void) {
 	
-	static uint8_t lfo_sync_led = 0;
+	static uint8_t lfo_sync_mode = 0;
 	
 	if ((switch_states.byte1 >> LFO_SYNC_SW) & 1) {
 			
 		switch_states.byte1 ^= (1<<LFO_SYNC_SW); //toggle switch state
-		if (++lfo_sync_led == 5) lfo_sync_led = 0;
+		if (++lfo_sync_mode == 5) lfo_sync_mode = 0;
 	}
 	
 	current_patch.byte_2 &= 0b11110000; //clear bottom 4 bits
-	if (lfo_sync_led) current_patch.byte_2 |= (1<<(lfo_sync_led -1)); //this allows an off state when lfo_sync_led = 0;
+	if (lfo_sync_mode) current_patch.byte_2 |= (1<<(lfo_sync_mode -1)); //this allows an off state when lfo_sync_mode = 0;
+	
+	//now parse out clock divide from 
+	switch (current_patch.byte_2 & 0b00001111) {
+		
+		case 0b0001:
+			clock.divider = 0; //key sync mode
+			break;
+			
+		case 0b0010:
+			clock.divider = 24; //1:1
+			break;
+			
+		case 0b0100:
+			clock.divider = 12; //1:2
+			break;
+			
+		case 0b1000:
+			 clock.divider = 24; //1:4	 		
+		
+		default:
+			clock.divider = 0;
+	}
 	
 	
 }		
@@ -416,7 +439,7 @@ void update_patch(void) {
 	//}
 	//switch_press = 0;
 	
-	PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
+	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
 							((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |

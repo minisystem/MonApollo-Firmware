@@ -60,7 +60,7 @@
 //define LFO waveform switch latch (not yet implemented in hardware)
 #define LFO_SW_LATCH		PJ5
 
-#define LFO_NOTE_RESET 0 //SYNC LED for LFO note-on reset. This is temporary hack
+
 
 //define LFO DEMUX waveform selection bytes:
 #define LFO_TRI_ADDR	0
@@ -105,10 +105,17 @@
 #define EG2_INV				0 //EG2 INV
 
 #define LFO_TRI				7 //LED17 on LED LATCH 2
-#define LFO_SINE				6 //LED18 on LED LATCH 2
-#define LFO_SAW			5 //LED19 on LED LATCH 2
+#define LFO_SINE			6 //LED18 on LED LATCH 2
+#define LFO_SAW				5 //LED19 on LED LATCH 2
 #define LFO_RNDM			4 //LED20 on LED LATCH 2
 #define LFO_PULSE			0b00110000 //STUPIDHEAD DID NOT MAKE A LED FOR LFO PULSE. LIGHT UP SAW AND RNDMN INSTEAD
+
+
+#define LFO_KEY_SYNC 0 //SYNC LED for LFO note-on reset. This is temporary hack
+#define LFO_SYNC_1   1
+#define LFO_SYNC_2   2
+#define LFO_SYNC_4   3
+
 
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7

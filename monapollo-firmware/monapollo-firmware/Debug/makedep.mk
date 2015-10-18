@@ -6,6 +6,8 @@ adc.c
 
 assigner.c
 
+clock.c
+
 dac.c
 
 display.c

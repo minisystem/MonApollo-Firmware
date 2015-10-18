@@ -74,6 +74,9 @@ struct patch {
 	uint8_t number; //patch number
 	uint8_t midi_ch; //current MIDI channel
 	
+	uint8_t arp_clock_source; //clock source: MIDI clock or ARP clock. becomes MIDI clock when sync is active
+	uint8_t lfo_clock_source; //
+	
 	enum patch_mode mode;
 	
 	};
