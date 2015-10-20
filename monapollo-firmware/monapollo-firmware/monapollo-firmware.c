@@ -239,7 +239,7 @@ int main(void)
 		scan_pots();
 		update_control_voltages();
 			
-		//do SPI read/write every 5 loops - whole section needs major update
+		//do SPI read/write every 5 loops. This is quite clumsy. Not sure yet how to better implement it
 		if (switch_timer++ == 5)
 		{
 			switch_timer = 0;

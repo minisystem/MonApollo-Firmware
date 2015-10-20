@@ -303,7 +303,70 @@ void update_octave_range(void) {
 	
 }
 
-void update_patch_programmer(void) {
+void update_arp_settings(void) {
+	
+	
+	
+}
+
+void update_patch_programmer(void) { //maybe best to use a switch/case statement here instead of a series of if/elses?
+	
+	if (current_patch.mode == CAL) //temporary tune button hack by pressing and holding PROG DOWN switch
+	{
+		
+		
+		//TURN OFF LFO OUTPUT
+		DATA_BUS = 0b00000111; //turn off LFO waveform
+		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+		DATA_BUS = 0;
+		
+		tune();
+		
+		DATA_BUS = LFO_TRI_ADDR;
+		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+		DATA_BUS = 0;
+		current_patch.byte_2 &= 0b00001111; //clear top 4 bits
+		current_patch.byte_2 |= (1<<LFO_TRI);
+		
+		setup_system_clock(); //restore system clock settings
+
+		current_patch.mode = MEMORY;
+		
+		return;
+		
+	}
+	
+
+
+	//if ( ((switch_states.byte2>> PROG_UP_SW) & 1) && ((switch_states.byte2 >> PROG_DOWN_SW) & 1)) { //if PROG UP AND DOWN are pressed together, enter tune mode. This is currently finicky. toggling of switch bits doesn't
+		////seem amenable to pressing two switches simultaneously
+		//
+		//switch_states.byte2 ^= (1<<PROG_UP_SW); //toggle switch state bit
+		//switch_states.byte2 ^= (1<<PROG_DOWN_SW); //toggle switch state bit
+		//
+		//
+		////TURN OFF LFO OUTPUT
+		//DATA_BUS = 0b00000111; //turn off LFO waveform
+		//LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+		//LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+		//DATA_BUS = 0;
+					//
+		//tune();
+					//
+		//DATA_BUS = LFO_TRI_ADDR;
+		//LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
+		//LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
+		//DATA_BUS = 0;
+		//current_patch.byte_2 &= 0b00001111; //clear top 4 bits
+		//current_patch.byte_2 |= (1<<LFO_TRI);
+					//
+		//setup_system_clock(); //restore system clock settings
+		//
+		//return;
+		//
+	//}
 	
 	if ((switch_states.byte2>> PROG_UP_SW) & 1) {
 		
@@ -428,21 +491,15 @@ void update_lfo_sync(void) {
 	
 	
 	
-}		
+}
+
+			
 	
 void update_patch(void) {
 	
-	//if (!switch_press) {// && current_patch.mode == MEMORY)
-		////if not switch preses, then just return from function
-		//
-		//
-		//update_patch_programmer();
-		//return;
-					//
-	//}
-	//switch_press = 0;
-	
-	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED 
+
+
+
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
 							((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
@@ -480,43 +537,7 @@ void update_patch(void) {
 	
 	//update_patch_programmer();		
 				
-	if ((switch_states.byte1 >> ARP_MODE_SW) & 1) //temporary tune button hack
-		{ 
-				
-		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle read switch state
 
-
-		//TURN OFF LFO OUTPUT
-		DATA_BUS = 0b00000111; //turn off LFO waveform
-		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		DATA_BUS = 0;
-		
-		//will need to turn off Timer1 output compare match now, it is used by the master clock
-		TIMSK1 &= (1<<OCIE1A);
-		//will need to get rid of CTC here for Timer1 too
-		
-		vco1_init_cv = set_vco_init_cv(VCO1, 24079);
-		vco2_init_cv = set_vco_init_cv(VCO2, 24079);
-		//vco1_init_cv = vco2_init_cv;
-		tune_8ths(VCO1);
-		tune_8ths(VCO2);
-		tune_filter();
-		save_tuning_tables();
-		_delay_ms(200);	//give some time for release to decay to avoid pops	
-		
-		DATA_BUS = LFO_TRI_ADDR;
-		LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		DATA_BUS = 0;
-		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
-		current_patch.byte_2 |= (1<<LFO_TRI);
-		
-		TIMSK1 |= (1<<OCIE1A); //turn output compare back on for master clock
-			
-				
-		}
-		
 		
 	
 }

@@ -132,7 +132,7 @@ void update_control_voltages(void) { //keep everything updated in the current or
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);
 	
-	system_clock.rate = (1023 - arp_rate_pot.value) + 244;
+	system_clock.rate = (1023 - arp_rate_pot.value) + 244;    
 	
 	if (system_clock.rate != system_clock.previous_rate) {
 		

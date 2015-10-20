@@ -13,6 +13,10 @@ void update_patch_programmer(void);
 void update_lfo_shape(void);
 void update_lfo_sync(void);
 
+void update_arp_settings(void);
+
+
+
 void lock_pots(void);
 void unlock_pots(void);
 

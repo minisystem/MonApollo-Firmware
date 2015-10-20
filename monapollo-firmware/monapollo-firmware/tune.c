@@ -9,6 +9,7 @@
 #include "display.h"
 #include "utils.h"
 
+
 volatile uint8_t period_counter = 0; //need this to track first interrupt after count started
 volatile uint8_t period = 0; //this is the actual period number that OCR0A is set to 
 volatile uint8_t timer1_clock = 0;
@@ -610,5 +611,28 @@ void set_one_volt_per_octave(void) { //does this get stored in RAM? Should it go
 	memcpy((void*)vco1_pitch_table, (const void*)vpo_pitch_table, (size_t)sizeof(vpo_pitch_table));
 	memcpy((void*)vco2_pitch_table, (const void*)vpo_pitch_table, (size_t)sizeof(vpo_pitch_table));
 	
+	
+}
+
+
+void tune(void) {
+	
+
+			
+			//turn off Timer1 output compare match now, it is used by the system clock
+			TIMSK1 &= (1<<OCIE1A);
+			//get rid of CTC here for Timer1 too
+			TCCR1B &= ~(1<<WGM12); //turn off CTC
+			
+			vco1_init_cv = set_vco_init_cv(VCO1, 24079);
+			vco2_init_cv = set_vco_init_cv(VCO2, 24079);
+			//vco1_init_cv = vco2_init_cv;
+			tune_8ths(VCO1);
+			tune_8ths(VCO2);
+			tune_filter();
+			//save_tuning_tables();
+			_delay_ms(200);	//give some time for release to decay to avoid pops
+			
+			//need to restore Timer1 settings. This currently happens after the function is called, but should really be included here
 	
 }

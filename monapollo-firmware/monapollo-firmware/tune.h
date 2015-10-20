@@ -37,4 +37,6 @@ void save_tuning_tables(void);
 
 void load_tuning_tables(void);
 
+void tune(void);
+
 #endif
