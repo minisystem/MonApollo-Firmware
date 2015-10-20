@@ -46,7 +46,13 @@ static uint8_t gate_buffer = 0;
 
 void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
 	
-	if ((current_patch.byte_2 >> LFO_KEY_SYNC) & 1) PORTB |= (1<< LFO_RESET);
+	if ((current_patch.byte_2 >> LFO_KEY_SYNC) & 1) {
+		
+		PORTB |= (1<< LFO_RESET);
+		_delay_us(1); //what is minimum pulse width required for LFO reset?
+		PORTB &= ~(1<< LFO_RESET);
+			
+	}		
 	//value_to_display = note;
 	midi_note_number = note;
 	if (velocity == 0) {
@@ -63,7 +69,7 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		//could implement this with timers. Will it really make a difference?
 		PORTF |= (1<<GATE);
 	}
-	PORTB &= ~(1<< LFO_RESET);
+	//PORTB &= ~(1<< LFO_RESET);
 	
 }
 void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
@@ -79,18 +85,21 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		
 		case MIDI_CLOCK:
 		
-			if (++clock.midi_ppqn_counter == clock.divider) {
+			if (++midi_clock.ppqn_counter == midi_clock.divider) {
+				PORTB |= (1<< LFO_RESET);
+				_delay_us(1); //what is minimum pulse width required for LFO reset?
+				
 				PORTB ^= (1<<ARP_SYNC_LED);
 				//register clock event - this will do something  - reset LFO or initiate LFO
-				clock.midi_ppqn_counter = 0; //reset MIDI ppqn clock	
-				
+				midi_clock.ppqn_counter = 0; //reset MIDI ppqn clock	
+				PORTB &= ~(1<< LFO_RESET); //turn off LFO reset pin
 			}
 			
 			break;
 			
 		case MIDI_START:
 			
-			clock.midi_ppqn_counter = 0;
+			midi_clock.ppqn_counter = 0;
 			break;
 			
 		case MIDI_STOP:
@@ -210,6 +219,11 @@ int main(void)
 	//switch_states.byte0 = (1<<VCO1_PULSE_SW) | (1<<VCO2_PULSE_SW);
 	//current_patch.byte_4 = (1<<VCO1_32F) | (1<<VCO2_32F);
 	load_patch(1);
+	
+	setup_system_clock();
+	//update_clock_speed(244);
+	system_clock.divider = 24;
+	
 
 	while(1)
 	{	

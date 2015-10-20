@@ -4,6 +4,7 @@
 #include "hardware.h"
 #include "tune.h"
 #include "display.h"
+#include "clock.h"
 
 ISR (TIMER0_COMP_vect) { //timer 0 output compare interrupt for tuning
 	
@@ -38,5 +39,21 @@ ISR (TIMER1_OVF_vect) {
 	//during frequency counting, if timer1 overflow occurs set overflow flag
 	no_overflow = FALSE;
 	//PORTB ^= (1<<ARP_SYNC_LED); //toggle arp VCO_SYNC_LATCH_BIT LED
+	
+}
+
+ISR (TIMER1_COMPA_vect) { //output compare match for master clock
+	//PORTB ^= (1<<ARP_SYNC_LED);
+	if (system_clock.ppqn_counter == system_clock.divider >> 1) { //50% gate width
+		
+		PORTF &= ~(1<<GATE); //50% gate width
+		PORTB &= ~ (1<<ARP_SYNC_LED);
+	}		
+	if (++system_clock.ppqn_counter == system_clock.divider) {
+		//PORTB ^= (1<<ARP_SYNC_LED);
+		system_clock.ppqn_counter = 0;
+		PORTB |= (1<<ARP_SYNC_LED);
+		PORTF |= (1<<GATE);
+	}
 	
 }

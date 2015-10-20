@@ -88,7 +88,7 @@ void update_control_voltages(void) { //keep everything updated in the current or
 	//this next bit should be separated out, but leave it here for now while testing decoupled adc/dac read/write
 	uint8_t note = get_current_note(); //get current note from assigner
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
-	value_to_display = current_patch.number + 100*clock.divider; //100*note;
+	value_to_display = current_patch.number + 100*midi_clock.divider; //100*note;
 		
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	
@@ -131,5 +131,16 @@ void update_control_voltages(void) { //keep everything updated in the current or
 		
 	DAC_CTRL &= ~(1<<DAC_RS); //reset DAC
 	DAC_CTRL |= (1<<DAC_RS);
+	
+	system_clock.rate = (1023 - arp_rate_pot.value) + 244;
+	
+	if (system_clock.rate != system_clock.previous_rate) {
+		
+		update_clock_rate(system_clock.rate);
+	
+	}
+	
+	system_clock.previous_rate = system_clock.rate;
+	
 }			
 	

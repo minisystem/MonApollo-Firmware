@@ -397,32 +397,35 @@ void update_lfo_sync(void) {
 			
 		switch_states.byte1 ^= (1<<LFO_SYNC_SW); //toggle switch state
 		if (++lfo_sync_mode == 5) lfo_sync_mode = 0;
+		midi_clock.ppqn_counter = 0; //reset counter
 	}
 	
 	current_patch.byte_2 &= 0b11110000; //clear bottom 4 bits
 	if (lfo_sync_mode) current_patch.byte_2 |= (1<<(lfo_sync_mode -1)); //this allows an off state when lfo_sync_mode = 0;
 	
-	//now parse out clock divide from 
+	//now parse out clock divide from patch byte_2
 	switch (current_patch.byte_2 & 0b00001111) {
 		
 		case 0b0001:
-			clock.divider = 0; //key sync mode
+			midi_clock.divider = 0; //key sync mode
+			
 			break;
 			
 		case 0b0010:
-			clock.divider = 24; //1:1
+			midi_clock.divider = 24; //1:4
 			break;
 			
 		case 0b0100:
-			clock.divider = 12; //1:2
+			midi_clock.divider = 12; //1:8
 			break;
 			
 		case 0b1000:
-			 clock.divider = 24; //1:4	 		
+			 midi_clock.divider = 6; //1:16	 		
 		
-		default:
-			clock.divider = 0;
+		//default:
+			//clock.midi_clk_divider = 0;
 	}
+	
 	
 	
 }		
@@ -489,6 +492,10 @@ void update_patch(void) {
 		LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
 		DATA_BUS = 0;
 		
+		//will need to turn off Timer1 output compare match now, it is used by the master clock
+		TIMSK1 &= (1<<OCIE1A);
+		//will need to get rid of CTC here for Timer1 too
+		
 		vco1_init_cv = set_vco_init_cv(VCO1, 24079);
 		vco2_init_cv = set_vco_init_cv(VCO2, 24079);
 		//vco1_init_cv = vco2_init_cv;
@@ -504,7 +511,9 @@ void update_patch(void) {
 		DATA_BUS = 0;
 		current_patch.byte_2 &= 0b00001111; //clear top 4 bits 
 		current_patch.byte_2 |= (1<<LFO_TRI);
-				
+		
+		TIMSK1 |= (1<<OCIE1A); //turn output compare back on for master clock
+			
 				
 		}
 		

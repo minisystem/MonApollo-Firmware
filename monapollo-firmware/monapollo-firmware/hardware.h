@@ -116,6 +116,8 @@
 #define LFO_SYNC_2   2
 #define LFO_SYNC_4   3
 
+#define TIMER1_DIVIDE_64	(1<<CS11) | (1<<CS10)
+#define TIMER1_DIVIDE_1024	(1<<CS12) | (1<<CS10)
 
 //ARP_SYNC LED driven directly from AVR
 #define ARP_SYNC_LED	PB7
