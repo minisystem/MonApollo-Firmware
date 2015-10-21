@@ -303,11 +303,10 @@ void update_octave_range(void) {
 	
 }
 
-void update_arp_settings(void) {
-	
-	
-	
-}
+
+
+void update_arp_range(void) {}
+void update_arp_mode(void) {}
 
 void update_patch_programmer(void) { //maybe best to use a switch/case statement here instead of a series of if/elses?
 	
@@ -339,34 +338,6 @@ void update_patch_programmer(void) { //maybe best to use a switch/case statement
 	}
 	
 
-
-	//if ( ((switch_states.byte2>> PROG_UP_SW) & 1) && ((switch_states.byte2 >> PROG_DOWN_SW) & 1)) { //if PROG UP AND DOWN are pressed together, enter tune mode. This is currently finicky. toggling of switch bits doesn't
-		////seem amenable to pressing two switches simultaneously
-		//
-		//switch_states.byte2 ^= (1<<PROG_UP_SW); //toggle switch state bit
-		//switch_states.byte2 ^= (1<<PROG_DOWN_SW); //toggle switch state bit
-		//
-		//
-		////TURN OFF LFO OUTPUT
-		//DATA_BUS = 0b00000111; //turn off LFO waveform
-		//LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-		//LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		//DATA_BUS = 0;
-					//
-		//tune();
-					//
-		//DATA_BUS = LFO_TRI_ADDR;
-		//LFO_LATCH_PORT |= (1<<LFO_SW_LATCH);
-		//LFO_LATCH_PORT &= ~(1<<LFO_SW_LATCH);
-		//DATA_BUS = 0;
-		//current_patch.byte_2 &= 0b00001111; //clear top 4 bits
-		//current_patch.byte_2 |= (1<<LFO_TRI);
-					//
-		//setup_system_clock(); //restore system clock settings
-		//
-		//return;
-		//
-	//}
 	
 	if ((switch_states.byte2>> PROG_UP_SW) & 1) {
 		
@@ -493,6 +464,22 @@ void update_lfo_sync(void) {
 	
 }
 
+void update_arp_sync(void) {
+	
+	static uint8_t arp_sync_mode = 0;
+	
+	if ((switch_states.byte1 >> ARP_SYNC_SW) & 1) {
+		
+		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
+		if (++arp_sync_mode == 5) arp_sync_mode = 0;
+		//system_clock.ppqn_counter = 0; //reset counter
+	}
+	
+	current_patch.byte_3 &= 0b11000011; //clear middle 4 bits
+	if (arp_sync_mode) current_patch.byte_3 |= 1<<(arp_sync_mode + 1); //this allows an off state when arp_sync_mode = 0. Is that what's really needed?
+	
+	
+}
 			
 	
 void update_patch(void) {
@@ -534,7 +521,7 @@ void update_patch(void) {
 	//parse LFO sync data
 	update_lfo_sync();
 
-	
+	update_arp_sync();
 	//update_patch_programmer();		
 				
 

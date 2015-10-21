@@ -111,10 +111,25 @@
 #define LFO_PULSE			0b00110000 //STUPIDHEAD DID NOT MAKE A LED FOR LFO PULSE. LIGHT UP SAW AND RNDMN INSTEAD
 
 
-#define LFO_KEY_SYNC 0 //SYNC LED for LFO note-on reset. This is temporary hack
-#define LFO_SYNC_1   1
+#define LFO_KEY_SYNC 0 //SYNC LED for LFO note-on reset. Didn't really think about this until after hardware was designed. This brings display of other sync timings from 4 down to 3
+#define LFO_SYNC_1   1 //these names are kind of arbitrary as the sync divide is set by clock.divide parameter
 #define LFO_SYNC_2   2
 #define LFO_SYNC_4   3
+
+//ARP LED constants all in patch.byte_3 except ARP_RANGE_3 which is in patch.byte_1
+#define ARP_RANGE_1	7
+#define ARP_RANGE_2 6
+#define ARP_SYNC_2	5
+#define ARP_SYNC_4	4
+#define ARP_SYNC_8	3
+#define ARP_SYNC_16	2
+
+//other ARP LEDs in patch.byte_1
+#define ARP_MODE_UP	5
+#define ARP_MODE_DN	4
+#define ARP_MODE_RD	3
+#define ARP_ON		2
+#define ARP_RANGE_3 1
 
 #define TIMER1_DIVIDE_64	(1<<CS11) | (1<<CS10)
 #define TIMER1_DIVIDE_1024	(1<<CS12) | (1<<CS10)

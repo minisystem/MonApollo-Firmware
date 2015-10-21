@@ -13,8 +13,9 @@ void update_patch_programmer(void);
 void update_lfo_shape(void);
 void update_lfo_sync(void);
 
-void update_arp_settings(void);
-
+void update_arp_sync(void);
+void update_arp_range(void);
+void update_arp_mode(void);
 
 
 void lock_pots(void);
