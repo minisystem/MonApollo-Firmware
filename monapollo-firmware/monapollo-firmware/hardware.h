@@ -116,8 +116,8 @@
 #define LFO_SYNC_2   2
 #define LFO_SYNC_4   3
 
-//ARP LED constants all in patch.byte_3 except ARP_RANGE_3 which is in patch.byte_1
-#define ARP_RANGE_1	7
+//ARP LED constants all in patch.byte_3 except ARP_RANGE_1 which is in patch.byte_1
+#define ARP_RANGE_3	7
 #define ARP_RANGE_2 6
 #define ARP_SYNC_2	5
 #define ARP_SYNC_4	4
@@ -129,7 +129,7 @@
 #define ARP_MODE_DN	4
 #define ARP_MODE_RD	3
 #define ARP_ON		2
-#define ARP_RANGE_3 1
+#define ARP_RANGE_1 1
 
 #define TIMER1_DIVIDE_64	(1<<CS11) | (1<<CS10)
 #define TIMER1_DIVIDE_1024	(1<<CS12) | (1<<CS10)

@@ -96,8 +96,9 @@ void update_spi(void) {
 			spi_data =	((switch_states.byte1 >> ARP_MODE_SW) & 1) << ARP_MODE | 
 						//((switch_states.byte2 >> PROG_WRITE_SW) & 1) << PROG_WRITE | 
 						((current_patch.mode == WRITE) << PROG_WRITE) | //hack to light PROG WRITE LED only when in WRITE mode
-						((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV |
-						((switch_states.byte2 >> PROG_MANUAL_SW &1) << PROG_MANUAL); 			
+						//((switch_states.byte2 >> EG2_INV_SW) &1 ) << EG2_INV |
+						((switch_states.byte2 >> PROG_MANUAL_SW &1) << PROG_MANUAL) |
+						((current_patch.byte_1)); 			
 			//Wait for SPI shift to complete
 			spi_shift_byte(spi_data);
 			

@@ -22,7 +22,7 @@ void setup_system_clock(void) {
 void update_clock_rate(uint16_t rate) {
 	
 	OCR1A = rate;
-	if (TCNT1 > rate) TCNT1 = rate - 1;
+	if (TCNT1 > rate) TCNT1 = rate - 1; //this prevents wrapping. setting TCNT1 = rate would cause immediate interrupt. Is that OK?
 	
 	
 }

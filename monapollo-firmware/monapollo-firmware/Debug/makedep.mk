@@ -4,6 +4,8 @@
 
 adc.c
 
+arp.c
+
 assigner.c
 
 clock.c

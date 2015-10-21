@@ -11,6 +11,7 @@
 #include "spi.h"
 #include "display.h"
 #include "clock.h"
+#include "arp.h"
 
 struct patch current_patch = {0};
 struct eeprom_patch EEMEM patch_memory[NUM_PATCHES]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
@@ -305,8 +306,7 @@ void update_octave_range(void) {
 
 
 
-void update_arp_range(void) {}
-void update_arp_mode(void) {}
+
 
 void update_patch_programmer(void) { //maybe best to use a switch/case statement here instead of a series of if/elses?
 	
@@ -441,11 +441,11 @@ void update_lfo_sync(void) {
 	switch (current_patch.byte_2 & 0b00001111) {
 		
 		case 0b0001:
-			midi_clock.divider = 0; //key sync mode
+			midi_clock.divider = 0; //key sync mode - need to turn midi sync off here. How?
 			
 			break;
 			
-		case 0b0010:
+		case 0b0010: //turn these case conditions into constants. #define 0b0010 DIV_24
 			midi_clock.divider = 24; //1:4
 			break;
 			
@@ -454,10 +454,11 @@ void update_lfo_sync(void) {
 			break;
 			
 		case 0b1000:
-			 midi_clock.divider = 6; //1:16	 		
+			midi_clock.divider = 6; //1:16	 		
+			break;
 		
-		//default:
-			//clock.midi_clk_divider = 0;
+		default:
+			midi_clock.divider = 0; //need to turn midi sync off here. How?
 	}
 	
 	
@@ -472,21 +473,102 @@ void update_arp_sync(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
 		if (++arp_sync_mode == 5) arp_sync_mode = 0;
-		//system_clock.ppqn_counter = 0; //reset counter
+		system_clock.ppqn_counter = 0; //reset counter
 	}
 	
 	current_patch.byte_3 &= 0b11000011; //clear middle 4 bits
 	if (arp_sync_mode) current_patch.byte_3 |= 1<<(arp_sync_mode + 1); //this allows an off state when arp_sync_mode = 0. Is that what's really needed?
 	
+	switch (current_patch.byte_3 & 0b00111100) {
+			
+		case 0b00000100:
+			system_clock.divider = 48; //1:2
+			break;
+			
+		case 0b00001000:
+			system_clock.divider = 24; //1:4
+			break;
+			
+		case 0b00010000:		
+			system_clock.divider = 12; //1:8
+			break;
+			
+		case 0b00100000:
+			system_clock.divider = 6; //1:16	
+			break;
+			
+		default:
+			system_clock.divider = 2; //should be 1 but this never turns arp_sync_led off - need to fix this	
+				
+		}
+	
+	
+	
 	
 }
+
+void update_arp_range(void) {
+	
+	static uint8_t arp_range = 0;
+	
+	if ((switch_states.byte1 == (1<<ARP_RANGE_SW)) & 1) {
+		
+		switch_states.byte1 ^= (1<<ARP_RANGE_SW); //toggle switch bit
+		
+		if (++arp_range == 4) arp_range = 0;
+						
+	}
+	
+	//arp range LEDs 3 and 2 are in byte_3, bits 7 and 6, respectively. arp range LED 1 is bit 1 of byte_1
+	
+	current_patch.byte_1 &= ~(1<<ARP_RANGE_1); //clear arp range 1 LED
+	current_patch.byte_3 &= 0b00111111; //clear bits 6 and7, arp range 3 and 2
+	
+	switch (arp_range) { //this just updates LEDs. no struct to handle arp range yet
+		
+		case 0:
+			
+			//set arp range to 0. Haven't designed arp struct to handle this yet
+			
+			break;
+			
+		case 1:
+		
+			current_patch.byte_1 |= (1<<ARP_RANGE_1); //set range 1 LED. LED was in the wrong way!
+			break;
+			
+		case 2:
+		
+			current_patch.byte_3 |= (1<<ARP_RANGE_2);		
+			break;
+			
+			
+		case 3: 
+			
+			current_patch.byte_3 |= (1<<ARP_RANGE_3);
+			break;		
+		
+	} 
+	
+	
+}
+
+
+void update_arp_mode(void) {
+
+	
+
+
+
+}
+
+
+
+
 			
 	
 void update_patch(void) {
 	
-
-
-
 	//parse LED data for LED latch 5
 	current_patch.byte_5 =	((switch_states.byte0 >> VCO_SYNC_SW) & 1) << VCO_SYNC |					
 							((switch_states.byte0 >> VCO1_SAW_SW) & 1) << VCO1_SAW |
@@ -521,7 +603,12 @@ void update_patch(void) {
 	//parse LFO sync data
 	update_lfo_sync();
 
+	//update arp settings
 	update_arp_sync();
+	update_arp_range();
+	
+	
+	
 	//update_patch_programmer();		
 				
 
