@@ -66,7 +66,7 @@ uint8_t lfo_shape[5] =
 
 void lock_pots(void) { //run this every time new patch is loaded to lock pots and store locked values
 
-for (int i = 0; i <= 29; i++) {
+for (int i = 0; i <= NUM_POTS; i++) {
 	
 	pot_id[i]->locked_value = (pot_id[i]->value) >> 2;
 	pot_id[i]->locked = 1;
@@ -77,7 +77,7 @@ for (int i = 0; i <= 29; i++) {
 
 void unlock_pots(void) {
 	
-	for (int i = 0; i <= 29; i++) {
+	for (int i = 0; i <= NUM_POTS; i++) {
 		
 		pot_id[i]->locked = 0;
 		
@@ -556,6 +556,44 @@ void update_arp_range(void) {
 
 void update_arp_mode(void) {
 
+	static uint8_t arp_mode = 0;
+	
+	if ((switch_states.byte1 >> ARP_MODE_SW) & 1) {
+		
+		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle switch state
+		if (++arp_mode == 5) arp_mode = 0;
+		
+	}
+	
+	current_patch.byte_1 &= 0b11000011; //clear middle 4 bits UP, DOWN, RANDOM, MODE correspond to bits 6>>2
+	
+	switch(arp_mode) {
+		
+		case 0:
+		
+			//turn arp off
+			break;
+			
+		case 1:
+		
+			current_patch.byte_1 |= (1<<ARP_MODE_UP) | (1<<ARP_ON);
+			break;	
+		
+		case 2:
+			current_patch.byte_1 |= (1<<ARP_MODE_DN) | (1<<ARP_ON);
+			break;
+			
+		case 3:
+			current_patch.byte_1 |= (1<<ARP_MODE_UP) | (1<<ARP_MODE_DN) | (1<<ARP_ON);
+			break;
+			
+		default:
+			current_patch.byte_1 |= (1<<ARP_MODE_RD) | (1<<ARP_ON);
+			break;		
+			
+					
+		
+	}
 	
 
 
@@ -606,7 +644,7 @@ void update_patch(void) {
 	//update arp settings
 	update_arp_sync();
 	update_arp_range();
-	
+	update_arp_mode();
 	
 	
 	//update_patch_programmer();		

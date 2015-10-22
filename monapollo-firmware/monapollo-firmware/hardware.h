@@ -20,6 +20,7 @@
 //define hardware pins
 #define TUNE_SELECT PG2 //define tune source select bit
 
+
 #define GATE PF1 //define gate output
 
 //switch latch bits for VCO waveforms, VCO_SYNC_LATCH_BIT and BMOD_LATCH_BIT

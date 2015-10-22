@@ -5,6 +5,8 @@
 #define POTMUX_EN0	PH6
 #define POTMUX_EN1	PH7
 
+#define NUM_POTS	29 //number of pots that need to be read and have values stored (doesn't include volume pot)
+
 struct potentiometer {
 	
 	uint16_t value:10;

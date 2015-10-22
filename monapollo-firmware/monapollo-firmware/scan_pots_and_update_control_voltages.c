@@ -23,7 +23,7 @@ void scan_pots(void) { //should probably move this to adc.c
 	
 	uint16_t *patch_value = &(current_patch.vco2_mix); //pointer to first element of current_patch struct
 	//scan 30 parameter pots
-	for (int i = 0; i <= 29; i++) {
+	for (int i = 0; i <= NUM_POTS; i++) {
 		
 		adc_value = read_pot(pot_id[i]);
 		adc_change = adc_value - pot_id[i]->value;
