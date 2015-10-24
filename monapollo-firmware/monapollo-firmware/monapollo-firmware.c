@@ -24,6 +24,7 @@
 #include "tune.h"
 #include "utils.h"
 #include "clock.h"
+#include "arp.h"
 
 #include "xnormidi-develop/midi.h"
 #include "xnormidi-develop/midi_device.h"
@@ -38,8 +39,7 @@ MidiDevice midi_device;
 //counter for switch scanning in main loop
 uint8_t switch_timer = 0;
 
-//MIDI gate buffer for note stealing
-static uint8_t gate_buffer = 0;
+
 
 
 
@@ -53,29 +53,44 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		PORTB &= ~(1<< LFO_RESET);
 			
 	}		
-	//value_to_display = note;
+	
 	midi_note_number = note;
-	if (velocity == 0) {
+	if (velocity == 0) { //if velocity is 0 then it is a note off event - just call note off function rather than duplicate code here. arp will need to handle this too
 		remove_note(note);
 		gate_buffer--;
 		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 				
 	} else {
+		
 		new_note(note, velocity);
-		gate_buffer++; //increment gate_buffer
-		//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
-		//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
-		//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
-		//could implement this with timers. Will it really make a difference?
-		PORTF |= (1<<GATE);
+		
+		gate_buffer++;
+		if (arp.clock_source == OFF) { //if arp is off, handle gate
+			//new_note(note, velocity);
+			//gate_buffer++; //increment gate_buffer
+			//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
+			//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
+			//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
+			//could implement this with timers. MIDI Implant is 0.5 ms. Could maybe use Timer1 here to generate 0.3-0.5 ms gate retrigger
+			
+			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
+		}		
 	}
 	//PORTB &= ~(1<< LFO_RESET);
 	
 }
 void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t velocity) {
+	
 	remove_note(note);
 	gate_buffer--;
-	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
+	if (arp.clock_source == OFF) {	//if arp is off handle gate
+		//gate_buffer--;
+		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
+	} else {
+		
+		update_arp_sequence();
+		
+	}
 }
 
 void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
@@ -223,6 +238,8 @@ int main(void)
 	setup_system_clock();
 	//update_clock_speed(244);
 	system_clock.divider = 24;
+	
+	
 	
 
 	while(1)

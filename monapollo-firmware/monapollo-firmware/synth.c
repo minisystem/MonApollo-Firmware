@@ -12,6 +12,7 @@
 #include "display.h"
 #include "clock.h"
 #include "arp.h"
+#include "assigner.h"
 
 struct patch current_patch = {0};
 struct eeprom_patch EEMEM patch_memory[NUM_PATCHES]; //EEPROM at 1910 bytes after tuning data is stored. Will still need to save MIDI channel  and a couple of bytes of other data. Currently EEPROM is 93.3% full.	
@@ -516,6 +517,7 @@ void update_arp_range(void) {
 		switch_states.byte1 ^= (1<<ARP_RANGE_SW); //toggle switch bit
 		
 		if (++arp_range == 4) arp_range = 0;
+		arp.step_position = 0; //reset step position if range changes
 						
 	}
 	
@@ -523,6 +525,9 @@ void update_arp_range(void) {
 	
 	current_patch.byte_1 &= ~(1<<ARP_RANGE_1); //clear arp range 1 LED
 	current_patch.byte_3 &= 0b00111111; //clear bits 6 and7, arp range 3 and 2
+	
+	arp.range = arp_range;
+	
 	
 	switch (arp_range) { //this just updates LEDs. no struct to handle arp range yet
 		
@@ -562,9 +567,12 @@ void update_arp_mode(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle switch state
 		if (++arp_mode == 5) arp_mode = 0;
+		arp.step_position = 0; //reset step position if mode changes
 		
 	}
-	
+
+	arp.clock_source = INTERNAL_CLOCK;	
+
 	current_patch.byte_1 &= 0b11000011; //clear middle 4 bits UP, DOWN, RANDOM, MODE correspond to bits 6>>2
 	
 	switch(arp_mode) {
@@ -572,23 +580,29 @@ void update_arp_mode(void) {
 		case 0:
 		
 			//turn arp off
+			arp.clock_source = OFF;
+			if (gate_buffer == 0) PORTF &= ~(1<<GATE); //turn gate off.
 			break;
 			
 		case 1:
 		
 			current_patch.byte_1 |= (1<<ARP_MODE_UP) | (1<<ARP_ON);
+			arp.mode = UP;
 			break;	
 		
 		case 2:
 			current_patch.byte_1 |= (1<<ARP_MODE_DN) | (1<<ARP_ON);
+			arp.mode = DOWN;
 			break;
 			
 		case 3:
 			current_patch.byte_1 |= (1<<ARP_MODE_UP) | (1<<ARP_MODE_DN) | (1<<ARP_ON);
+			arp.mode = UP_DOWN;
 			break;
 			
 		default:
 			current_patch.byte_1 |= (1<<ARP_MODE_RD) | (1<<ARP_ON);
+			arp.mode = RANDOM;
 			break;		
 			
 					

@@ -13,7 +13,7 @@ interrupts.d interrupts.o: .././interrupts.c \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/avr/lock.h \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/avr/interrupt.h \
  .././hardware.h .././tune.h .././display.h .././display_map.h \
- .././clock.h
+ .././clock.h .././assigner.h .././arp.h
 
 c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/avr/io.h:
 
@@ -50,3 +50,7 @@ c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.
 .././display_map.h:
 
 .././clock.h:
+
+.././assigner.h:
+
+.././arp.h:

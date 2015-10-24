@@ -5,6 +5,8 @@
 #include "tune.h"
 #include "display.h"
 #include "clock.h"
+#include "assigner.h"
+#include "arp.h"
 
 ISR (TIMER0_COMP_vect) { //timer 0 output compare interrupt for tuning
 	
@@ -46,15 +48,21 @@ ISR (TIMER1_COMPA_vect) { //output compare match for master clock
 	//PORTB ^= (1<<ARP_SYNC_LED);
 	
 	if (system_clock.ppqn_counter == system_clock.divider >> 1) { //50% gate width
-		
-		
+				
 		PORTB &= ~ (1<<ARP_SYNC_LED);
-	}		
+		if (arp.clock_source == INTERNAL_CLOCK) PORTF &= ~(1<<GATE); //if arp is running, turn gate off
+	}	
+		
 	if (++system_clock.ppqn_counter == system_clock.divider) {
-		//PORTB ^= (1<<ARP_SYNC_LED);
+		
 		system_clock.ppqn_counter = 0;
 		PORTB |= (1<<ARP_SYNC_LED);
-		
+		if (arp.clock_source == INTERNAL_CLOCK) {
+			
+			//step arp note here based on range and note sequence from assigner	
+			step_arp_note(); //will need to force inline this function. It will need to be used elsewhere for arp MIDI sync.
+			if (gate_buffer != 0) PORTF |= (1<<GATE); //if arp is running and there are notes to be played, turn gate ON
+		}			
 	}
 	
 }

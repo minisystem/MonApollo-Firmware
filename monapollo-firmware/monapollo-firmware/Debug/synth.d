@@ -18,7 +18,7 @@ synth.d synth.o: .././synth.c \
  c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/include/stddef.h \
  .././adc.h .././utils.h .././hardware.h .././synth.h .././tune.h \
  .././switch_map.h .././spi.h .././display.h .././display_map.h \
- .././clock.h .././arp.h
+ .././clock.h .././arp.h .././assigner.h
 
 c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.95\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/avr/io.h:
 
@@ -75,3 +75,5 @@ c:\program\ files\ (x86)\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.1.
 .././clock.h:
 
 .././arp.h:
+
+.././assigner.h:

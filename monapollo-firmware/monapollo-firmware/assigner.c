@@ -2,6 +2,7 @@
 #include "assigner.h"
 #include "clock.h"
 #include "display.h" //added just so display can be used for troubleshooting
+#include "arp.h"
 
 static struct midi_note note_pool[8] = //create a pool to store and order incoming MIDI notes. Eventualyl want this to be initialized to NOTE_POOL_SIZE definition in assigner.h
 {
@@ -15,13 +16,33 @@ static struct midi_note note_pool[8] = //create a pool to store and order incomi
 	{EMPTY,	0}									
 };
 
+uint8_t gate_buffer = 0;	
 
 static uint8_t current_note = 0; //this acts as a buffer for the current note to maintain pitch during release stage of envelopes
 
-
-uint8_t get_current_note() { //this is a kludge. Either make current_note global or force inline this function? Ask Omar. BUT, this could be where interpolation is calculated!
+uint8_t get_indexed_note(uint8_t index) {
 	
-	return current_note;
+	return note_pool[index].note;
+	
+	
+	
+}
+uint8_t get_current_note() { //Force inline this function? Ask Omar. BUT, this could be where interpolation is calculated!
+	
+	uint8_t note = 0;
+	if (arp.clock_source == OFF) {
+		
+		note = current_note;
+
+		
+	} else {
+		
+		//do something here to determine what arp note should be
+		note = arp.current_note; //yeah, like this!
+		
+		
+	}
+	return note;
 	
 }
 
