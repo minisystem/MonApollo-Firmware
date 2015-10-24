@@ -630,7 +630,7 @@ void tune(void) {
 			tune_8ths(VCO1);
 			tune_8ths(VCO2);
 			tune_filter();
-			//save_tuning_tables();
+			save_tuning_tables();
 			_delay_ms(200);	//give some time for release to decay to avoid pops
 			
 			//need to restore Timer1 settings. This currently happens after the function is called, but should really be included here

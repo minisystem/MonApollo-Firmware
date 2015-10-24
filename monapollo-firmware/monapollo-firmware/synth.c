@@ -528,6 +528,7 @@ void update_arp_range(void) {
 	
 	arp.range = arp_range;
 	
+	update_arp_sequence(); //update sequence with new settings
 	
 	switch (arp_range) { //this just updates LEDs. no struct to handle arp range yet
 		
@@ -608,6 +609,8 @@ void update_arp_mode(void) {
 					
 		
 	}
+	
+	update_arp_sequence(); //update arp sequence with new mode
 	
 
 

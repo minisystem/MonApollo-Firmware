@@ -74,6 +74,10 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 			//could implement this with timers. MIDI Implant is 0.5 ms. Could maybe use Timer1 here to generate 0.3-0.5 ms gate retrigger
 			
 			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
+		} else {
+			
+			update_arp_sequence();
+			
 		}		
 	}
 	//PORTB &= ~(1<< LFO_RESET);
@@ -238,7 +242,8 @@ int main(void)
 	setup_system_clock();
 	//update_clock_speed(244);
 	system_clock.divider = 24;
-	
+	arp.step_position = 0; //initialize step position
+
 	
 	
 
