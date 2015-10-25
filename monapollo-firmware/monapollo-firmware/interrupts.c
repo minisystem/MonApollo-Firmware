@@ -60,10 +60,10 @@ ISR (TIMER1_COMPA_vect) { //output compare match for master clock
 		if (arp.clock_source == INTERNAL_CLOCK) {
 			
 			//step arp note here based on range and note sequence from assigner	
-			step_arp_note(); //will need to force inline this function. It will need to be used elsewhere for arp MIDI sync.
+			//step_arp_note(); //will need to force inline this function. It will need to be used elsewhere for arp MIDI sync.
 			
 			if (gate_buffer) { //arp
-				
+				step_arp_note(); 
 				PORTF |= (1<<GATE);
 				
 			} else {

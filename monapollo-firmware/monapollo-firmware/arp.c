@@ -10,9 +10,14 @@ struct arp arp;
 
 void update_arp_sequence(void) {
 	
-	//arp.step_number = gate_buffer + arp.range * gate_buffer; //gate buffer is the number of currently held notes
-	//uint8_t temp_range = 1;
+	if (gate_buffer == 0) {
+		
+		arp.current_note = arp.sequence[arp.step_position].note; //temp note to store for release phase
+		return;
+	}
+
 	arp.step_number = gate_buffer*(arp.range + 1);
+	
 	
 	
 	//set arp sequence
