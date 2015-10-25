@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "arp.h"
 #include "assigner.h"
+//#include "display.h"
 
 struct arp arp;
 
@@ -19,10 +20,8 @@ void update_arp_sequence(void) {
 	
 	
 	for (int range = 0; range <= arp.range; range++) {
-		
-		
-		
-		for (int i = 0; i <= gate_buffer; i++) {
+			
+		for (int i = 0; i < gate_buffer; i++) { // NOTE < rather than <= - <= was causing extra iteration that was over incrementing step!!!!!
 			
 			uint8_t root_note = get_indexed_note(gate_buffer - i - 1); //need to get notes in reverse order out of note pool
 			//uint8_t root_note = get_indexed_note(i);
@@ -58,6 +57,8 @@ void update_arp_sequence(void) {
 			
 			
 		}
+		
+		//value_to_display = step;
 		
 	}
 	
