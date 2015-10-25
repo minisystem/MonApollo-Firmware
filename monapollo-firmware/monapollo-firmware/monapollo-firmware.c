@@ -94,6 +94,7 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 		
 		update_arp_sequence();
 		
+		
 	}
 }
 

@@ -91,7 +91,9 @@ void update_control_voltages(void) { //keep everything updated in the current or
 	if (note < 8) note = 8; //init_cv gives VCO range from MIDI note 8 to MIDI note 127+. If you don't set notes <8 to 8 then you get array out of bounds problems. Should find a better way to handle this.
 	//value_to_display = current_patch.number + 100*(arp.sequence[arp.step_position].note); //100*note;
 	//value_to_display = arp.sequence[arp.step_position].note;
-	value_to_display = arp.step_position;
+	uint8_t arp_note = arp.sequence[arp.step_position].note;
+	if (arp_note == EMPTY) arp_note = 0;
+	value_to_display = arp_note + 100*arp.step_position;
 		
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	
