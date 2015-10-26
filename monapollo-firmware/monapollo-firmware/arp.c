@@ -36,7 +36,7 @@ void update_arp_sequence(void) {
 			switch(arp.mode) {
 				
 				case UP:
-				
+				case UP_DOWN:
 					arp.sequence[step++].note = root_note + (range*12); //will need to handle max note out of range here
 				
 					break;
@@ -49,15 +49,6 @@ void update_arp_sequence(void) {
 					
 				
 					break;	
-					
-				case UP_DOWN: //maybe handle this in step_arp_note()
-				
-					arp.sequence[step++].note = root_note + (range*12);
-					//arp.sequence[step].note = root_note + (range*12); //this fills the first half
-					////second half needs to be filled in reverse order
-					//arp.sequence[arp.step_number - step].note = arp.sequence[step].note;
-				
-					break;
 					
 					
 				case RANDOM:
@@ -87,22 +78,23 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 	switch (arp.mode) {
 		
 		case UP_DOWN:
-		
+			
 			if (arp.direction == UP) {
+				arp.step_position++;	
 				
-				if (++arp.step_position >= arp.step_number) {
-				
-				arp.step_position = arp.step_number - 1;
-				arp.direction = DOWN;
+				if (arp.step_position >= arp.step_number) {
+					arp.step_position = arp.step_number == 1 ? 0 : arp.step_number - 2; //Omar handles edge case here
+					arp.direction = DOWN;
 				}				
 				
 			} else {
-				
-				if (--arp.step_position <= 0) {
+				if (arp.step_position <= 0) {
 					
-					arp.step_position = 0;
+					arp.step_position = arp.step_number == 1 ? 0 : 1; //Omar handles edge case here
 					arp.direction = UP;
 					
+				} else {
+					arp.step_position--;
 				}
 				
 				
