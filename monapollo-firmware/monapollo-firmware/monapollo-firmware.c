@@ -87,15 +87,18 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 	
 	remove_note(note);
 	gate_buffer--;
-	if (arp.clock_source == OFF) {	//if arp is off handle gate
+	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
+	if (arp.clock_source != OFF) {	//if arp on, update arp sequence
 		//gate_buffer--;
-		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
-	} else {
-		
+		if (gate_buffer == 0) arp.current_note = arp.previous_note;
 		update_arp_sequence();
+	} //else {
+		
+		//update_arp_sequence();
 		
 		
-	}
+		
+	//}
 }
 
 void real_time_event(MidiDevice * device, uint8_t real_time_byte) {

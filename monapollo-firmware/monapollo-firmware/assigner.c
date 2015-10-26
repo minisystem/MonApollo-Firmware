@@ -39,7 +39,7 @@ uint8_t get_current_note() { //Force inline this function? Ask Omar. BUT, this c
 		
 		//do something here to determine what arp note should be
 		note = arp.current_note; //yeah, like this!
-		
+		//if (gate_buffer) note = arp.current_note;
 		
 	}
 	return note;

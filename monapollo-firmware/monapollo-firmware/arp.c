@@ -10,15 +10,17 @@ struct arp arp;
 
 void update_arp_sequence(void) {
 	
-	if (gate_buffer == 0) {
-		
-		arp.current_note = arp.sequence[arp.step_position].note; //temp note to store for release phase
-		return;
-	}
+	//if (gate_buffer == 0) {
+		//
+		//arp.current_note = arp.sequence[arp.last_step].note; //temp note to store for release phase
+		//arp.step_position = 0; //reset step position
+		////return;
+	//}
 
 	arp.step_number = gate_buffer*(arp.range + 1);
 	
 	
+	//if ((arp.mode == UP_DOWN) && (arp.range > 0)) arp.step_number = arp.step_number << 1;//twice as many steps
 	
 	//set arp sequence
 	uint8_t step = 0;
@@ -40,31 +42,35 @@ void update_arp_sequence(void) {
 					break;
 					
 				case DOWN:
-				
-					arp.sequence[step++].note = root_note - (range*12); //will need to handle min note out of range here
+					
+					//int temp_note = int (root_note - (range*12));
+					//if (temp_note < 8)  temp_note = root_note; //handle min note out of range here
+					arp.sequence[step++].note = root_note - (range*12);
+					
 				
 					break;	
 					
-				case UP_DOWN:
+				case UP_DOWN: //maybe handle this in step_arp_note()
 				
-					//not sure what to do here. How does UP/DOWN work. Are there twice as many steps?
+				
+					//arp.sequence[step].note = root_note + (range*12); //this fills the first half
+					////second half needs to be filled in reverse order
+					//arp.sequence[arp.step_number - step].note = arp.sequence[step].note;
 				
 					break;
 					
 					
 				case RANDOM:
 				
-					//what is random? note sequence or octave?
+					//what is random? note sequence or octave? It's both
 				
 					break;		
 				
 			}
 			
-			
 		}
-		
 		//value_to_display = step;
-		
+
 	}
 	
 
@@ -73,12 +79,13 @@ void update_arp_sequence(void) {
 	
 }
 
-void step_arp_note(void) { //updates arp note according to range, mode and keys held
-	
-	
-	if (++arp.step_position >= arp.step_number) arp.step_position  = 0; //reset step position when at end of sequence 
+void step_arp_note(void) { //updates arp note according to step position in sequence
 	
 	arp.current_note = arp.sequence[arp.step_position].note;
+	arp.previous_note = arp.current_note;
+	if (++arp.step_position >= arp.step_number) arp.step_position  = 0; //reset step position when at end of sequence 
+	
+	//arp.current_note = arp.sequence[arp.step_position].note;
 	
 
 }

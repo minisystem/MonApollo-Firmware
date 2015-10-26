@@ -8,7 +8,6 @@ enum arp_mode {
 	UP,
 	DOWN,
 	UP_DOWN,
-	DOWN_UP,
 	RANDOM
 	
 	};
@@ -27,6 +26,7 @@ struct arp {
 	uint8_t step_number; //number of steps in arp sequence = range * number of notes held
 	uint8_t step_position; //position through range
 	
+	uint8_t previous_note; //previous note - needed for last note played	
 	uint8_t current_note; //current note in arp sequence
 	
 	enum clock_source clock_source;
