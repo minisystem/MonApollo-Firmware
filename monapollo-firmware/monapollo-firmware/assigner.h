@@ -6,6 +6,8 @@
 #define EMPTY 255 //flag for empty note
 #define NOTE_POOL_SIZE 7 //not used yet
 
+#define MIN_NOTE	8 //minimum MIDI note
+
 struct midi_note {
 	
 	uint8_t note;

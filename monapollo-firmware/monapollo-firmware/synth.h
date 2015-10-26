@@ -3,6 +3,7 @@
 
 #define NUM_PATCHES 36 //max number of patches
 
+
 void update_patch(void);
 void update_octave_range(void);
 uint8_t transpose_note(uint8_t note, uint8_t vco);

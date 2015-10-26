@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "arp.h"
 #include "assigner.h"
+
 //#include "display.h"
 
 struct arp arp;
@@ -37,25 +38,24 @@ void update_arp_sequence(void) {
 				
 				case UP:
 				case UP_DOWN:
+				case RANDOM:
 					arp.sequence[step++].note = root_note + (range*12); //will need to handle max note out of range here
 				
 					break;
 					
 				case DOWN:
 					
-					//int temp_note = int (root_note - (range*12));
-					//if (temp_note < 8)  temp_note = root_note; //handle min note out of range here
+					 //handle min note out of range here
+					while (((int)root_note - (range*12)) < MIN_NOTE) { //tested
+						
+						root_note += 12;
+						
+					}
 					arp.sequence[step++].note = root_note - (range*12);
 					
 				
 					break;	
-					
-					
-				case RANDOM:
-				
-					//what is random? note sequence or octave? It's both
-				
-					break;		
+						
 				
 			}
 			
@@ -99,25 +99,12 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 				
 				
 			}
-			//if (next_position >= arp.step_number) {
-				//
-				//step_change = -1;
-				//arp.step_position += step_change;
-				//
-			//} else if (next_position < 0) {
-				//
-				//step_change = 1;
-				//arp.step_position += step_change;
-				//
-			//} else {
-				//
-				//arp.step_position += step_change;
-				//
-			//}
 			
 			break;
 			
 		case RANDOM:
+		
+			arp.step_position = random() % arp.step_number;
 		
 			break;
 			
