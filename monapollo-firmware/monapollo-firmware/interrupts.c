@@ -66,11 +66,11 @@ ISR (TIMER1_COMPA_vect) { //output compare match for master clock
 				step_arp_note(); //will need to force inline this function. It will need to be used elsewhere for arp MIDI sync.
 				PORTF |= (1<<GATE);
 				
-			} else {
+			} //else {
 			
 				//arp.step_position = 0; //no notes being played, reset arp step position
 				
-			}								
+			//}								
 				
 			//if (gate_buffer != 0) PORTF |= (1<<GATE); //if arp is running and there are notes to be played, turn gate ON
 		}			

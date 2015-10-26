@@ -52,7 +52,7 @@ void update_arp_sequence(void) {
 					
 				case UP_DOWN: //maybe handle this in step_arp_note()
 				
-				
+					arp.sequence[step++].note = root_note + (range*12);
 					//arp.sequence[step].note = root_note + (range*12); //this fills the first half
 					////second half needs to be filled in reverse order
 					//arp.sequence[arp.step_number - step].note = arp.sequence[step].note;
@@ -83,7 +83,60 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 	
 	arp.current_note = arp.sequence[arp.step_position].note;
 	arp.previous_note = arp.current_note;
-	if (++arp.step_position >= arp.step_number) arp.step_position  = 0; //reset step position when at end of sequence 
+	
+	switch (arp.mode) {
+		
+		case UP_DOWN:
+		
+			if (arp.direction == UP) {
+				
+				if (++arp.step_position >= arp.step_number) {
+				
+				arp.step_position = arp.step_number - 1;
+				arp.direction = DOWN;
+				}				
+				
+			} else {
+				
+				if (--arp.step_position <= 0) {
+					
+					arp.step_position = 0;
+					arp.direction = UP;
+					
+				}
+				
+				
+			}
+			//if (next_position >= arp.step_number) {
+				//
+				//step_change = -1;
+				//arp.step_position += step_change;
+				//
+			//} else if (next_position < 0) {
+				//
+				//step_change = 1;
+				//arp.step_position += step_change;
+				//
+			//} else {
+				//
+				//arp.step_position += step_change;
+				//
+			//}
+			
+			break;
+			
+		case RANDOM:
+		
+			break;
+			
+		default:
+		
+			if (++arp.step_position >= arp.step_number) arp.step_position  = 0;//reset step position when at end of sequence 
+			break;			
+		
+		
+	}
+	 
 	
 	//arp.current_note = arp.sequence[arp.step_position].note;
 	

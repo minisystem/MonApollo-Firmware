@@ -90,7 +90,11 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 	if (arp.clock_source != OFF) {	//if arp on, update arp sequence
 		//gate_buffer--;
-		if (gate_buffer == 0) arp.current_note = arp.previous_note;
+		if (gate_buffer == 0) {
+			arp.current_note = arp.previous_note; //handle last note prevservation for release phase
+			arp.step_position = 0;
+			arp.direction = UP;
+		}			
 		update_arp_sequence();
 	} //else {
 		
