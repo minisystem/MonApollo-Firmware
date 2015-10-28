@@ -474,7 +474,9 @@ void update_arp_sync(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
 		if (++arp_sync_mode == 5) arp_sync_mode = 0;
-		system_clock.ppqn_counter = 0; //reset counter
+		if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 0; //this will need to be handled elsewhere to take into account current ppqn count and and new divider value 
+		system_clock.ppqn_counter = 0;	//same applies to system clock ppqn counter
+		
 	}
 	
 	current_patch.byte_3 &= 0b11000011; //clear middle 4 bits
@@ -483,23 +485,23 @@ void update_arp_sync(void) {
 	switch (current_patch.byte_3 & 0b00111100) {
 			
 		case 0b00000100:
-			system_clock.divider = 48; //1:2
+			system_clock.divider = arp.divider = 48; //1:2
 			break;
 			
 		case 0b00001000:
-			system_clock.divider = 24; //1:4
+			system_clock.divider = arp.divider = 24; //1:4
 			break;
 			
 		case 0b00010000:		
-			system_clock.divider = 12; //1:8
+			system_clock.divider = arp.divider = 12; //1:8
 			break;
 			
 		case 0b00100000:
-			system_clock.divider = 6; //1:16	
+			system_clock.divider = arp.divider = 6; //1:16	
 			break;
 			
 		default:
-			system_clock.divider = 2; //should be 1 but this never turns arp_sync_led off - need to fix this	
+			system_clock.divider = arp.divider = 4; //should be 1 but this never turns arp_sync_led off - need to fix this	
 				
 		}
 	
@@ -534,7 +536,7 @@ void update_arp_range(void) {
 		
 		case 0:
 			
-			//set arp range to 0. Haven't designed arp struct to handle this yet
+			//range is 0 - no LEDs lit
 			
 			break;
 			
@@ -572,7 +574,7 @@ void update_arp_mode(void) {
 		
 	}
 
-	arp.clock_source = INTERNAL_CLOCK;	
+	//if (arp.clock_source != MIDI_CLOCK) arp.clock_source = INTERNAL_CLOCK;	
 
 	current_patch.byte_1 &= 0b11000011; //clear middle 4 bits UP, DOWN, RANDOM, MODE correspond to bits 6>>2
 	
@@ -581,7 +583,7 @@ void update_arp_mode(void) {
 		case 0:
 		
 			//turn arp off
-			arp.clock_source = OFF;
+			arp.mode = OFF;
 			if (gate_buffer == 0) PORTF &= ~(1<<GATE); //turn gate off.
 			break;
 			

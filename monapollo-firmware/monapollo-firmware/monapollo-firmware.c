@@ -65,18 +65,19 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		new_note(note, velocity);
 		
 		gate_buffer++;
-		if (arp.clock_source == OFF) { //if arp is off, handle gate
+		if (arp.mode) { //if arp is off, handle gate
 			//new_note(note, velocity);
 			//gate_buffer++; //increment gate_buffer
+			
+			update_arp_sequence();
+			arp.step_position = 0; //reset step position when new note arrives?
+			
+		} else {
+			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
 			//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
 			//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
 			//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
 			//could implement this with timers. MIDI Implant is 0.5 ms. Could maybe use Timer1 here to generate 0.3-0.5 ms gate retrigger
-			
-			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
-		} else {
-			
-			update_arp_sequence();
 			
 		}		
 	}
@@ -87,22 +88,23 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 	
 	remove_note(note);
 	gate_buffer--;
-	if (gate_buffer == 0) PORTF &= ~(1<<GATE);
-	if (arp.clock_source != OFF) {	//if arp on, update arp sequence
+	//
+	if (arp.mode) {	//if arp on, update arp sequence
 		//gate_buffer--;
 		if (gate_buffer == 0) {
 			arp.current_note = arp.previous_note; //handle last note prevservation for release phase
-			arp.step_position = 0;
-			arp.direction = UP;
+			if (arp.clock_source == INTERNAL_CLOCK) arp.step_position = 0; //if arp is synced to MIDI clock, then step position is reset when MIDI START message received
+			//arp.step_position = 0;
+			arp.direction = UP; //this is to initialize UP/DOWN mode
 		}			
 		update_arp_sequence();
-	} //else {
+	} else {
 		
 		//update_arp_sequence();
+		if (gate_buffer == 0) PORTF &= ~(1<<GATE);
 		
 		
-		
-	//}
+	}
 }
 
 void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
@@ -116,21 +118,49 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 				PORTB |= (1<< LFO_RESET);
 				_delay_us(1); //what is minimum pulse width required for LFO reset?
 				
-				PORTB ^= (1<<ARP_SYNC_LED);
+				//PORTB ^= (1<<ARP_SYNC_LED);
 				//register clock event - this will do something  - reset LFO or initiate LFO
 				midi_clock.ppqn_counter = 0; //reset MIDI ppqn clock	
 				PORTB &= ~(1<< LFO_RESET); //turn off LFO reset pin
 			}
+			
+			if (arp.mode) { 
+				if (arp.ppqn_counter == arp.divider - (arp.divider >> 1)) {
+				
+					PORTF &= ~(1<<GATE); //if arp is running, turn gate off
+					PORTB &= ~ (1<<ARP_SYNC_LED); //turn off arp sync LED			
+				
+				}
+			
+				if (arp.ppqn_counter == arp.divider) {
+				
+				
+					arp.ppqn_counter = 0;
+					if (gate_buffer) { //if there are still notes in gate buffer
+						step_arp_note(); //should force inline this function.
+						PORTF |= (1<<GATE);
+						PORTB |= (1<<ARP_SYNC_LED);
+					}	
+				
+				}
+				arp.ppqn_counter++;
+			}				
+			//arp.clock_source = MIDI_CLOCK;
+			
 			
 			break;
 			
 		case MIDI_START:
 			
 			midi_clock.ppqn_counter = 0;
+			arp.ppqn_counter = arp.divider;// -1;
+			arp.clock_source = MIDI_CLOCK;
+			arp.step_position = 0;
 			break;
 			
 		case MIDI_STOP:
 		
+			arp.clock_source = INTERNAL_CLOCK;
 			break;		
 		
 	}
@@ -251,7 +281,8 @@ int main(void)
 	//update_clock_speed(244);
 	system_clock.divider = 24;
 	arp.step_position = 0; //initialize step position
-
+	arp.clock_source = INTERNAL_CLOCK;
+	arp.mode = OFF;
 	
 	
 

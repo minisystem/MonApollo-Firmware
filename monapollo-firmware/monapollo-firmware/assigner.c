@@ -30,17 +30,18 @@ uint8_t get_indexed_note(uint8_t index) {
 uint8_t get_current_note() { //Force inline this function? Ask Omar. BUT, this could be where interpolation is calculated!
 	
 	uint8_t note = 0;
-	if (arp.clock_source == OFF) {
+	if (arp.mode) {
 		
-		note = current_note;
+		
+		//do something here to determine what arp note should be
+		note = arp.current_note; //yeah, like this!
+		
 
 		
 	} else {
 		
-		//do something here to determine what arp note should be
-		note = arp.current_note; //yeah, like this!
-		//if (gate_buffer) note = arp.current_note;
-		
+		note = current_note;
+				
 	}
 	return note;
 	

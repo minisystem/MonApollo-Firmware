@@ -49,30 +49,28 @@ ISR (TIMER1_COMPA_vect) { //output compare match for master clock
 	
 	if (system_clock.ppqn_counter == system_clock.divider >> 1) { //50% gate width
 				
-		PORTB &= ~ (1<<ARP_SYNC_LED);
-		if (arp.clock_source == INTERNAL_CLOCK) PORTF &= ~(1<<GATE); //if arp is running, turn gate off
-	}	
+		
+		if ((arp.clock_source == INTERNAL_CLOCK) && (arp.mode)) {
+			
+			PORTF &= ~(1<<GATE); //if arp is running, turn gate off
+			PORTB &= ~ (1<<ARP_SYNC_LED); //turn off arp sync LED
+			
+		}
+	}			
 		
 	if (++system_clock.ppqn_counter == system_clock.divider) {
 		
 		system_clock.ppqn_counter = 0;
-		PORTB |= (1<<ARP_SYNC_LED);
-		if (arp.clock_source == INTERNAL_CLOCK) {
+		
+		if ((arp.clock_source == INTERNAL_CLOCK) && (arp.mode)) {
 			
 			//step arp note here based on range and note sequence from assigner	
-
 			
 			if (gate_buffer) { //if there are still notes in gate buffer
 				step_arp_note(); //will need to force inline this function. It will need to be used elsewhere for arp MIDI sync.
 				PORTF |= (1<<GATE);
-				
-			} //else {
-			
-				//arp.step_position = 0; //no notes being played, reset arp step position
-				
-			//}								
-				
-			//if (gate_buffer != 0) PORTF |= (1<<GATE); //if arp is running and there are notes to be played, turn gate ON
+				PORTB |= (1<<ARP_SYNC_LED);
+			} 
 		}			
 	}
 	

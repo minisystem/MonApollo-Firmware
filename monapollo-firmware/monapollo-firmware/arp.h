@@ -5,6 +5,7 @@
 
 enum arp_mode {
 	
+	OFF,
 	UP,
 	DOWN,
 	UP_DOWN,
@@ -15,8 +16,7 @@ enum arp_mode {
 enum clock_source {
 
 	MIDI_CLOCK,
-	INTERNAL_CLOCK,
-	OFF	
+	INTERNAL_CLOCK	
 	
 };		
 	
@@ -30,6 +30,9 @@ struct arp {
 	
 	uint8_t previous_note; //previous note - needed for last note played	
 	uint8_t current_note; //current note in arp sequence
+	
+	uint8_t ppqn_counter; 
+	uint8_t divider;
 	
 	enum clock_source clock_source;
 	enum arp_mode mode;

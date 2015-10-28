@@ -100,7 +100,7 @@ struct eeprom_patch { //same as patch but using bit fields to compact memory for
 	uint16_t pwm_eg2:10;
 	uint16_t vco1_pw:10;
 	uint16_t fine:10;
-	uint16_t tune:10;
+	uint16_t tune:10; //is this a problem?
 	uint16_t lfo_rate:10;
 	uint16_t arp_rate:10;
 	uint16_t glide:10;

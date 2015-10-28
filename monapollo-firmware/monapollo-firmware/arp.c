@@ -7,26 +7,16 @@
 struct arp arp;
 
 
-//static struct midi_note arp_sequence[24] = {0,0};
-
 void update_arp_sequence(void) {
 	
-	//if (gate_buffer == 0) {
-		//
-		//arp.current_note = arp.sequence[arp.last_step].note; //temp note to store for release phase
-		//arp.step_position = 0; //reset step position
-		////return;
-	//}
+
 
 	arp.step_number = gate_buffer*(arp.range + 1);
+	//arp.step_position = 0;
 	
-	
-	//if ((arp.mode == UP_DOWN) && (arp.range > 0)) arp.step_number = arp.step_number << 1;//twice as many steps
-	
-	//set arp sequence
 	uint8_t step = 0;
 	
-	
+	//set arp sequence
 	for (int range = 0; range <= arp.range; range++) {
 			
 		for (int i = 0; i < gate_buffer; i++) { // NOTE < rather than <= - <= was causing extra iteration that was over incrementing step!!!!!
@@ -64,9 +54,6 @@ void update_arp_sequence(void) {
 
 	}
 	
-
-		
-	
 	
 }
 
@@ -95,8 +82,7 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 					
 				} else {
 					arp.step_position--;
-				}
-				
+				}			
 				
 			}
 			
@@ -116,8 +102,6 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 		
 	}
 	 
-	
 	//arp.current_note = arp.sequence[arp.step_position].note;
-	
 
 }
