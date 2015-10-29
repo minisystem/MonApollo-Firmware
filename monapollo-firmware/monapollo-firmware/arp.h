@@ -34,6 +34,8 @@ struct arp {
 	uint8_t ppqn_counter; 
 	uint8_t divider;
 	
+	uint8_t display; //temporary holder to put a value in to display for testing
+	
 	enum clock_source clock_source;
 	enum arp_mode mode;
 	

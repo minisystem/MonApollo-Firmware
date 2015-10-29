@@ -40,7 +40,11 @@ MidiDevice midi_device;
 uint8_t switch_timer = 0;
 
 
-
+void song_position_event(MidiDevice * device, uint8_t byte0, uint8_t byte1, uint8_t byte2) {
+	
+	arp.display = 42;
+	
+}
 
 
 
@@ -68,10 +72,13 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		if (arp.mode) { //if arp is off, handle gate
 			//new_note(note, velocity);
 			//gate_buffer++; //increment gate_buffer
-			
+			arp.display = arp.ppqn_counter;
 			update_arp_sequence();
-			arp.step_position = 0; //reset step position when new note arrives?
-			
+			if (gate_buffer < 2) {
+				//arp.ppqn_counter = arp.divider; //reset ppqn counter to trigger arp step. This should implement KEY SYNC
+				//ok, if note on comes on an arp divider beat, then it needs to be triggered, but if it isn't on a divider beat, then it shouldn't be triggered, right?	
+				//arp.step_position = 0; //reset step position when new note arrives? Have a look here to get into nitty gritty details of arp sync behaviour: http://lauterzeit.com/arp_lfo_seq_sync/
+			}			
 		} else {
 			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
 			//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
@@ -93,8 +100,8 @@ void note_off_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t v
 		//gate_buffer--;
 		if (gate_buffer == 0) {
 			arp.current_note = arp.previous_note; //handle last note prevservation for release phase
-			if (arp.clock_source == INTERNAL_CLOCK) arp.step_position = 0; //if arp is synced to MIDI clock, then step position is reset when MIDI START message received
-			//arp.step_position = 0;
+			//if (arp.clock_source == INTERNAL_CLOCK) arp.step_position = 0; //if arp is synced to MIDI clock, then step position is reset when MIDI START message received
+			arp.step_position = 0;
 			arp.direction = UP; //this is to initialize UP/DOWN mode
 		}			
 		update_arp_sequence();
@@ -123,27 +130,31 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 				midi_clock.ppqn_counter = 0; //reset MIDI ppqn clock	
 				PORTB &= ~(1<< LFO_RESET); //turn off LFO reset pin
 			}
-			
-			if (arp.mode) { 
-				if (arp.ppqn_counter == arp.divider - (arp.divider >> 1)) {
+			//
+			if (arp.mode) { //if arp is running
 				
-					PORTF &= ~(1<<GATE); //if arp is running, turn gate off
-					PORTB &= ~ (1<<ARP_SYNC_LED); //turn off arp sync LED			
-				
-				}
+				//arp.ppqn_counter++;
 			
 				if (arp.ppqn_counter == arp.divider) {
 				
 				
 					arp.ppqn_counter = 0;
 					if (gate_buffer) { //if there are still notes in gate buffer
+						
 						step_arp_note(); //should force inline this function.
 						PORTF |= (1<<GATE);
 						PORTB |= (1<<ARP_SYNC_LED);
 					}	
 				
 				}
-				arp.ppqn_counter++;
+				
+				if (arp.ppqn_counter == arp.divider - (arp.divider >> 1)) { //50% gate width
+								
+					PORTF &= ~(1<<GATE);
+					PORTB &= ~ (1<<ARP_SYNC_LED); //turn off arp sync LED
+								
+				}
+				arp.ppqn_counter++; //post increment means ppqn_counter is never 0, lowest is 1. Does this make sense for counting from 1 to arp.divide?
 			}				
 			//arp.clock_source = MIDI_CLOCK;
 			
@@ -153,14 +164,14 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		case MIDI_START:
 			
 			midi_clock.ppqn_counter = 0;
-			arp.ppqn_counter = arp.divider;// -1;
+			arp.ppqn_counter = arp.divider-1; //trigger arp step on next MIDI clock tick
 			arp.clock_source = MIDI_CLOCK;
-			arp.step_position = 0;
+			arp.step_position = 0; 
 			break;
 			
 		case MIDI_STOP:
 		
-			arp.clock_source = INTERNAL_CLOCK;
+			arp.clock_source = INTERNAL_CLOCK; //revert to internal clock when MIDI STOP message received
 			break;		
 		
 	}
@@ -249,6 +260,7 @@ int main(void)
 	midi_register_noteon_callback(&midi_device, note_on_event);
 	midi_register_noteoff_callback(&midi_device, note_off_event);
 	midi_register_realtime_callback(&midi_device, real_time_event);
+	midi_register_songposition_callback(&midi_device, song_position_event);
 	//setup MIDI USART
 	setup_midi_usart();
 	
@@ -283,6 +295,7 @@ int main(void)
 	arp.step_position = 0; //initialize step position
 	arp.clock_source = INTERNAL_CLOCK;
 	arp.mode = OFF;
+	arp.ppqn_counter = 1;
 	
 	
 

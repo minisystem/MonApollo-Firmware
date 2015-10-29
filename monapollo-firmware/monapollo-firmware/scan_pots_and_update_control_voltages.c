@@ -93,7 +93,7 @@ void update_control_voltages(void) { //keep everything updated in the current or
 	//value_to_display = arp.sequence[arp.step_position].note;
 	//uint8_t arp_note = arp.sequence[arp.step_position].note;
 	//if (arp_note == EMPTY) arp_note = 0;
-	value_to_display = current_patch.number + 100*arp.step_position;
+	value_to_display = current_patch.number + 100*arp.display;
 		
 	uint16_t interpolated_pitch_cv = 0; //holder for interpolated pitch values
 	

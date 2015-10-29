@@ -474,7 +474,7 @@ void update_arp_sync(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
 		if (++arp_sync_mode == 5) arp_sync_mode = 0;
-		if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 0; //this will need to be handled elsewhere to take into account current ppqn count and and new divider value 
+		if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 1; //this will need to be handled elsewhere to take into account current ppqn count and and new divider value 
 		system_clock.ppqn_counter = 0;	//same applies to system clock ppqn counter
 		
 	}

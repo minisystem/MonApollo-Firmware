@@ -12,7 +12,7 @@ void update_arp_sequence(void) {
 
 
 	arp.step_number = gate_buffer*(arp.range + 1);
-	//arp.step_position = 0;
+	//arp.step_position = 0; //would use this if note retrigger feature was added
 	
 	uint8_t step = 0;
 	
