@@ -79,6 +79,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) {
 	initialize_voice_for_tuning();
 	
 	//these variables hold VCO specific parameters
+	uint8_t vco_display_num = 0;
 	uint8_t switch_byte = 0;
 	uint16_t reference_count = 0;
 	uint16_t *eeprom_addr = 0;
@@ -97,6 +98,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) {
 		vco_pw_cv = &vco1_pw_cv;
 		vco_pitch_cv = &vco1_pitch_cv; //need to keep this 0V during initial pitch setting
 		reference_count = base_reference;//38222; //make this an argument passed to function
+		vco_display_num = 1;
 		eeprom_addr = &vco1_init_cv_eeprom;
 		
 	} else { //turn on VCO2 pulse	
@@ -107,6 +109,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) {
 		vco_pw_cv = &vco2_pw_cv;
 		vco_pitch_cv = &vco2_pitch_cv; //need to keep this 0V during initial pitch setting
 		reference_count = base_reference;
+		vco_display_num = 2;
 		eeprom_addr = &vco2_init_cv_eeprom;
 	}
 	
@@ -142,7 +145,7 @@ uint16_t set_vco_init_cv(uint8_t vco, uint16_t base_reference) {
 		wdt_enable(WDTO_2S);
 		while (count_finished == FALSE) { //need to have a watchdog timer here to escape while loop if it takes too long
 			
-			update_display(vco + 1, DEC);
+			update_display(vco_display_num, DEC);
 		
 			set_control_voltage(vco_init_cv, init_cv);
 			set_control_voltage(vco_pw_cv, MAX);

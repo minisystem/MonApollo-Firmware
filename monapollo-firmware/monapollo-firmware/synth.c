@@ -432,7 +432,7 @@ void update_lfo_sync(void) {
 			
 		switch_states.byte1 ^= (1<<LFO_SYNC_SW); //toggle switch state
 		if (++lfo_sync_mode == 5) lfo_sync_mode = 0;
-		midi_clock.ppqn_counter = 0; //reset counter
+		lfo_clock.ppqn_counter = 0; //reset counter
 	}
 	
 	current_patch.byte_2 &= 0b11110000; //clear bottom 4 bits
@@ -442,24 +442,24 @@ void update_lfo_sync(void) {
 	switch (current_patch.byte_2 & 0b00001111) {
 		
 		case 0b0001:
-			midi_clock.divider = 0; //key sync mode - need to turn midi sync off here. How?
+			lfo_clock.divider = 0; //key sync mode - need to turn midi sync off here. How?
 			
 			break;
 			
 		case 0b0010: //turn these case conditions into constants. #define 0b0010 DIV_24
-			midi_clock.divider = 24; //1:4
+			lfo_clock.divider = 24; //1:4
 			break;
 			
 		case 0b0100:
-			midi_clock.divider = 12; //1:8
+			lfo_clock.divider = 12; //1:8
 			break;
 			
 		case 0b1000:
-			midi_clock.divider = 6; //1:16	 		
+			lfo_clock.divider = 6; //1:16	 		
 			break;
 		
 		default:
-			midi_clock.divider = 0; //need to turn midi sync off here. How?
+			lfo_clock.divider = 0; //need to turn midi sync off here. How?
 	}
 	
 	
@@ -474,7 +474,10 @@ void update_arp_sync(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
 		if (++arp_sync_mode == 5) arp_sync_mode = 0;
-		if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 1; //this will need to be handled elsewhere to take into account current ppqn count and and new divider value 
+		//if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 0;//arp.ppqn_counter >> 1; //need to take into account current ppqn count and and new divider value.
+		arp.ppqn_counter = arp.ppqn_counter >> 1;//0; //try this at least to get rid of weird ppqn counter overflow that occurs when changing sync modes. Maybe above line doesn't execute because arp.clock_source isn't set correctly?
+		//YES. No clock hanging when changing sync modes. But why isn't arp.clock_source == MIDI_CLOCK true????
+		//OK, now need to modify this to maintain phase with beat clock
 		system_clock.ppqn_counter = 0;	//same applies to system clock ppqn counter
 		
 	}
@@ -490,6 +493,7 @@ void update_arp_sync(void) {
 			
 		case 0b00001000:
 			system_clock.divider = arp.divider = 24; //1:4
+			
 			break;
 			
 		case 0b00010000:		
@@ -501,7 +505,7 @@ void update_arp_sync(void) {
 			break;
 			
 		default:
-			system_clock.divider = arp.divider = 4; //should be 1 but this never turns arp_sync_led off - need to fix this	
+			system_clock.divider = arp.divider = 3; //1:32 - this is a hack - no LEDs lighted
 				
 		}
 	
@@ -570,7 +574,7 @@ void update_arp_mode(void) {
 		
 		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle switch state
 		if (++arp_mode == 5) arp_mode = 0;
-		arp.step_position = 0; //reset step position if mode changes
+		//arp.step_position = 0; //reset step position if mode changes
 		
 	}
 

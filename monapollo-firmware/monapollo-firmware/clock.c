@@ -8,6 +8,7 @@
 
 struct clock midi_clock;
 struct clock system_clock;
+struct clock lfo_clock;
 
 void setup_system_clock(void) {
 	

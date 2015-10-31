@@ -72,13 +72,13 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 		if (arp.mode) { //if arp is off, handle gate
 			//new_note(note, velocity);
 			//gate_buffer++; //increment gate_buffer
-			arp.display = arp.ppqn_counter;
+			//arp.display = arp.ppqn_counter;
 			update_arp_sequence();
-			if (gate_buffer < 2) {
-				//arp.ppqn_counter = arp.divider; //reset ppqn counter to trigger arp step. This should implement KEY SYNC
+			//if (gate_buffer < 2) {
+				//arp.ppqn_counter = arp.divider; //reset ppqn counter to trigger arp step. This should implement KEY SYNC but messes up over all beat sync to master
 				//ok, if note on comes on an arp divider beat, then it needs to be triggered, but if it isn't on a divider beat, then it shouldn't be triggered, right?	
 				//arp.step_position = 0; //reset step position when new note arrives? Have a look here to get into nitty gritty details of arp sync behaviour: http://lauterzeit.com/arp_lfo_seq_sync/
-			}			
+			//}			
 		} else {
 			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
 			//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
@@ -122,15 +122,22 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		case MIDI_CLOCK:
 		
 			if (++midi_clock.ppqn_counter == midi_clock.divider) {
+				
+				++arp.song_position;
+				midi_clock.ppqn_counter = 0;
+				arp.display = arp.song_position;
+			}						
+		
+			if (++lfo_clock.ppqn_counter == lfo_clock.divider) {
 				PORTB |= (1<< LFO_RESET);
 				_delay_us(1); //what is minimum pulse width required for LFO reset?
 				
 				//PORTB ^= (1<<ARP_SYNC_LED);
 				//register clock event - this will do something  - reset LFO or initiate LFO
-				midi_clock.ppqn_counter = 0; //reset MIDI ppqn clock	
+				lfo_clock.ppqn_counter = 0; //reset MIDI ppqn clock	
 				PORTB &= ~(1<< LFO_RESET); //turn off LFO reset pin
 			}
-			//
+			
 			if (arp.mode) { //if arp is running
 				
 				//arp.ppqn_counter++;
@@ -163,10 +170,12 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 			
 		case MIDI_START:
 			
+			lfo_clock.ppqn_counter = 0;
 			midi_clock.ppqn_counter = 0;
-			arp.ppqn_counter = arp.divider-1; //trigger arp step on next MIDI clock tick
+			arp.ppqn_counter = arp.divider-1; //trigger arp step on next MIDI clock tick. This -1 here is key to getting proper sync to beat clock behavior
 			arp.clock_source = MIDI_CLOCK;
 			arp.step_position = 0; 
+			arp.song_position = 0; //reset master song position counter
 			break;
 			
 		case MIDI_STOP:
@@ -292,6 +301,7 @@ int main(void)
 	setup_system_clock();
 	//update_clock_speed(244);
 	system_clock.divider = 24;
+	midi_clock.divider = 6;//this is for MIDI beat clock which is /6 MIDI ppqn clock or 16th notes
 	arp.step_position = 0; //initialize step position
 	arp.clock_source = INTERNAL_CLOCK;
 	arp.mode = OFF;

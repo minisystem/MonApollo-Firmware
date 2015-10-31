@@ -12,6 +12,24 @@
 #define DEC 0
 #define HEX 1
 
+enum display_mode {
+	
+	DECIMAL,
+	HEXADECIMAL,
+	DASH,
+	FLASH
+	
+	};
+	
+struct display {
+	
+	uint16_t value;
+	uint8_t digit;
+	enum display_mode mode;
+	
+	
+	};	
+
 extern volatile uint16_t value_to_display;
 
 void display_dec(uint16_t number, uint8_t place);

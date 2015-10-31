@@ -13,6 +13,7 @@ struct clock {
 	
 extern struct clock midi_clock;
 extern struct clock system_clock;
+extern struct clock lfo_clock;
 
 void setup_system_clock(void);	
 void update_clock_rate(uint16_t rate);
