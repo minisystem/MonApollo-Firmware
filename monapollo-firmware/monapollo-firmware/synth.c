@@ -475,8 +475,8 @@ void update_arp_sync(void) {
 		switch_states.byte1 ^= (1<<ARP_SYNC_SW); //toggle switch state
 		if (++arp_sync_mode == 5) arp_sync_mode = 0;
 		//if (arp.clock_source == MIDI_CLOCK) arp.ppqn_counter = 0;//arp.ppqn_counter >> 1; //need to take into account current ppqn count and and new divider value.
-		arp.ppqn_counter = arp.ppqn_counter >> 1;//0; //try this at least to get rid of weird ppqn counter overflow that occurs when changing sync modes. Maybe above line doesn't execute because arp.clock_source isn't set correctly?
-		//YES. No clock hanging when changing sync modes. But why isn't arp.clock_source == MIDI_CLOCK true????
+		arp.ppqn_counter = arp.ppqn_counter >> 1;//0; //try this at least to get rid of weird ppqn counter overflow that occurs when changing sync modes.
+		
 		//OK, now need to modify this to maintain phase with beat clock
 		system_clock.ppqn_counter = 0;	//same applies to system clock ppqn counter
 		
@@ -573,7 +573,16 @@ void update_arp_mode(void) {
 	if ((switch_states.byte1 >> ARP_MODE_SW) & 1) {
 		
 		switch_states.byte1 ^= (1<<ARP_MODE_SW); //toggle switch state
+		if (arp_mode == 0) {
+			
+			update_arp_sequence(); //if arp mode is OFF it's about to be turned on, so update arp_sequence
+			arp.ppqn_counter = ((arp.song_position*6) % arp.divider);// +1; //not sure about the +1 here - may
+			//now need to set arp.ppqn_counter and arp.step_position based on arp.song_position
+			//arp.step_position = //do something to calculate arp step position based on calculated ppqn_counter. Is there enough information to calculate this???
+		
+		}			
 		if (++arp_mode == 5) arp_mode = 0;
+		
 		//arp.step_position = 0; //reset step position if mode changes
 		
 	}

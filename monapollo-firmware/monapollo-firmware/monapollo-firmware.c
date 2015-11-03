@@ -121,7 +121,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		
 		case MIDI_CLOCK:
 		
-			if (++midi_clock.ppqn_counter == midi_clock.divider) {
+			if (++midi_clock.ppqn_counter == midi_clock.divider) { //this divider is used just for generating Song Position Pointer for arpeggiator (and eventually software LFO...)
 				
 				++arp.song_position;
 				midi_clock.ppqn_counter = 0;
@@ -130,7 +130,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		
 			if (++lfo_clock.ppqn_counter == lfo_clock.divider) {
 				PORTB |= (1<< LFO_RESET);
-				_delay_us(1); //what is minimum pulse width required for LFO reset?
+				//_delay_us(1); //what is minimum pulse width required for LFO reset? Will need to implement this with some other kind of delay OR OR OR - maybe a RC network to provide minimum pulse width for LFO reset????
 				
 				//PORTB ^= (1<<ARP_SYNC_LED);
 				//register clock event - this will do something  - reset LFO or initiate LFO

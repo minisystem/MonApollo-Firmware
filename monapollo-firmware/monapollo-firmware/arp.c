@@ -90,7 +90,7 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 			
 		case RANDOM:
 		
-			arp.step_position = random() % arp.step_number;
+			arp.step_position = random() % arp.step_number; //maybe >> random() result to generate 8 bit value before modulo?
 		
 			break;
 			
