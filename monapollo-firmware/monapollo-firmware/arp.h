@@ -33,7 +33,7 @@ struct arp {
 	
 	uint8_t ppqn_counter; 
 	uint8_t divider;
-	uint16_t song_position; //master beat counter
+	uint32_t song_position; //master beat counter
 	
 	uint8_t display; //temporary holder to put a value in to display for testing
 	

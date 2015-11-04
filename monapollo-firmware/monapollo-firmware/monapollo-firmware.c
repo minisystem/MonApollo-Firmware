@@ -66,7 +66,7 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 				
 	} else {
 		
-		new_note(note, velocity);
+		new_note(note, velocity);  
 		
 		gate_buffer++;
 		if (arp.mode) { //if arp is off, handle gate
@@ -121,13 +121,13 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 		
 		case MIDI_CLOCK:
 		
-			if (++midi_clock.ppqn_counter == midi_clock.divider) { //this divider is used just for generating Song Position Pointer for arpeggiator (and eventually software LFO...)
+			if (++midi_clock.ppqn_counter == midi_clock.divider) { //can be used for analog LFO reset and eventually for software LFO
 				
-				++arp.song_position;
+				//++arp.song_position;
 				midi_clock.ppqn_counter = 0;
-				arp.display = arp.song_position;
+				//arp.display = arp.song_position;
 			}						
-		
+			++arp.song_position;
 			if (++lfo_clock.ppqn_counter == lfo_clock.divider) {
 				PORTB |= (1<< LFO_RESET);
 				//_delay_us(1); //what is minimum pulse width required for LFO reset? Will need to implement this with some other kind of delay OR OR OR - maybe a RC network to provide minimum pulse width for LFO reset????
@@ -149,7 +149,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 					if (gate_buffer) { //if there are still notes in gate buffer
 						
 						step_arp_note(); //should force inline this function.
-						PORTF |= (1<<GATE);
+						PORTF |= (1<<GATE);  
 						PORTB |= (1<<ARP_SYNC_LED);
 					}	
 				
@@ -172,7 +172,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 			
 			lfo_clock.ppqn_counter = 0;
 			midi_clock.ppqn_counter = 0;
-			arp.ppqn_counter = arp.divider-1; //trigger arp step on next MIDI clock tick. This -1 here is key to getting proper sync to beat clock behavior
+			arp.ppqn_counter = arp.divider;//-1; //trigger arp step on next MIDI clock tick. This -1 here is key to getting proper sync to beat clock behavior
 			arp.clock_source = MIDI_CLOCK;
 			arp.step_position = 0; 
 			arp.song_position = 0; //reset master song position counter
