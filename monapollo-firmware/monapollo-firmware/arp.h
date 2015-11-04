@@ -33,7 +33,8 @@ struct arp {
 	
 	uint8_t ppqn_counter; 
 	uint8_t divider;
-	uint32_t song_position; //master beat counter
+	uint8_t ppqn_shift; //this is used to make adjustments to the phase of the ppqn_counter with respect to the divider - useful for making incoming notes from sequencer sound on time when set to -1. 
+	uint32_t song_position; //master 24 ppqn beat counter
 	
 	uint8_t display; //temporary holder to put a value in to display for testing
 	

@@ -172,7 +172,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 			
 			lfo_clock.ppqn_counter = 0;
 			midi_clock.ppqn_counter = 0;
-			arp.ppqn_counter = arp.divider;//-1; //trigger arp step on next MIDI clock tick. This -1 here is key to getting proper sync to beat clock behavior
+			arp.ppqn_counter = arp.divider - arp.ppqn_shift; //trigger arp step on next MIDI clock tick. This ppqn_shift of -1 here is key to getting note on events that occur simultaneously with divided clock events
 			arp.clock_source = MIDI_CLOCK;
 			arp.step_position = 0; 
 			arp.song_position = 0; //reset master song position counter
@@ -306,6 +306,7 @@ int main(void)
 	arp.clock_source = INTERNAL_CLOCK;
 	arp.mode = OFF;
 	arp.ppqn_counter = 1;
+	arp.ppqn_shift = 1;
 	
 	
 

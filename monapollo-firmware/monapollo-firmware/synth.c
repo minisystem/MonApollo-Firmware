@@ -93,7 +93,7 @@ void save_patch(uint8_t patch_number) {
 	//because of bit fields in eeprom patch struct, a temporary eeprom patch needs to be filled with current_patch values and then saved to memory.
 	
 	patch_to_save.vco2_pw = current_patch.vco2_pw;
-	patch_to_save.vco1_mix = current_patch.vco1_mix;
+	patch_to_save.vco1_mix = current_patch.vco1_mix; //YOU'RE MISSING VCO2_MIX HERE YOU NITWIT
 	patch_to_save.pitch_eg2 = current_patch.pitch_eg2;
 	patch_to_save.pitch_vco2 = current_patch.pitch_vco2;
 	patch_to_save.pitch_lfo = current_patch.pitch_lfo;
@@ -149,7 +149,7 @@ void load_patch(uint8_t patch_number) {
 	
 	
 	current_patch.vco2_pw = loaded_patch.vco2_pw;
-	current_patch.vco1_mix = loaded_patch.vco1_mix;
+	current_patch.vco1_mix = loaded_patch.vco1_mix; //YOU'RE MISSING VCO2_MIX HERE YOU NITWIT
 	current_patch.pitch_eg2 = loaded_patch.pitch_eg2;
 	current_patch.pitch_vco2 = loaded_patch.pitch_vco2;
 	current_patch.pitch_lfo = loaded_patch.pitch_lfo;
@@ -504,7 +504,7 @@ void update_arp_sync(void) {
 		}
 		
 		//uint32_t total_ppqn = (uint32_t)arp.song_position*6;
-		arp.ppqn_counter = (arp.song_position % arp.divider);// + 1;
+		arp.ppqn_counter = (arp.song_position % arp.divider) - arp.ppqn_shift;// + 1;
 		arp.display = arp.ppqn_counter;
 			
 		//OK, now need to modify this to maintain phase with beat clock
@@ -581,7 +581,7 @@ void update_arp_mode(void) {
 			
 			update_arp_sequence(); //if arp mode is OFF it's about to be turned on, so update arp_sequence
 			//arp.ppqn_counter = ((arp.song_position*6) % arp.divider);// +1; //not sure about the +1 here - may
-			arp.ppqn_counter = (arp.song_position % arp.divider);// + 1;
+			arp.ppqn_counter = (arp.song_position % arp.divider) - arp.ppqn_shift;// + 1;
 			arp.display = arp.ppqn_counter;
 			arp.step_position = 0;
 			//now need to set arp.ppqn_counter and arp.step_position based on arp.song_position
