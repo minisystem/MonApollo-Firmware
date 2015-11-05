@@ -83,6 +83,8 @@ struct patch {
 	uint8_t arp_clock_source; //clock source: MIDI clock or ARP clock. becomes MIDI clock when sync is active
 	uint8_t lfo_clock_source; //
 	
+	uint8_t multi_trigger; //if multi-trigger then use turn gate off and turn back on 300-500 us later - will need to use timer.
+	
 	enum patch_mode mode;
 	
 	};

@@ -75,3 +75,13 @@ ISR (TIMER1_COMPA_vect) { //output compare match for master clock
 	}
 	
 }
+
+
+ISR (TIMER2_COMP_vect) { //multi-trigger timer interrupt
+	
+	PORTF |= (1<<GATE); //turn gate on
+	TCCR2A = 0; //stop timer
+	TIMSK2 = 0; //turn off output compare interrupt
+	
+	
+}

@@ -102,6 +102,7 @@ void step_arp_note(void) { //updates arp note according to step position in sequ
 		
 	}
 	 
+	arp.display = arp.step_position;
 	//arp.current_note = arp.sequence[arp.step_position].note;
 
 }

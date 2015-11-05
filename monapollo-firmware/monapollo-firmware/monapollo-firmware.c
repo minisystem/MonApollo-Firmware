@@ -53,7 +53,7 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 	if ((current_patch.byte_2 >> LFO_KEY_SYNC) & 1) {
 		
 		PORTB |= (1<< LFO_RESET);
-		_delay_us(1); //what is minimum pulse width required for LFO reset?
+		_delay_us(1); //what is minimum pulse width required for LFO  reset?
 		PORTB &= ~(1<< LFO_RESET);
 			
 	}		
@@ -80,7 +80,19 @@ void note_on_event(MidiDevice * device, uint8_t status, uint8_t note, uint8_t ve
 				//arp.step_position = 0; //reset step position when new note arrives? Have a look here to get into nitty gritty details of arp sync behaviour: http://lauterzeit.com/arp_lfo_seq_sync/
 			//}			
 		} else {
-			PORTF |= (1<<GATE); //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
+			
+			if ((current_patch.multi_trigger) && (gate_buffer > 1)) {
+				
+				PORTF &= ~(1<<GATE); //turn gate OFF, turn back on in 0.5 ms
+				TCCR2A |= (1<<CS22) | (1<<CS21) | (1<<CS20) | (1<<WGM21); // /1024 prescaler, clear timer2 on compare match
+				OCR2A = 97; //with /1024 prescaler this should generate an interrupt 0.5 ms from now. Should probably move this to setup
+				TIMSK2 |= (1<<OCIE2A); //enable output compare interrupt
+				
+			} else {
+				
+				PORTF |= (1<<GATE);
+				
+			} //if arp is OFF then turn on gate. Otherwise arpeggiator handles GATE
 			//PORTF &= ~(1<<GATE); //turn gate off to re-trigger envelopes - this isn't nearly long enough
 			//retriggering is a feature offered by Kenton Pro-Solo - maybe want it here, but need to decide how long to turn gate off
 			//looking at gate of Pro-Solo on oscilloscope might give an idea of how long the Pro-Solo gate is released between retriggers  - checked: Pro-Solo gate-retrigger is 0.3ms
@@ -161,7 +173,7 @@ void real_time_event(MidiDevice * device, uint8_t real_time_byte) {
 					PORTB &= ~ (1<<ARP_SYNC_LED); //turn off arp sync LED
 								
 				}
-				arp.ppqn_counter++; //post increment means ppqn_counter is never 0, lowest is 1. Does this make sense for counting from 1 to arp.divide?
+				arp.ppqn_counter++; //post increment means ppqn_counter is never 0, lowest is 1. Does this make sense for counting from 1 to arp.divide? Yes it does.
 			}				
 			//arp.clock_source = MIDI_CLOCK;
 			
@@ -277,6 +289,7 @@ int main(void)
 	
 	
 	current_patch.number = 1;
+	current_patch.multi_trigger = 1; //turn multi-trigger on
 		
 	sei(); //enable global interrupts
 	

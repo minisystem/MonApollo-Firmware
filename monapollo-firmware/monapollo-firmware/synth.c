@@ -505,7 +505,7 @@ void update_arp_sync(void) {
 		
 		//uint32_t total_ppqn = (uint32_t)arp.song_position*6;
 		arp.ppqn_counter = (arp.song_position % arp.divider) - arp.ppqn_shift;// + 1;
-		arp.display = arp.ppqn_counter;
+		//arp.display = arp.ppqn_counter;
 			
 		//OK, now need to modify this to maintain phase with beat clock
 		system_clock.ppqn_counter = 0;	//same applies to system clock ppqn counter
@@ -582,7 +582,7 @@ void update_arp_mode(void) {
 			update_arp_sequence(); //if arp mode is OFF it's about to be turned on, so update arp_sequence
 			//arp.ppqn_counter = ((arp.song_position*6) % arp.divider);// +1; //not sure about the +1 here - may
 			arp.ppqn_counter = (arp.song_position % arp.divider) - arp.ppqn_shift;// + 1;
-			arp.display = arp.ppqn_counter;
+			//arp.display = arp.ppqn_counter;
 			arp.step_position = 0;
 			//now need to set arp.ppqn_counter and arp.step_position based on arp.song_position
 			//arp.step_position = //do something to calculate arp step position based on calculated ppqn_counter. Is there enough information to calculate this???
